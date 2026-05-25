@@ -7,29 +7,32 @@ import {
   LoginOutlined,
 } from '@ant-design/icons'
 import { Button, Form, Input, Divider, Typography } from 'antd'
-import axios from 'axios'
 import ApplicationLogo from '@/components/application-logo'
 
 const { Title, Text } = Typography
+type LoginErrors = Record<string, string[]>
 
 export default function Login() {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-  const [errors, setErrors] = useState<Record<string, unknown>>()
+  const [errors, setErrors] = useState<LoginErrors>({})
 
-  const submit = (values: object) => {
+  const submit = (values: Record<string, string>) => {
     setLoading(true)
     setErrors({})
 
-    axios
-      .post('/login', values)
-      .then(() => {
-        router.visit('/login')
-      })
-      .catch((err) => {
-        setErrors(err.response?.data?.errors || {})
+    router.post('/login', values, {
+      onError: (pageErrors) => {
+        const mappedErrors: LoginErrors = {}
+        for (const [key, value] of Object.entries(pageErrors)) {
+          mappedErrors[key] = Array.isArray(value) ? value : [String(value)]
+        }
+        setErrors(mappedErrors)
+      },
+      onFinish: () => {
         setLoading(false)
-      })
+      },
+    })
   }
 
   return (
@@ -67,7 +70,7 @@ export default function Login() {
               label="Username"
               name="username"
               validateStatus={errors?.username ? 'error' : ''}
-              help={ rrors?.username?.[0] as string }
+              help={errors?.username?.[0]}
             >
               <Input
                 size="large"
@@ -80,7 +83,7 @@ export default function Login() {
               label="Password"
               name="password"
               validateStatus={errors?.password ? 'error' : ''}
-              help={ errors?.password?.[0] as string}
+              help={errors?.password?.[0]}
             >
               <Input.Password
                 size="large"

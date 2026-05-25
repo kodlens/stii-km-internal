@@ -45,4 +45,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function dashboardRoute(): string
+    {
+        return match (strtolower($this->role)) {
+            'admin', 'administrator' => 'admin.dashboard',
+            'encoder' => 'encoder.dashboard',
+            default => 'dashboard',
+        };
+    }
+
 }

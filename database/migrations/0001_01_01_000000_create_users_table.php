@@ -20,7 +20,9 @@ return new class extends Migration
             $table->string('sex', 10)->nullable();
            // $table->string('email')->unique();
            // $table->timestamp('email_verified_at')->nullable();
+            $table->string('role', 50)->nullable();
             $table->string('password');
+            $table->date('last_login')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

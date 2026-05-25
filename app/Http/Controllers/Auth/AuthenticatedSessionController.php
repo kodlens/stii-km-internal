@@ -38,12 +38,14 @@ class AuthenticatedSessionController extends Controller
 
         $role = $user->role;
 
-        if(strtolower($role) == 'admin' || strtolower($role) == 'administrator')
-            return redirect()->intended('/admin/dashboard');
-        else if(strtolower($role) == 'encoder')
-            return redirect()->intended('/encoder/dashboard');
-        else
-            return redirect()->intended(route('dashboard'));
+        // if(strtolower($role) == 'admin' || strtolower($role) == 'administrator')
+        //     return redirect()->intended('/admin/dashboard');
+        // else if(strtolower($role) == 'encoder')
+        //     return redirect()->intended('/encoder/dashboard');
+        // else
+        //     return redirect()->intended(route('dashboard'));
+
+        return redirect()->intended(route($user->dashboardRoute(), absolute: false));
 
 
 

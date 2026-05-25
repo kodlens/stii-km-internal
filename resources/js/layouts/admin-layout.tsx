@@ -12,7 +12,7 @@ import {
 
 import { Avatar, Button, ConfigProvider, Dropdown, Layout, Menu, MenuProps } from 'antd';
 
-import { DatabaseZap, Funnel,
+import { DatabaseZap, FunnelPlus,
     LandPlot,
     LogOut,
     Newspaper, Sparkle,
@@ -99,7 +99,7 @@ export default function AdminLayout(
     },
     {
       key: 'admin.filter-types',
-      icon: <Funnel size={15} />,
+      icon: <FunnelPlus size={15} />,
       label: 'Filter Types',
       onClick: () => router.visit('/admin/filter-types'),
     },

@@ -34,6 +34,7 @@ export interface User {
     fname: string;
     mname: string;
     sex: string;
+    role: string;
     email: string;
     avatar?: string;
     email_verified_at: string | null;

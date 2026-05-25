@@ -1,13 +1,25 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=UnifrakturCook:wght@700&display=swap");
+
 @import 'tailwindcss';
 
 @plugin 'tailwindcss-animate';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
-@custom-variant dark (&:is(.dark *));
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  /* background-color: var(--dark);
+  color: var(--white); */
+  scroll-behavior: smooth;
+}
 
-@theme {
-    --font-sans:
+
+/* @custom-variant dark (&:is(.dark *)); */
+
+/* @theme { */
+    /* --font-sans:
         'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
     --radius-lg: var(--radius);
@@ -65,8 +77,8 @@
 
   If we ever want to remove these styles, we need to add an explicit border
   color utility to any element that depends on these defaults.
-*/
-@layer base {
+*/ */
+/* @layer base {
     *,
     ::after,
     ::before,
@@ -74,7 +86,7 @@
     ::file-selector-button {
         border-color: var(--color-gray-200, currentColor);
     }
-}
+} */
 
 :root {
     --background: hsl(0, 0%, 100%);
@@ -147,7 +159,7 @@
     --sidebar-ring: hsl(217.2, 91.2%, 59.8%);
 }
 
-@layer base {
+/* @layer base {
     * {
         @apply border-border;
     }
@@ -155,4 +167,4 @@
     body {
         @apply bg-background text-foreground;
     }
-}
+} */
