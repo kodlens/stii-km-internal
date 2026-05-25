@@ -9,21 +9,20 @@ import AdminLayout from './admin-layout';
 export default function AuthenticatedLayout(
   { user, children }: PropsWithChildren<{ user: User, header?: ReactNode }>) {
 
+  const role = user.role.toLowerCase();
+
   return (
+    <Layout>
 
-    <>
-      <Layout>
-        {user.role.toLowerCase() === 'admin' || user.role.toLowerCase() === 'administrator' && (
-          <AdminLayout user={user} children={children}></AdminLayout>
-        )}
+      {(role === 'admin' || role === 'administrator') && (
+        <AdminLayout user={user} children={children}></AdminLayout>
+      )}
 
-        {user.role.toLowerCase() === 'encoder' && (
-          <EncoderLayout user={user} children={children}></EncoderLayout>
-        )}
+      {role === 'encoder' && (
+        <EncoderLayout user={user} children={children}></EncoderLayout>
+      )}
 
-
-      </Layout>
-    </>
+    </Layout>
 
 
   );

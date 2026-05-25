@@ -45,6 +45,8 @@ export default function AdminLayout(
     post(route('logout'));
   }
 
+  console.log('admin login');
+
   type MenuItem = Required<MenuProps>['items'][number];
 
   const currentMenuKey = `${route().current()?.split('.')?.slice(0, -1).join('.')}`;
