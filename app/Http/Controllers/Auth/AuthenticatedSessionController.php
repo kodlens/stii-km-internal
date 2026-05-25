@@ -36,20 +36,7 @@ class AuthenticatedSessionController extends Controller
         $user = Auth::user();
         $user->update(['last_login' => now()]);
 
-        $role = $user->role;
-
-        // if(strtolower($role) == 'admin' || strtolower($role) == 'administrator')
-        //     return redirect()->intended('/admin/dashboard');
-        // else if(strtolower($role) == 'encoder')
-        //     return redirect()->intended('/encoder/dashboard');
-        // else
-        //     return redirect()->intended(route('dashboard'));
-
-        return redirect()->intended(route($user->dashboardRoute(), absolute: false));
-
-
-
-        //return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->route($user->dashboardRoute());
     }
 
     /**

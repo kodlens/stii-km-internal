@@ -55,7 +55,7 @@ const AdminCategoryIndex = ( { title } : PageProps) => {
     <>
       <Head title={title}></Head>
 
-      <div className="mx-auto w-full max-w-6xl">
+      <div className="mx-2 md:mx-auto max-w-4xl">
         <div className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/60">
           <div className="flex flex-col gap-4 border-b border-slate-200/70 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
             <div>

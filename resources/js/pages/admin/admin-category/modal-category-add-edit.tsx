@@ -36,11 +36,11 @@ const ModalCategoryAddEdit = ({ open, onRefetch, onClose, data }: Props) => {
     if (data && data.id > 0) {
       axios.put(`/admin/categories/${data.id}`, values)
         .then((res) => {
-          if (res.data.status === 'updated') {
+          if (res.data.succes) {
             notification.success({
               placement: 'topRight',
-              title: 'Daily Expense Updated',
-              description: 'The daily expense has been updated successfully.',
+              title: 'Category Updated',
+              description: 'The category has been updated successfully.',
             });
             onRefetch();
             form.resetFields();
@@ -53,7 +53,7 @@ const ModalCategoryAddEdit = ({ open, onRefetch, onClose, data }: Props) => {
             notification.error({
               placement: 'topRight',
               title: 'Error',
-              description: 'There was an error updating the daily expense.',
+              description: 'There was an error updating the category.',
             });
           }
         });
@@ -62,11 +62,11 @@ const ModalCategoryAddEdit = ({ open, onRefetch, onClose, data }: Props) => {
 
     axios.post(`/admin/categories`, values)
       .then((res) => {
-        if (res.data.status === 'saved') {
+        if (res.data.success) {
           notification.success({
             placement: 'topRight',
-            title: 'Daily Expense Created',
-            description: 'The daily expense has been created successfully.',
+            title: 'Category Created',
+            description: 'The category has been created successfully.',
           });
           onRefetch();
           form.resetFields();
@@ -79,7 +79,7 @@ const ModalCategoryAddEdit = ({ open, onRefetch, onClose, data }: Props) => {
           notification.error({
             placement: 'topRight',
             title: 'Error',
-            description: 'There was an error creating the daily expense.',
+            description: 'There was an error creating the category.',
           });
         }
       });
@@ -103,9 +103,9 @@ const ModalCategoryAddEdit = ({ open, onRefetch, onClose, data }: Props) => {
     >
       <div className='pt-2'>
         <div className="text-lg font-semibold text-slate-900">
-          {data?.id ? 'Update Daily Expense' : 'Create Daily Expense'}
+          {data?.id ? 'Update Category' : 'Create Category'}
         </div>
-        <div className="mb-4 text-sm text-slate-500">Fill in the details for this daily expense record.</div>
+        <div className="mb-4 text-sm text-slate-500">Fill in the details for this category record.</div>
 
         <Form
           layout="vertical"
