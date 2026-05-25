@@ -1,104 +1,113 @@
-import { Head, useForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { useState } from 'react'
+import { Head, router } from '@inertiajs/react'
 
-import InputError from '@/components/input-error';
-import TextLink from '@/components/text-link';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import AuthLayout from '@/layouts/auth-layout';
+import {
+  UserOutlined,
+  LockOutlined,
+  LoginOutlined,
+} from '@ant-design/icons'
+import { Button, Form, Input, Divider, Typography } from 'antd'
+import axios from 'axios'
+import ApplicationLogo from '@/components/application-logo'
 
-interface LoginForm {
-    email: string;
-    password: string;
-    remember: boolean;
-}
+const { Title, Text } = Typography
 
-interface LoginProps {
-    status?: string;
-    canResetPassword: boolean;
-}
+export default function Login() {
+  const [form] = Form.useForm()
+  const [loading, setLoading] = useState(false)
+  const [errors, setErrors] = useState<Record<string, unknown>>()
 
-export default function Login({ status, canResetPassword }: LoginProps) {
-    const { data, setData, post, processing, errors, reset } = useForm<LoginForm>({
-        email: '',
-        password: '',
-        remember: false,
-    });
+  const submit = (values: object) => {
+    setLoading(true)
+    setErrors({})
 
-    const submit: FormEventHandler = (e) => {
-        e.preventDefault();
-        post(route('login'), {
-            onFinish: () => reset('password'),
-        });
-    };
+    axios
+      .post('/login', values)
+      .then(() => {
+        router.visit('/login')
+      })
+      .catch((err) => {
+        setErrors(err.response?.data?.errors || {})
+        setLoading(false)
+      })
+  }
 
-    return (
-        <AuthLayout title="Log in to your account" description="Enter your email and password below to log in">
-            <Head title="Log in" />
+  return (
+    <>
+      <Head title="Login" />
 
-            <form className="flex flex-col gap-6" onSubmit={submit}>
-                <div className="grid gap-6">
-                    <div className="grid gap-2">
-                        <Label htmlFor="email">Email address</Label>
-                        <Input
-                            id="email"
-                            type="email"
-                            required
-                            autoFocus
-                            tabIndex={1}
-                            autoComplete="email"
-                            value={data.email}
-                            onChange={(e) => setData('email', e.target.value)}
-                            placeholder="email@example.com"
-                        />
-                        <InputError message={errors.email} />
-                    </div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 px-4">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
 
-                    <div className="grid gap-2">
-                        <div className="flex items-center">
-                            <Label htmlFor="password">Password</Label>
-                            {canResetPassword && (
-                                <TextLink href={route('password.request')} className="ml-auto text-sm" tabIndex={5}>
-                                    Forgot password?
-                                </TextLink>
-                            )}
-                        </div>
-                        <Input
-                            id="password"
-                            type="password"
-                            required
-                            tabIndex={2}
-                            autoComplete="current-password"
-                            value={data.password}
-                            onChange={(e) => setData('password', e.target.value)}
-                            placeholder="Password"
-                        />
-                        <InputError message={errors.password} />
-                    </div>
+          {/* Logo */}
+          <div className="flex justify-center mb-4">
+            <ApplicationLogo />
+          </div>
 
-                    <div className="flex items-center space-x-3">
-                        <Checkbox id="remember" name="remember" tabIndex={3} />
-                        <Label htmlFor="remember">Remember me</Label>
-                    </div>
+          <Divider />
 
-                    <Button type="submit" className="mt-4 w-full" tabIndex={4} disabled={processing}>
-                        {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                        Log in
-                    </Button>
-                </div>
+          {/* Heading */}
+          <div className="text-center mb-6">
+            <Title level={3} className="!mb-1">
+              SCIENCE PH PANEL
+            </Title>
+            <Text type="secondary">
+              Sign in to continue to your account
+            </Text>
+          </div>
 
-                <div className="text-muted-foreground text-center text-sm">
-                    Don't have an account?{' '}
-                    <TextLink href={route('register')} tabIndex={5}>
-                        Sign up
-                    </TextLink>
-                </div>
-            </form>
+          {/* Form */}
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={submit}
+            autoComplete="off"
+          >
+            <Form.Item
+              label="Username"
+              name="username"
+              validateStatus={errors?.username ? 'error' : ''}
+              help={ rrors?.username?.[0] as string }
+            >
+              <Input
+                size="large"
+                placeholder="Enter your username"
+                prefix={<UserOutlined className="text-gray-400" />}
+              />
+            </Form.Item>
 
-            {status && <div className="mb-4 text-center text-sm font-medium text-green-600">{status}</div>}
-        </AuthLayout>
-    );
+            <Form.Item
+              label="Password"
+              name="password"
+              validateStatus={errors?.password ? 'error' : ''}
+              help={ errors?.password?.[0] as string}
+            >
+              <Input.Password
+                size="large"
+                placeholder="Enter your password"
+                prefix={<LockOutlined className="text-gray-400" />}
+              />
+            </Form.Item>
+
+            <Button
+              htmlType="submit"
+              type="primary"
+              size="large"
+              loading={loading}
+              block
+              icon={<LoginOutlined />}
+              className="mt-2 font-semibold"
+            >
+              Sign In
+            </Button>
+          </Form>
+
+          {/* Footer */}
+          <div className="text-center mt-6 text-sm text-gray-500">
+            © {new Date().getFullYear()} Science PH
+          </div>
+        </div>
+      </div>
+    </>
+  )
 }
