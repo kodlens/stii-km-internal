@@ -12,7 +12,7 @@ import {
 
 import { Avatar, Button, ConfigProvider, Dropdown, Layout, Menu, MenuProps } from 'antd';
 
-import { DatabaseZap, FunnelPlus,
+import { Book, DatabaseZap, FunnelPlus,
     LandPlot,
     LogOut,
     Newspaper, Sparkle,
@@ -56,7 +56,7 @@ export default function AdminLayout(
   const compactName = `${user?.lname ?? ''}, ${user?.fname?.[0] ?? ''}.`.trim();
   const pageTitle = currentMenuKey === 'admin.dashboard'
     ? 'Dashboard'
-    : currentMenuKey === 'admin.categories'
+    : currentMenuKey === 'admin.categories.index'
       ? 'Categories'
       : currentMenuKey === 'admin.regions'
         ? 'Regions'
@@ -86,6 +86,12 @@ export default function AdminLayout(
       icon: <ProfileOutlined />,
       label: 'Categories', //this is subjects, but display as categories
       onClick: () => router.visit('/admin/categories'),
+    },
+    {
+      key: 'admin.topics',
+      icon: <Book size={15}/>,
+      label: 'Topics', //this is subjects, but display as categories
+      onClick: () => router.visit('/admin/topics'),
     },
     // {
     //   key: 'admin.categories',
