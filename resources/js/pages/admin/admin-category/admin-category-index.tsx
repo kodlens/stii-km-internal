@@ -61,8 +61,8 @@ const AdminCategoryIndex = ( { title } : PageProps) => {
           <div className="flex flex-col gap-4 border-b border-slate-200/70 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Category</div>
-              <div className="text-xl font-semibold text-slate-900">Daily Expenses</div>
-              <div className="text-sm text-slate-500">Track daily operating expenses.</div>
+              <div className="text-xl font-semibold text-slate-900">Category Management</div>
+              <div className="text-sm text-slate-500">Manage your KM categories</div>
             </div>
             <Button
               icon={<FileAddOutlined />}
@@ -107,7 +107,7 @@ const AdminCategoryIndex = ( { title } : PageProps) => {
               rowKey={(row) => row.id}
               pagination={false}
               size="middle"
-              locale={{ emptyText: 'No daily expense records yet. Create your first record.' }}
+              locale={{ emptyText: 'No category records yet. Create your first record.' }}
             >
               <Column title="Id" dataIndex="id" key="id" />
 
@@ -142,8 +142,8 @@ const AdminCategoryIndex = ( { title } : PageProps) => {
                       }}
                     />
                     <Popconfirm
-                      title="Delete Daily Expense"
-                      description="Are you sure you want to delete this daily expense record?"
+                      title="Delete Category"
+                      description="Are you sure you want to delete this category record?"
                       onConfirm={() => {
                         axios.delete(`/admin/category/${row.id}`)
                           .then((res) => {
@@ -159,7 +159,7 @@ const AdminCategoryIndex = ( { title } : PageProps) => {
                           .catch(() => {
                             notification.error({
                               message: 'Error',
-                              description: 'There was an error deleting the daily expense.',
+                              description: 'There was an error deleting the category.',
                             });
                           });
                       }}
