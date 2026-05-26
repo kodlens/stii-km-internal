@@ -19,11 +19,19 @@ class AdminCategoryController extends Controller
     }
 
     public function getData(Request $req){
-        return $req;
+
+        $validated = $req->validate([
+            'search' => ['nullable', 'string']
+        ]);
+
 
         $perPage = $req->perpage;
+        $search = $validated['search'];
 
-        $data = Category::where('category', ' like', "${search}")
+        $data = Category::query()
+            ->when($search, function ($q) use ($search) {
+                $q->where('category', 'like', "%{$search}%");
+            })
             ->paginate($perPage);
 
         return response()->json($data);
@@ -52,7 +60,7 @@ class AdminCategoryController extends Controller
     public function update(Request $req, $id){
 
         $validated = $req->validate([
-            'category' => ['required', 'string', 'max:100', 'unique:categories,' .$id],
+            'category' => ['required', 'string', 'max:100', 'unique:categories,category,' .$id.',id'],
             'active' => ['nullable']
         ]);
 

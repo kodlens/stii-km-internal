@@ -14,6 +14,7 @@ import { Category } from '@/types/category';
 import { PaginateResponse } from '@/types/paginateResponse';
 import { dateFormat } from '@/lib/utils';
 import ModalCategoryAddEdit from './modal-category-add-edit';
+import ActiveChip from '@/components/active-chip';
 
 type PageProps = {
   title:string;
@@ -119,6 +120,14 @@ const AdminCategoryIndex = ( { title } : PageProps) => {
                 dataIndex="created_at"
                 render={(createdAt) => (<>{dateFormat(createdAt)}</>)}
               />
+
+              <Column
+                title="Status"
+                key="active"
+                dataIndex="active"
+                render={(active) => <ActiveChip status={active}/>}
+              />
+
               <Column
                 title="Action"
                 key="action"

@@ -36,7 +36,8 @@ const ModalCategoryAddEdit = ({ open, onRefetch, onClose, data }: Props) => {
     if (data && data.id > 0) {
       axios.put(`/admin/categories/${data.id}`, values)
         .then((res) => {
-          if (res.data.succes) {
+
+          if (res.data.success) {
             notification.success({
               placement: 'topRight',
               title: 'Category Updated',
