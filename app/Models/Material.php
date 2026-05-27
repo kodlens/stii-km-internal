@@ -14,6 +14,9 @@ class Material extends Model
         'submitted_at',
         'published_at',
         'is_publish',
-        'is_trash'
+        'is_trash',
+        'uploaded_file',
+        'encoded_by_id',
+        'updated_by_id'
     ];
 }

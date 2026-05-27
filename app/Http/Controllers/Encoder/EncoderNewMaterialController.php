@@ -20,6 +20,11 @@ class EncoderNewMaterialController extends MaterialController
         ]);
     }
 
+    public function store(Request $req){
+
+        return $req;
+    }
+
 
 
 }

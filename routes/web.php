@@ -20,6 +20,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/load-categories', [\App\Http\Controllers\OpenController::class, 'loadCategories']);
 
 
+    Route::post('/docs/temp-upload', [\App\Http\Controllers\UploadController::class, 'tempUpload']);
+    Route::post('/docs/temp-remove/{fileName}', [\App\Http\Controllers\UploadController::class, 'removeUpload']);
+
+    Route::get('/docs/pdf-text/{path}', [\App\Http\Controllers\UploadController::class, 'parsePdfDigital']);
 
 });
 
@@ -51,6 +55,7 @@ Route::middleware(['auth', 'role:encoder'])->group(function () {
 
 
     Route::get('/encoder/materials/new-material', [\App\Http\Controllers\Encoder\EncoderNewMaterialController::class, 'index'])->name('encoder.new-material.index');
+    Route::post('/encoder/materials/new-material', [\App\Http\Controllers\Encoder\EncoderNewMaterialController::class, 'store'])->name('encoder.new-material.store');
 
 });
 

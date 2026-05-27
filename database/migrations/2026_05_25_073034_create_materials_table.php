@@ -22,6 +22,10 @@ return new class extends Migration
             $table->dateTime('published_at')->nullable();
             $table->tinyInteger('is_publish')->default(0);
             $table->tinyInteger('is_trash')->default(0);
+            $table->string('uploaded_file')->nullable();
+
+            $table->unsignedBigInteger('encoded_by_id')->default(0);
+            $table->unsignedBigInteger('updated_by_id')->default(0);
 
             $table->timestamps();
         });

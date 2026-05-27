@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'ocr' => [
+        'url' => env('OCR_API_URL', 'http://127.0.0.1:8000'),
+        'timeout' => env('OCR_API_TIMEOUT', 180),
+    ],
+
 ];

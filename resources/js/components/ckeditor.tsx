@@ -66,7 +66,19 @@ import { FormInstance } from 'antd';
 import { Material } from "@/types/material";
 
 
-const Ckeditor = ({ material, form, ckLicense }: { material?: Material, form: FormInstance, ckLicense: string }) => {
+const Ckeditor = ({
+  material,
+  form,
+  ckLicense,
+  value,
+  onChange,
+}: {
+  material?: Material,
+  form: FormInstance,
+  ckLicense: string,
+  value?: string,
+  onChange?: (value: string) => void
+}) => {
   return (
     <>
       <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-md px-3 py-2 mb-2">
@@ -77,11 +89,11 @@ const Ckeditor = ({ material, form, ckLicense }: { material?: Material, form: Fo
       </div>
       <div className="km-ckeditor">
         <CKEditor
-          data={ material?.content ?? ''}
+          data={value ?? material?.content ?? ''}
           editor={ClassicEditor}
           onChange={(_, editor) => {
             const data = editor.getData();
-            //setEditorData(data);
+            onChange?.(data);
             form.setFieldsValue({
               content: data,
             });

@@ -5,7 +5,7 @@ import { ReactElement, ReactNode, useState } from 'react'
 import { User } from '@/types'
 import { Material } from '@/types/material'
 import Ckeditor from '@/components/ckeditor'
-import axios from 'axios'
+import axios, { isAxiosError } from 'axios'
 
 type Pageprops = {
   id: number;
@@ -22,6 +22,15 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
   const { notification, message } = App.useApp();
   const csrfToken =
     document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") ?? "";
+
+  const removeTempFile = async (fileName?: string) => {
+    if (!fileName) return;
+    try {
+      await axios.post(`/docs/temp-remove/${fileName}`);
+    } catch {
+      // Ignore cleanup failures so we do not block the main flow.
+    }
+  };
 
 
   const uploadProps: UploadProps = {
@@ -40,23 +49,35 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
     },
 
     onChange(info) {
+
       if (id > 0) {
-        //console.log(info);
-        //form.setFieldValue('featured_image', info.file.name)
+        //form.setFieldValue('docs', info.file.name)
       } else {
         if (info.file.status === "done") {
           notification.success({
+            title: 'Success!',
             description: `${info.file.name} file uploaded successfully`
           });
-          form.setFieldValue("featured_image", info.file.response);
+
+          //set text to the editor
+          if(info.file.response.success){
+            form.setFieldValue('content', info.file.response.message);
+          }
+
+
+          form.setFieldValue("docs", info.file.response);
         } else if (info.file.status === "error") {
           notification.error({
-            description: `${info.file.name} file upload failed.`
+            title: 'ERROR!',
+            description: `${info.file.name} file upload failed. ${info.file.response.message}`
           });
         }
       }
     },
     onRemove(info) {
+      //console.log(info.name);
+
+      //return;
       if (id > 0) {
         //remove image if mode is update (temp,uploadedfiles)
         axios
@@ -69,7 +90,7 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
       } else {
         //remove image in temp folder if mode is create
         axios
-          .post("/panel/temp-remove/" + info.response)
+          .post("/docs/temp-remove/" + info.response.path)
           .then((res) => {
             if (res.data.status === "temp_deleted") {
               message.success("File removed.");
@@ -82,7 +103,33 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
 
   const submit = async (values: object) => {
     console.log(values);
-
+    setLoading(true)
+    axios.post('/encoder/materials/new-material', values).then(res=> {
+      if(res.data.success) {
+        notification.success({
+          title: 'SAVED!',
+          description: 'Material successfully recorded.'
+        });
+      } else {
+        const uploadedFileName = (form.getFieldValue("docs") as string | undefined) ?? "";
+        removeTempFile(uploadedFileName);
+        notification.error({
+          title: 'ERROR!',
+          description: res.data.message ?? 'Failed to save material.'
+        });
+      }
+      setLoading(false)
+    }).catch((error:unknown) => {
+      setLoading(false);
+      if(isAxiosError(error) && error.response && error.response.status === 422){
+        setErrors(error.response.data.errors);
+      }else{
+        notification.error({
+          title: 'ERROR!',
+          description: `Unknown error. ${error}`
+        })
+      }
+    })
   }
 
   return (
@@ -119,6 +166,34 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
                 <Input placeholder="Title" />
               </Form.Item>
 
+              <Form.Item
+                name="upload"
+                valuePropName="fileList"
+                className="w-full"
+                label="Upload PDF Document"
+                getValueFromEvent={(e) => {
+                    // Normalize the value to fit what the Upload component expects
+                    if (Array.isArray(e)) {
+                        return e;
+                    }
+                    return e?.fileList;
+                }}
+                validateStatus={errors.upload ? "error" : ""}
+                help={errors.upload ? errors.upload[0] as string : ""}
+              >
+                  <Upload
+                      maxCount={1}
+                      accept=".pdf,application/pdf"
+                      // fileList={fileList}
+                      listType="text"
+                      {...uploadProps}
+                  >
+                      <Button icon={<UploadOutlined />}>
+                          Click to Upload
+                      </Button>
+                  </Upload>
+              </Form.Item>
+
 
               <div className="min-h-[300px] ">
                 <Form.Item
@@ -141,33 +216,7 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
               </div>
 
 
-              <Form.Item
-                name="upload"
-                valuePropName="fileList"
-                className="w-full"
-                label="Upload PDF Document"
-                getValueFromEvent={(e) => {
-                    // Normalize the value to fit what the Upload component expects
-                    if (Array.isArray(e)) {
-                        return e;
-                    }
-                    return e?.fileList;
-                }}
-                validateStatus={errors.upload ? "error" : ""}
-                help={errors.upload ? errors.upload[0] as string : ""}
-            >
-                <Upload
-                    maxCount={1}
-                    accept=".pdf,application/pdf"
-                    // fileList={fileList}
-                    listType="text"
-                    {...uploadProps}
-                >
-                    <Button icon={<UploadOutlined />}>
-                        Click to Upload
-                    </Button>
-                </Upload>
-            </Form.Item>
+
 
 
 
