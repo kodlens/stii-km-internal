@@ -1,4 +1,4 @@
-import { App, Button, Checkbox, Form, Input, Upload, UploadProps } from 'antd'
+import { App, Button, Form, Input, Upload, UploadProps } from 'antd'
 import { FileAddOutlined, UploadOutlined } from '@ant-design/icons'
 import AuthenticatedLayout from '@/layouts/authenticated-layout'
 import { ReactElement, ReactNode, useState } from 'react'
@@ -237,6 +237,7 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
               <Button
                 icon={<FileAddOutlined />}
                 type="primary"
+                loading={loading}
                 className="h-10 rounded-xl px-5"
                 htmlType='submit'
               >
