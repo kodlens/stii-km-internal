@@ -25,6 +25,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/docs/pdf-text/{path}', [\App\Http\Controllers\UploadController::class, 'parsePdfDigital']);
 
+    //load topics by category
+    Route::get('/load-topics/{catId}', [App\Http\Controllers\OpenController::class, 'getTopicsWithParams'])->name('open.topics-with-params');
+    //Route::get('/get-subject-headings/{subjectId}', [App\Http\Controllers\OpenController::class, 'getSubjectHeadingsWithParams'])->name('open.subject-headings-with-params');
+
 });
 
 
