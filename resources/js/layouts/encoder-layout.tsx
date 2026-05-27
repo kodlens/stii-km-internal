@@ -49,10 +49,10 @@ export default function EncoderLayout(
         label: 'Materials',
         children: [
           {
-            key: 'encoder.materials.index',
+            key: 'encoder.materials.all-materials.index',
             icon: <WalletCards size={15}/>,
             label: 'All Materials',
-            onClick: () => router.visit('/encoder/materials'),
+            onClick: () => router.visit('/encoder/materials/all-materials'),
           },
           {
             key: 'encoder.draft-materials.index',
@@ -78,10 +78,10 @@ export default function EncoderLayout(
           //   onClick: () => router.visit('/encoder/materials'),
           // },
           {
-            key: 'encoder.materials.create',
+            key: 'encoder.new-material.index',
             label: 'New Post/Material',
             icon: <Newspaper size={15}/>,
-            onClick: () => router.visit('/encoder/materials/create'),
+            onClick: () => router.visit('/encoder/materials/new-material'),
           },
 
         ],

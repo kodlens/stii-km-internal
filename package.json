@@ -21,6 +21,7 @@
         "typescript-eslint": "^8.23.0"
     },
     "dependencies": {
+        "@ckeditor/ckeditor5-react": "^11.1.2",
         "@inertiajs/react": "^2.0.0",
         "@tailwindcss/vite": "^4.0.6",
         "@tanstack/react-query": "^5.100.14",

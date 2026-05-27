@@ -123,4 +123,14 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+
+     /*
+    |--------------------------------------------------------------------------
+    | Custom variables
+    |--------------------------------------------------------------------------
+    | Own environtment variables
+    */
+
+    'ck_license' => env('CK_LICENSE', 'GPL'),
+
 ];

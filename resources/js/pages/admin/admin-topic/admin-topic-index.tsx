@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Table, Pagination, Input, Space, Popconfirm, App } from 'antd';
 import { FileAddOutlined } from '@ant-design/icons';
@@ -38,7 +38,7 @@ const AdminTopicIndex = ( { title } : PageProps) => {
         // to_date: search.date.format('YYYY-MM-DD'),
       }).toString();
 
-      const response = await axios.get<PaginateResponse<Category>>(`/admin/get-categories?${params}`);
+      const response = await axios.get<PaginateResponse<Category>>(`/admin/get-topics?${params}`);
       return response.data;
     },
   })
@@ -67,10 +67,10 @@ const AdminTopicIndex = ( { title } : PageProps) => {
               type="primary"
               className="h-10 rounded-xl px-5"
               onClick={() => {
-
+                router.visit('/admin/topics/create')
               }}
             >
-              New Daily Expense
+              New Topic
             </Button>
           </div>
 

@@ -35,6 +35,12 @@ class AdminTopicController extends Controller
         return response()->json($data);
     }
 
+    public function create(){
+        return Inertia::render('admin/admin-topic/admin-topic-add-edit', [
+            'title' => "Add/Edit Topic"
+        ]);
+    }
+
     public function store(Request $req){
 
         $validated = $req->validate([

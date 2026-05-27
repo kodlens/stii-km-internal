@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Http\Controllers\Encoder;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
+use App\Http\Controllers\Base\MaterialController;
+
+
+class EncoderNewMaterialController extends MaterialController
+{
+    public function index(){
+
+        $ckLicense = config('app.ck_license');
+        return Inertia::render('encoder/materials/encoder-new-material-index', [
+            'title' => 'Add/Edit Material',
+            'ckLicense' => $ckLicense
+        ]);
+    }
+
+
+
+}

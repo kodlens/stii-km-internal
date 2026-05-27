@@ -15,6 +15,15 @@ Route::get('/', function () {
 
 
 
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/load-categories', [\App\Http\Controllers\OpenController::class, 'loadCategories']);
+
+
+
+});
+
+
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
 
@@ -37,7 +46,11 @@ Route::middleware(['auth', 'role:encoder'])->group(function () {
 
     Route::get('/encoder/dashboard', [\App\Http\Controllers\Encoder\EncoderDashboardController::class, 'index'])->name('encoder.dashboard');
 
+    Route::get('/encoder/materials/all-materials', [\App\Http\Controllers\Encoder\EncoderAllMaterialController::class, 'index'])->name('encoder.all-materials-index');
+    Route::get('/encoder/materials/get-all-materials', [\App\Http\Controllers\Encoder\EncoderAllMaterialController::class, 'getData'])->name('encoder.all-materials-index');
 
+
+    Route::get('/encoder/materials/new-material', [\App\Http\Controllers\Encoder\EncoderNewMaterialController::class, 'index'])->name('encoder.new-material.index');
 
 });
 

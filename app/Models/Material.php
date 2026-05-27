@@ -11,6 +11,9 @@ class Material extends Model
         'content',
         'content_text',
         'status',
-        'is_publish'
+        'submitted_at',
+        'published_at',
+        'is_publish',
+        'is_trash'
     ];
 }
