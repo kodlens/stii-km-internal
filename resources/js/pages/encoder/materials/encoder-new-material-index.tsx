@@ -6,6 +6,7 @@ import { User } from '@/types'
 import { Material } from '@/types/material'
 import Ckeditor from '@/components/ckeditor'
 import axios, { isAxiosError } from 'axios'
+import AiClassifier from '@/components/ai-classifier'
 
 type Pageprops = {
   id: number;
@@ -195,6 +196,7 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
               </Form.Item>
 
 
+
               <div className="min-h-[300px] ">
                 <Form.Item
                   label="PDF Content here"
@@ -215,6 +217,9 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
                 </Form.Item>
               </div>
 
+              <div>
+                <AiClassifier id={0} form={form} errors={errors} />
+              </div>
 
 
 

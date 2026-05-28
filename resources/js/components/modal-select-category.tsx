@@ -38,13 +38,8 @@ const ModalSelectCategory = ( { onSelectCategory } : PageProps) => {
           if (selectedItem) {
             onSelectCategory(selectedItem);
           }
-      }}>
-
-        {categories.map((cat: Category) => (
-          <Select.Option key={cat.id} value={cat.id}>
-            {cat.category}
-          </Select.Option>
-        ))}
+      }}
+       options={categories.map((cat: Category) => ({ label: cat.category, value: cat.id }))}>
       </Select>
 
     </>

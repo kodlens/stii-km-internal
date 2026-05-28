@@ -2,23 +2,21 @@
 import { App, Button, Form, FormInstance, Input, Table } from 'antd';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-
 import { BrushCleaning } from 'lucide-react';
-import { Topic } from '@/types/topic';
-import ModalTopics from './modal-topics';
-import { Category } from '@/types/category';
+import ModalSelectCategory from './modal-select-category';
 
 
 type PageProps = {
   id:number;
   form: FormInstance
-  errors: Record<string, string[]>
+  errors: Record<string, unknown[]>
 }
 type AIResult = {
   id: number,
   score: number,
   analysis: string
 }
+
 type CategoryResult = {
   category_id: number,
   score: number,
@@ -29,7 +27,6 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
   const [loading, setLoading] = useState<boolean>(false);
   const { notification } = App.useApp();
   const [data, setData] = useState<CategoryResult[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
 
   const handleClassification = () => {
     setLoading(true)
@@ -88,15 +85,15 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
     });
   }
 
-  const loadTopics = async () => {
-    //const res = await axios.get(`/get-subject-headings`);
-    const res = await axios.get(`/load-categories`);
-    setCategories(res.data);
-  };
+  // const loadTopics = async () => {
+  //   //const res = await axios.get(`/get-subject-headings`);
+  //   const res = await axios.get(`/load-categories`);
+  //   setCategories(res.data);
+  // };
 
-  useEffect(() => {
-    loadTopics();
-  }, []);
+  // useEffect(() => {
+  //   loadTopics();
+  // }, []);
 
   //load data if edit mode
   useEffect(() => {
@@ -119,6 +116,7 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
   //   )));
 
   // }, [data]);
+
 
   const handleDelete = (categoryId:number) => {
     // const index = data.findIndex(
@@ -154,7 +152,7 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
         <Form.Item
           className="mt-4"
           validateStatus={errors.category ? "error" : ""}
-          help={errors.category ? errors.category[0] : ""}>
+          help={errors.category ? errors.category[0] as string : ""}>
 
           <Table
             rowKey="id"
@@ -208,26 +206,8 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
 
 
       <div className='flex gap-2'>
-        <ModalSelectCategory onSelectTopic={(record:Topic) => {
+        <ModalSelectCategory onSelectCategory={() => {
 
-          const existsInData = data.find(item => item.topic_id === record.id);
-
-          if(existsInData) {
-            notification.warning({
-              message: "Already Exists",
-              description: "This topic is already in the classification results.",
-              duration: 5,
-              placement: 'bottomRight'
-            });
-            return;
-          }
-
-          setData([...data, {
-              topic_id: record.id,
-              topic: record.topic,
-              score: 1,
-              analysis: "Manually added"
-            }]);
         }} />
 
         <Button danger icon={<BrushCleaning size={15} />}
