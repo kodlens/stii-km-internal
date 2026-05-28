@@ -9,7 +9,7 @@ import { Topic } from '@/types/topic';
 type PageProps = {
   onSelectTopic: (record: Topic) => void
 }
-const ModalTopics = ( { onSelectTopic } : PageProps) => {
+const ModalSelectCategory = ( { onSelectTopic } : PageProps) => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [topics, setTopics] = React.useState<Topic[]>([]);
@@ -120,5 +120,5 @@ const ModalTopics = ( { onSelectTopic } : PageProps) => {
   )
 }
 
-export default ModalTopics
+export default ModalSelectCategory
 

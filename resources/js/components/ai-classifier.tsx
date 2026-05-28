@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { BrushCleaning } from 'lucide-react';
 import { Topic } from '@/types/topic';
 import ModalTopics from './modal-topics';
+import { Category } from '@/types/category';
 
 
 type PageProps = {
@@ -18,9 +19,8 @@ type AIResult = {
   score: number,
   analysis: string
 }
-type SubjectResult = {
-  topic_id: number,
-  topic?: string,
+type CategoryResult = {
+  category_id: number,
   score: number,
   analysis: string
 }
@@ -28,9 +28,8 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const { notification } = App.useApp();
-  const [data, setData] = useState<SubjectResult[]>([]);
-  const [topics, setTopics] = useState<Topic[]>([]);
-
+  const [data, setData] = useState<CategoryResult[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const handleClassification = () => {
     setLoading(true)
@@ -56,20 +55,22 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
         });
       }
 
-      const resData:AIResult[] = res.data.results
+      console.log(res.data.results)
 
-      const matchedTopics = resData.map(datum => {
-        const matched = topics.find((topic:Topic) => topic.id === datum.id);
-        return {
-          topic_id: datum.id,
-          topic: matched?.topic || "",
-          score: datum.score,
-          analysis: datum.analysis
-        };
-      });
+      // const resData:AIResult[] = res.data.results
 
-      setData(matchedTopics);
-      setLoading(false)
+      // const matchedTopics = resData.map(datum => {
+      //   const matched = topics.find((topic:Topic) => topic.id === datum.id);
+      //   return {
+      //     topic_id: datum.id,
+      //     topic: matched?.topic || "",
+      //     score: datum.score,
+      //     analysis: datum.analysis
+      //   };
+      // });
+
+      // setData(matchedTopics);
+      // setLoading(false)
 
     }).catch((error) => {
       //message.error(`Classification failed: ${err.message}`);
@@ -89,8 +90,8 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
 
   const loadTopics = async () => {
     //const res = await axios.get(`/get-subject-headings`);
-    const res = await axios.get(`/load-topics`);
-    setTopics(res.data);
+    const res = await axios.get(`/load-categories`);
+    setCategories(res.data);
   };
 
   useEffect(() => {
@@ -106,29 +107,29 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
   }, [form, id])
 
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    form.setFieldValue("subject_headings", data.map(item => (
-      {
-        subject_heading_id: item.subject_heading_id,
-        subject_heading: item.subject_heading,
-        score: item.score,
-        analysis: item.analysis
-      }
-    )));
+  //   form.setFieldValue("subject_headings", data.map(item => (
+  //     {
+  //       subject_heading_id: item.subject_heading_id,
+  //       subject_heading: item.subject_heading,
+  //       score: item.score,
+  //       analysis: item.analysis
+  //     }
+  //   )));
 
-  }, [data]);
+  // }, [data]);
 
-  const handleDelete = (subjH_id:number) => {
-    const index = data.findIndex(
-      item => item.subject_heading_id === subjH_id
-    );
+  const handleDelete = (categoryId:number) => {
+    // const index = data.findIndex(
+    //   item => item.subject_heading_id === subjH_id
+    // );
 
-    if (index !== -1) {
-      const newData = [...data];
-      newData.splice(index, 1);
-      setData(newData);
-    }
+    // if (index !== -1) {
+    //   const newData = [...data];
+    //   newData.splice(index, 1);
+    //   setData(newData);
+    // }
   }
 
   return (
@@ -152,11 +153,11 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
         <h3 className='my-2'>Generated Results:</h3>
         <Form.Item
           className="mt-4"
-          validateStatus={errors.subject_headings ? "error" : ""}
-          help={errors.subject_headings ? errors.subject_headings[0] : ""}>
+          validateStatus={errors.category ? "error" : ""}
+          help={errors.category ? errors.category[0] : ""}>
 
           <Table
-            rowKey="subject_heading_id"
+            rowKey="id"
             dataSource={data}
             pagination={false}
             size="small"
@@ -168,9 +169,9 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
                 width: 120,
               },
               {
-                title: "Topics",
-                dataIndex: "subject_heading",
-                key: "subject_heading",
+                title: "Cattegory",
+                dataIndex: "category",
+                key: "category",
                 width: 200,
               },
               {
@@ -193,7 +194,7 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
                     <Button
                       type="link"
                       danger
-                      onClick={() => handleDelete(record.topic_id)}
+                      onClick={() => handleDelete(record.category_id)}
                     >
                       Delete
                     </Button>
@@ -207,7 +208,7 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
 
 
       <div className='flex gap-2'>
-        <ModalTopics onSelectTopic={(record:Topic) => {
+        <ModalSelectCategory onSelectTopic={(record:Topic) => {
 
           const existsInData = data.find(item => item.topic_id === record.id);
 

@@ -169,7 +169,7 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
               <Form.Item
                 name="upload"
                 valuePropName="fileList"
-                className="w-full"
+                className="w-full mb-2"
                 label="Upload PDF Document"
                 getValueFromEvent={(e) => {
                     // Normalize the value to fit what the Upload component expects
@@ -197,7 +197,7 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
 
               <div className="min-h-[300px] ">
                 <Form.Item
-                  label="Write your content here"
+                  label="PDF Content here"
                   name="content"
                   className="!max-w-none"
                   validateStatus={

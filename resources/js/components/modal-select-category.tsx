@@ -11,7 +11,7 @@ const ModalSelectCategory = ( { onSelectCategory } : PageProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const loadSubjects = async () => {
+  const loadCategories = async () => {
     // Load subject headings from the server or use static data
     // setSubjectHeadings(data);
     setLoading(true);
@@ -25,7 +25,7 @@ const ModalSelectCategory = ( { onSelectCategory } : PageProps) => {
   }
 
   useEffect(() => {
-    loadSubjects();
+    loadCategories();
   }, []);
 
   return (
