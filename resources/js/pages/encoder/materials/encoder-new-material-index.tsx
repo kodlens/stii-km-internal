@@ -20,14 +20,14 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
   const [errors, setErrors] = useState<Record<string, unknown[]>>({});
   const { notification } = App.useApp();
 
-  const removeTempFile = async (fileName?: string) => {
-    if (!fileName) return;
-    try {
-      await axios.post(`/docs/temp-remove/${fileName}`);
-    } catch {
-      // Ignore cleanup failures so we do not block the main flow.
-    }
-  };
+  // const removeTempFile = async (fileName?: string) => {
+  //   if (!fileName) return;
+  //   try {
+  //     await axios.post(`/docs/temp-remove/${fileName}`);
+  //   } catch {
+  //     // Ignore cleanup failures so we do not block the main flow.
+  //   }
+  // };
 
 
 
@@ -40,19 +40,17 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
           title: 'SAVED!',
           description: 'Material successfully recorded.'
         });
-      } else {
-        const uploadedFileName = (form.getFieldValue("docs") as string | undefined) ?? "";
-        removeTempFile(uploadedFileName);
-        notification.error({
-          title: 'ERROR!',
-          description: res.data.message ?? 'Failed to save material.'
-        });
+        form.resetFields();
       }
       setLoading(false)
     }).catch((error:unknown) => {
       setLoading(false);
       if(isAxiosError(error) && error.response && error.response.status === 422){
         setErrors(error.response.data.errors);
+        notification.error({
+          title: 'Error!',
+          description: error.response.data.message
+        });
       }else{
         notification.error({
           title: 'ERROR!',
