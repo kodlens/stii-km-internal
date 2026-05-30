@@ -1,12 +1,10 @@
-import { App, Button, Form, Input, Upload, UploadProps } from 'antd'
-import { FileAddOutlined, UploadOutlined } from '@ant-design/icons'
+import { App, Form } from 'antd'
 import AuthenticatedLayout from '@/layouts/authenticated-layout'
 import { ReactElement, ReactNode, useState } from 'react'
 import { User } from '@/types'
 import { Material } from '@/types/material'
-import Ckeditor from '@/components/ckeditor'
 import axios, { isAxiosError } from 'axios'
-import AiClassifier from '@/components/ai-classifier'
+import CreateEditMaterial from '@/components/create-edit-materials'
 
 type Pageprops = {
   id: number;
@@ -20,9 +18,7 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<Record<string, unknown[]>>({});
-  const { notification, message } = App.useApp();
-  const csrfToken =
-    document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") ?? "";
+  const { notification } = App.useApp();
 
   const removeTempFile = async (fileName?: string) => {
     if (!fileName) return;
@@ -33,73 +29,6 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
     }
   };
 
-
-  const uploadProps: UploadProps = {
-    name: "docs",
-    action: "/docs/temp-upload",
-    headers: csrfToken ? { "X-CSRF-TOKEN": csrfToken } : undefined,
-    beforeUpload: (file) => {
-      const isPDF = file.type === "application/pdf";
-
-      if (!isPDF) {
-        notification.error({
-          description: `${file.name} is not a PDF file`
-        });
-      }
-      return isPDF || Upload.LIST_IGNORE;
-    },
-
-    onChange(info) {
-
-      if (id > 0) {
-        //form.setFieldValue('docs', info.file.name)
-      } else {
-        if (info.file.status === "done") {
-          notification.success({
-            title: 'Success!',
-            description: `${info.file.name} file uploaded successfully`
-          });
-
-          //set text to the editor
-          if(info.file.response.success){
-            form.setFieldValue('content', info.file.response.message);
-          }
-
-
-          form.setFieldValue("docs", info.file.response);
-        } else if (info.file.status === "error") {
-          notification.error({
-            title: 'ERROR!',
-            description: `${info.file.name} file upload failed. ${info.file.response.message}`
-          });
-        }
-      }
-    },
-    onRemove(info) {
-      //console.log(info.name);
-
-      //return;
-      if (id > 0) {
-        //remove image if mode is update (temp,uploadedfiles)
-        axios
-          .post(`/panel/image-remove/${id}/${info.name}`)
-          .then((res) => {
-            if (res.data.status === "temp_deleted") {
-              message.success("File removed.");
-            }
-          });
-      } else {
-        //remove image in temp folder if mode is create
-        axios
-          .post("/docs/temp-remove/" + info.response.path)
-          .then((res) => {
-            if (res.data.status === "temp_deleted") {
-              message.success("File removed.");
-            }
-          });
-      }
-    },
-  };
 
 
   const submit = async (values: object) => {
@@ -147,106 +76,13 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
           </div>
 
           <div className='px-6 py-6'>
-            <Form
-              layout="vertical"
+
+            <CreateEditMaterial id={id}
+              material={material}
+              ckLicense={ckLicense}
               form={form}
-              autoComplete="off"
-              initialValues={{
-                title: null,
-                content: null,
-                content_text: true,
-                upload: [],
-              }}
-              onFinish={submit}>
-
-              <Form.Item className='w-full'
-                name="title"
-                label="Title"
-                validateStatus={errors.title ? "error" : ""}
-                help={errors.title ? errors.title[0] as string : ""}>
-                <Input placeholder="Title" />
-              </Form.Item>
-
-              <Form.Item
-                name="upload"
-                valuePropName="fileList"
-                className="w-full mb-2"
-                label="Upload PDF Document"
-                getValueFromEvent={(e) => {
-                    // Normalize the value to fit what the Upload component expects
-                    if (Array.isArray(e)) {
-                        return e;
-                    }
-                    return e?.fileList;
-                }}
-                validateStatus={errors.upload ? "error" : ""}
-                help={errors.upload ? errors.upload[0] as string : ""}
-              >
-                  <Upload
-                      maxCount={1}
-                      accept=".pdf,application/pdf"
-                      // fileList={fileList}
-                      listType="text"
-                      {...uploadProps}
-                  >
-                      <Button icon={<UploadOutlined />}>
-                          Click to Upload
-                      </Button>
-                  </Upload>
-              </Form.Item>
-
-
-
-              <div className="min-h-[300px] ">
-                <Form.Item
-                  label="PDF Content here"
-                  name="content"
-                  className="!max-w-none"
-                  validateStatus={
-                    errors.content ? "error" : ""
-                  }
-                  help={
-                    errors.content
-                      ? errors.content[0] as string
-                      : ""
-                  }
-                >
-                  <Ckeditor material={material || undefined}
-                    form={form}
-                    ckLicense={ckLicense} />
-                </Form.Item>
-              </div>
-
-              <div>
-                <AiClassifier id={0} form={form} errors={errors} />
-              </div>
-
-              {/* <Form.Item name="active" valuePropName="checked" className="w-full" label=""
-                validateStatus={
-                  errors.active ? "error" : ""
-                }
-                help={
-                  errors.active
-                    ? errors.active[0] as string
-                    : ""
-                }
-              >
-                <Checkbox>Active</Checkbox>
-              </Form.Item> */}
-
-              <div className="mt-10 flex">
-                <Button
-                  icon={<FileAddOutlined />}
-                  type="primary"
-                  loading={loading}
-                  className="h-10 rounded-xl px-5 ml-auto"
-                  htmlType='submit'
-                >
-                  Save
-                </Button>
-              </div>
-
-            </Form>
+              onSubmit={submit}
+              errors={errors} loading={loading} />
 
           </div>
 
