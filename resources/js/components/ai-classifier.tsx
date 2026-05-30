@@ -19,13 +19,14 @@ type AIResult = {
 
 type CategoryResult = {
   category_id: number,
+  category: string,
   score: number,
   analysis: string
 }
 const AiClassifier = ( { form, errors, id } : PageProps) => {
 
   const [loading, setLoading] = useState<boolean>(false);
-  const { notification } = App.useApp();
+  const { notification, message } = App.useApp();
   const [data, setData] = useState<CategoryResult[]>([]);
 
   const handleClassification = () => {
@@ -51,8 +52,6 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
           duration: 5,
         });
       }
-
-      console.log(res.data.results)
 
       // const resData:AIResult[] = res.data.results
 
@@ -97,10 +96,10 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
 
   //load data if edit mode
   useEffect(() => {
-    if(id > 0){
-      const subjH = form.getFieldValue('subject_headings');
-      setData(subjH)
-    }
+    // if(id > 0){
+    //   const subjH = form.getFieldValue('subject_headings');
+    //   setData(subjH)
+    // }
   }, [form, id])
 
 
@@ -119,33 +118,49 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
 
 
   const handleDelete = (categoryId:number) => {
-    // const index = data.findIndex(
-    //   item => item.subject_heading_id === subjH_id
-    // );
+    const index = data.findIndex(
+      item => item.category_id === categoryId
+    );
 
-    // if (index !== -1) {
-    //   const newData = [...data];
-    //   newData.splice(index, 1);
-    //   setData(newData);
-    // }
+    if (index !== -1) {
+      const newData = [...data];
+      newData.splice(index, 1);
+      setData(newData);
+    }
   }
 
   return (
-    <div className='border p-4 rounded-md'>
+    <div className='border border-gray-300 p-4 rounded-md'>
 
       <div className='mb-4 my-2 p-4 bg-orange-100 rounded-md'>
         Use the AI assistant below to automatically detect and select the most relevant topic from your content.
         Make sure the content above is not empty, then click <span className='font-bold'>Generate Topics</span> to begin analysis.
       </div>
 
-      <Button
-        type="primary"
-        loading={loading}
-        onClick={() => {
-          handleClassification();
-        }}>
-        Generate Topics
-      </Button>
+      <div className="flex gap-3">
+        <Button
+          type="primary"
+          loading={loading}
+          onClick={() => {
+            handleClassification();
+          }}>
+          Generate Topics
+        </Button>
+
+        <ModalSelectCategory onSelectCategory={(row) => {
+          if(row.category_id > 0) {
+            const exists = data.some(
+              item => item.category_id === row.category_id
+            );
+            if (exists) {
+                message.warning('Category already exists.');
+              return;
+            }
+          }
+
+          setData([...data, row]);
+        }} />
+      </div>
 
       <div>
         <h3 className='my-2'>Generated Results:</h3>
@@ -155,15 +170,15 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
           help={errors.category ? errors.category[0] as string : ""}>
 
           <Table
-            rowKey="id"
+            rowKey="category_id"
             dataSource={data}
             pagination={false}
             size="small"
             columns={[
               {
                 title: "Id",
-                dataIndex: "Id",
-                key: "topic_id",
+                dataIndex: "category_id",
+                key: "category_id",
                 width: 120,
               },
               {
@@ -206,10 +221,6 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
 
 
       <div className='flex gap-2'>
-        <ModalSelectCategory onSelectCategory={() => {
-
-        }} />
-
         <Button danger icon={<BrushCleaning size={15} />}
           onClick={()=>{
             setData([])
@@ -217,11 +228,6 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
         >
           Remove All
         </Button>
-
-        <Form.Item name="subject_headings" hidden>
-          <Input />
-        </Form.Item>
-
 
       </div>
 

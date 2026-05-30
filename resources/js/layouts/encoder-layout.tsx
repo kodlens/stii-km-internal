@@ -58,7 +58,7 @@ export default function EncoderLayout(
             key: 'encoder.draft-materials.index',
             icon: <SquarePen size={15}/>,
             label: 'Drafted',
-            onClick: () => router.visit('/encoder/draft-materials'),
+            onClick: () => router.visit('/encoder/materials/draft-materials'),
           },
           {
             key: 'encoder.submit-materials.index',

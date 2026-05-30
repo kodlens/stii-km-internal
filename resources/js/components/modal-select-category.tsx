@@ -1,22 +1,32 @@
 import { Category } from "@/types/category";
-import { Select } from "antd";
+import { PaginateResponse } from "@/types/paginateResponse";
+import { Button, Modal, Table } from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
 type PageProps = {
-  onSelectCategory: (record: Category) => void
+  onSelectCategory: (record: CategoryResult) => void
+}
+
+type CategoryResult = {
+  category_id: number,
+  category: string,
+  score: number,
+  analysis: string
 }
 
 const ModalSelectCategory = ( { onSelectCategory } : PageProps) => {
 
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [data, setData] = useState<PaginateResponse<Category>>();
   const [loading, setLoading] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
 
-  const loadCategories = async () => {
+
+  const loadData = async () => {
     // Load subject headings from the server or use static data
     // setSubjectHeadings(data);
     setLoading(true);
-    axios.get(`/get-categories`).then(res => {
-      setCategories(res.data);
+    axios.get(`/load-categories-with-paginate`).then(res => {
+      setData(res.data);
       setLoading(false);
     }).catch(err => {
       setLoading(false);
@@ -25,22 +35,78 @@ const ModalSelectCategory = ( { onSelectCategory } : PageProps) => {
   }
 
   useEffect(() => {
-    loadCategories();
-  }, []);
+    loadData();
+  }, [open]);
+
+  const handleOk = () => {
+    setOpen(false);
+  };
+
+  const handleCancel = () => {
+    setOpen(false);
+  };
 
   return (
     <>
-      <Select placeholder="Select a category"
-        style={{ width: '100%' }} loading={loading}
-        allowClear
-        onChange={(value) => {
-          const selectedItem = categories.find(cat => cat.id === value);
-          if (selectedItem) {
-            onSelectCategory(selectedItem);
-          }
-      }}
-       options={categories.map((cat: Category) => ({ label: cat.category, value: cat.id }))}>
-      </Select>
+      <Button onClick={() => {
+        setOpen(true);
+      }}>
+        Open Categories
+      </Button>
+
+      <Modal
+        title="Sample Modal"
+        open={open}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        okButtonProps={{ style: { display: 'none' } }}
+        okText="Save"
+        cancelText="Close"
+      >
+        <Table
+          rowKey="id"
+          dataSource={Array.isArray(data?.data) ? data.data : []}
+          pagination={false}
+          size="small"
+          columns={[
+            {
+              title: "Id",
+              dataIndex: "id",
+              key: "id",
+              width: 120,
+            },
+            {
+              title: "Cattegory",
+              dataIndex: "category",
+              key: "category",
+              width: 200,
+            },
+            {
+              title: "Action",
+              key: "action",
+              width: 150,
+              render: (_, record) => (
+                <>
+                  <Button
+                    type="link"
+                    loading={loading}
+                    onClick={() => {
+                      onSelectCategory({
+                        category_id: record.id,
+                        category: record.category,
+                        score: 0,
+                        analysis: "Manually added."
+                      });
+                    }}
+                  >
+                    Select
+                  </Button>
+                </>
+              ),
+            },
+          ]}
+        />
+      </Modal>
 
     </>
   )

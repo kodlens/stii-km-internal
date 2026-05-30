@@ -18,6 +18,7 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/load-categories', [\App\Http\Controllers\OpenController::class, 'loadCategories']);
+    Route::get('/load-categories-with-paginate', [\App\Http\Controllers\OpenController::class, 'loadCategoriesWithPaginate']);
 
 
     Route::post('/docs/temp-upload', [\App\Http\Controllers\UploadController::class, 'tempUpload']);
@@ -56,6 +57,14 @@ Route::middleware(['auth', 'role:encoder'])->group(function () {
 
     Route::get('/encoder/materials/all-materials', [\App\Http\Controllers\Encoder\EncoderAllMaterialController::class, 'index'])->name('encoder.all-materials-index');
     Route::get('/encoder/materials/get-all-materials', [\App\Http\Controllers\Encoder\EncoderAllMaterialController::class, 'getData'])->name('encoder.all-materials-index');
+
+    Route::get('/encoder/materials/draft-materials', [\App\Http\Controllers\Encoder\EncoderDraftMaterialController::class, 'index'])->name('encoder.draft-materials-index');
+    Route::get('/encoder/materials/get-draft-materials', [\App\Http\Controllers\Encoder\EncoderDraftMaterialController::class, 'getData'])->name('encoder.get-draft-materials-index');
+
+    Route::get('/encoder/materials/publish-materials', [\App\Http\Controllers\Encoder\EncoderPublishMaterialController::class, 'index'])->name('encoder.publish-materials-index');
+    Route::get('/encoder/materials/get-publish-materials', [\App\Http\Controllers\Encoder\EncoderPublishMaterialController::class, 'getData'])->name('encoder.get-publish-materials-index');
+
+
 
 
     Route::get('/encoder/materials/new-material', [\App\Http\Controllers\Encoder\EncoderNewMaterialController::class, 'index'])->name('encoder.new-material.index');

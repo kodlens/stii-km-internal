@@ -14,6 +14,16 @@ class OpenController extends Controller
             ->get();
     }
 
+    public function loadCategoriesWithPaginate(Request $req){
+        $perPage = $req->integer('perpage', 10);
+
+        return Category::where('active', 1)
+            ->orderBy('category', 'asc')
+            //->get();
+            ->paginate($perPage);
+    }
+
+
     public function getTopicsWithParams(Request $req, $catId){
         if($req->has('search') && $req->search != ''){
 

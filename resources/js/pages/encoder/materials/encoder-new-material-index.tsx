@@ -221,10 +221,6 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
                 <AiClassifier id={0} form={form} errors={errors} />
               </div>
 
-
-
-
-
               {/* <Form.Item name="active" valuePropName="checked" className="w-full" label=""
                 validateStatus={
                   errors.active ? "error" : ""
@@ -238,16 +234,17 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
                 <Checkbox>Active</Checkbox>
               </Form.Item> */}
 
-
-              <Button
-                icon={<FileAddOutlined />}
-                type="primary"
-                loading={loading}
-                className="h-10 rounded-xl px-5"
-                htmlType='submit'
-              >
-                Save
-              </Button>
+              <div className="mt-10 flex">
+                <Button
+                  icon={<FileAddOutlined />}
+                  type="primary"
+                  loading={loading}
+                  className="h-10 rounded-xl px-5 ml-auto"
+                  htmlType='submit'
+                >
+                  Save
+                </Button>
+              </div>
 
             </Form>
 
