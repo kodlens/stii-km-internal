@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Encoder;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
+use App\Models\Material;
+
 
 class EncoderPublishMaterialController extends Controller
 {
@@ -17,7 +21,7 @@ class EncoderPublishMaterialController extends Controller
     public function getData(Request $req){
         $perPage = $req->perpage;
 
-        $data = Material::where('status', 'publish')
+        $data = Material::where('status', 'published')
             ->paginate($perPage);
 
         return $data;

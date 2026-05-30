@@ -61,6 +61,10 @@ Route::middleware(['auth', 'role:encoder'])->group(function () {
     Route::get('/encoder/materials/draft-materials', [\App\Http\Controllers\Encoder\EncoderDraftMaterialController::class, 'index'])->name('encoder.draft-materials-index');
     Route::get('/encoder/materials/get-draft-materials', [\App\Http\Controllers\Encoder\EncoderDraftMaterialController::class, 'getData'])->name('encoder.get-draft-materials-index');
 
+    Route::get('/encoder/materials/submit-materials', [\App\Http\Controllers\Encoder\EncoderSubmitMaterialController::class, 'index'])->name('encoder.submit-materials-index');
+    Route::get('/encoder/materials/get-submit-materials', [\App\Http\Controllers\Encoder\EncoderSubmitMaterialController::class, 'getData'])->name('encoder.get-submit-materials-index');
+
+
     Route::get('/encoder/materials/publish-materials', [\App\Http\Controllers\Encoder\EncoderPublishMaterialController::class, 'index'])->name('encoder.publish-materials-index');
     Route::get('/encoder/materials/get-publish-materials', [\App\Http\Controllers\Encoder\EncoderPublishMaterialController::class, 'getData'])->name('encoder.get-publish-materials-index');
 

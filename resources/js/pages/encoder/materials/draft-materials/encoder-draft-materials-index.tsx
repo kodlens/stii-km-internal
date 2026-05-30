@@ -18,7 +18,7 @@ type PageProps = {
   title:string;
 }
 
-const EncoderDraftMaterials = ( { title } : PageProps) => {
+const EncoderDraftMaterialsIndex = ( { title } : PageProps) => {
   const { notification } = App.useApp();
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
@@ -193,9 +193,9 @@ const EncoderDraftMaterials = ( { title } : PageProps) => {
   )
 }
 
-export default EncoderDraftMaterials
+export default EncoderDraftMaterialsIndex
 
-EncoderDraftMaterials.layout = (page: ReactNode) => (
+EncoderDraftMaterialsIndex.layout = (page: ReactNode) => (
   <AuthenticatedLayout
     user={(page as ReactElement<{ auth: { user: User } }>).props.auth.user}
   >

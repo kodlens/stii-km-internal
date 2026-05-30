@@ -1,7 +1,6 @@
-import { Head, router } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Table, Pagination, Input, Space, Popconfirm, App } from 'antd';
-import { FileAddOutlined } from '@ant-design/icons';
 import Column from 'antd/es/table/Column';
 import axios from 'axios';
 import { ReactElement, ReactNode, useState } from 'react'
@@ -19,7 +18,7 @@ type PageProps = {
   title:string;
 }
 
-const EncoderAllMaterials = ( { title } : PageProps) => {
+const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
   const { notification } = App.useApp();
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
@@ -194,9 +193,9 @@ const EncoderAllMaterials = ( { title } : PageProps) => {
   )
 }
 
-export default EncoderAllMaterials
+export default EncoderAllMaterialsIndex
 
-EncoderAllMaterials.layout = (page: ReactNode) => (
+EncoderAllMaterialsIndex.layout = (page: ReactNode) => (
   <AuthenticatedLayout
     user={(page as ReactElement<{ auth: { user: User } }>).props.auth.user}
   >

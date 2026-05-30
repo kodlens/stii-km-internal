@@ -64,13 +64,13 @@ export default function EncoderLayout(
             key: 'encoder.submit-materials.index',
             icon: <SendHorizontal size={15}/>,
             label: 'Submitted',
-            onClick: () => router.visit('/encoder/submit-materials'),
+            onClick: () => router.visit('/encoder/materials/submit-materials'),
           },
           {
             key: 'encoder.publish-materials.index',
             icon: <BookCheck size={15}/>,
             label: 'Published',
-            onClick: () => router.visit('/encoder/publish-materials'),
+            onClick: () => router.visit('/encoder/materials/publish-materials'),
           },
           // {
           //   key: 'encoder.materials.index',

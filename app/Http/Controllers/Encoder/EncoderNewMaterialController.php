@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Http\Controllers\Base\MaterialController;
-
+use App\Models\Material;
 
 class EncoderNewMaterialController extends MaterialController
 {
