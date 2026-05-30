@@ -22,6 +22,24 @@ class EncoderNewMaterialController extends MaterialController
 
 
 
+    public function destroy($id){
+
+        $material = Material::find($id);
+
+        if($material->status === 'submitted' || $material->status === 'published'){
+            return response()->json([
+                'success' => false,
+                'message' => 'You can not delete submitted or published material.'
+            ], 200);
+        }
+
+        $material->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Material successfully deleted.'
+        ], 200);
+    }
 
 
 }
