@@ -170,9 +170,10 @@ const CreateEditMaterial = ({ id,
           </Form.Item>
         </div>
 
-        <div>
+        <Form.Item
+          name="category">
           <AiClassifier id={0} form={form} errors={errors} />
-        </div>
+        </Form.Item>
 
         {/* <Form.Item name="active" valuePropName="checked" className="w-full" label=""
           validateStatus={

@@ -159,6 +159,10 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
           }
 
           setData([...data, row]);
+          form.setFieldsValue({
+            ...form.getFieldsValue(),
+            category: [...data, row]
+          });
         }} />
       </div>
 
