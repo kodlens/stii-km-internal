@@ -71,6 +71,7 @@ const EncoderDraftMaterialsIndex = ( { title } : PageProps) => {
             >
               New Topic
             </Button> */}
+
           </div>
 
 
@@ -140,9 +141,9 @@ const EncoderDraftMaterialsIndex = ( { title } : PageProps) => {
                       title="Delete Category"
                       description="Are you sure you want to delete this category record?"
                       onConfirm={() => {
-                        axios.delete(`/admin/topics/${row.id}`)
+                        axios.delete(`/encoder/materials/draft-materials/${row.id}`)
                           .then((res) => {
-                            if (res.data.status === 'deleted') {
+                            if (res.data.success) {
                               notification.success({
                                 message: 'Daily Expense Deleted',
                                 description: 'The daily expense record has been deleted successfully.',

@@ -10,7 +10,7 @@ use App\Models\MaterialCategory;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use App\Http\Controllers\Utils\FilterDOM;
 
 
 class MaterialController extends Controller
@@ -28,10 +28,14 @@ class MaterialController extends Controller
 
         DB::transaction(function () use ($validated, $user) {
 
+            $filterDom = new FilterDOM();
+            $contentText = $filterDom->filterDom($validated['content']);
+
             $material = Material::create([
                 'title' => $validated['title'],
                 'slug' => Str::slug($validated['title']),
                 'content' => $validated['content'],
+                'content_text' => $contentText,
                 'encoded_by_id' => $user->id
             ]);
 

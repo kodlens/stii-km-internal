@@ -19,7 +19,8 @@ class EncoderAllMaterialController extends Controller
     public function getData(Request $req){
         $perPage = $req->perpage;
 
-        $data = Material::where('is_publish', 1)
+        $data = Material::with(['category'])
+            ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
         return $data;

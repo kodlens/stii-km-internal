@@ -19,4 +19,13 @@ class Material extends Model
         'encoded_by_id',
         'updated_by_id'
     ];
+
+
+    public function category(){
+        return $this->belongsTo(Category::class);
+    }
+
+    public function material_caetegories(){
+        return $this->hasMany(MaterialCategory::class);
+    }
 }

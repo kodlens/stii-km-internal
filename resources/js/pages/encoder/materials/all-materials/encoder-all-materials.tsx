@@ -12,7 +12,7 @@ import AuthenticatedLayout from '@/layouts/authenticated-layout';
 import { Category } from '@/types/category';
 import { PaginateResponse } from '@/types/paginateResponse';
 import { dateFormat } from '@/lib/utils';
-import ActiveChip from '@/components/active-chip';
+// import ActiveChip from '@/components/active-chip';
 
 type PageProps = {
   title:string;
@@ -107,8 +107,18 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
             >
               <Column title="Id" dataIndex="id" key="id" />
 
-              <Column title="Slug" key="slug" dataIndex="slug" />
-              <Column title="Category" key="category" dataIndex="category" />
+              <Column title="Title" key="title" dataIndex="title" />
+              {/* <Column title="Slug" key="slug" dataIndex="slug" /> */}
+              {/* <Column title="Category" key="category" dataIndex={['category', 'category']} /> */}
+
+              <Column
+                title="Content"
+                key="content_text"
+                dataIndex="content_text"
+                render={(content_text) => (<>
+                  {content_text?.length > 100 ? content_text.slice(0, 100) + '...' : content_text}
+                </>)}
+              />
 
               <Column
                 title="Created"
@@ -117,12 +127,12 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
                 render={(createdAt) => (<>{dateFormat(createdAt)}</>)}
               />
 
-              <Column
+              {/* <Column
                 title="Status"
                 key="active"
                 dataIndex="active"
                 render={(active) => <ActiveChip status={active}/>}
-              />
+              /> */}
 
               <Column
                 title="Action"
