@@ -23,7 +23,7 @@ class EncoderAllMaterialController extends Controller
         //     ->join('material_categories', 'material_categories.material_id', '=', 'materials.id')
         //     ->orderBy('materials.created_at', 'desc')
         //     ->paginate($perPage);
-          $data = Material::with(['materialCategories.category'])
+        $data = Material::with(['materialCategories.category'])
             ->orderBy('materials.created_at', 'desc')
             ->paginate($perPage);
 

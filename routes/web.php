@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 
 /*
@@ -10,6 +9,8 @@ use Inertia\Inertia;
 |--------------------------------------------------------------------------
 */
 Route::get('/', [\App\Http\Controllers\PublicFace\WelcomeController::class, 'index']);
+Route::get('/result', [\App\Http\Controllers\PublicFace\ResultController::class, 'index'])->name('public.result');
+Route::get('/get-result', [\App\Http\Controllers\PublicFace\ResultController::class, 'getSearch'])->name('public.result.search');
 
 
 
