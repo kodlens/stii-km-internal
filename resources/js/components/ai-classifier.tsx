@@ -1,8 +1,8 @@
 
-import { App, Button, Form, FormInstance, Table } from 'antd';
+import { App, Button, Form, FormInstance, Popconfirm, Table } from 'antd';
 import axios from 'axios';
 import {  useState } from 'react';
-import { BrushCleaning } from 'lucide-react';
+import { BrushCleaning, Trash2 } from 'lucide-react';
 import ModalSelectCategory from './modal-select-category';
 
 
@@ -94,9 +94,6 @@ const AiClassifier = ( { form, errors } : PageProps) => {
     });
   }
 
-  console.log(form.getFieldValue('categories'));
-
-
   return (
     <div className='border border-gray-300 p-4 rounded-md'>
 
@@ -116,7 +113,6 @@ const AiClassifier = ( { form, errors } : PageProps) => {
         </Button>
 
         <ModalSelectCategory onSelectCategory={(row) => {
-          console.log(row);
           const categories = form.getFieldValue("categories") || [];
 
           if(row.category_id > 0) {
@@ -133,6 +129,8 @@ const AiClassifier = ( { form, errors } : PageProps) => {
             ...form.getFieldsValue(),
             categories: [...categories, row]
           });
+
+          message.success('Category added successfully.');
 
         }} />
       </div>
@@ -176,19 +174,25 @@ const AiClassifier = ( { form, errors } : PageProps) => {
               {
                 title: "Action",
                 key: "action",
+                align: "center",
                 width: 150,
-                render: (_, record: { category_id:number }) => (
-                  <>
+                render: (_, record: { category_id: number }) => (
+                  <Popconfirm
+                    title="Remove Category"
+                    description="Are you sure you want to remove this category?"
+                    okText="Remove"
+                    cancelText="Cancel"
+                    okButtonProps={{ danger: true }}
+                    onConfirm={() => handleDelete(record.category_id)}
+                  >
                     <Button
                       type="link"
                       danger
-                      onClick={() => handleDelete(record.category_id)}
-                    >
-                      Delete
-                    </Button>
-                  </>
+                      icon={<Trash2 size={18} />}
+                    />
+                  </Popconfirm>
                 ),
-              },
+              }
             ]}
           />
         </Form.Item>

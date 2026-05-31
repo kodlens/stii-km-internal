@@ -1,4 +1,4 @@
-import { useMemo, useState, PropsWithChildren, ReactNode } from 'react';
+import { useCallback, useMemo, useState, PropsWithChildren, ReactNode } from 'react';
 import { router, useForm } from '@inertiajs/react';
 import { User } from '@/types';
 
@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons';
 
 import { Avatar, Button, ConfigProvider, Dropdown, Layout, Menu, MenuProps } from 'antd';
-import { BookCheck, LogOut, Newspaper, SendHorizontal, SquarePen, WalletCards } from 'lucide-react';
+import { BookCheck, LogOut, Plus, SendHorizontal, SquarePen, WalletCards } from 'lucide-react';
 import PanelSideBarLogo from '@/components/panel-sidebar-logo';
 
 const { Header, Sider, Content } = Layout;
@@ -31,9 +31,9 @@ export default function EncoderLayout(
   const [collapsed, setCollapsed] = useState(false);
   const [openKeys, setOpenKeys] = useState<string[]>(['encoder.materials']);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     post(route('logout'));
-  }
+  }, [post]);
 
   type MenuItem = Required<MenuProps>['items'][number];
   const navigationItems = useMemo<MenuItem[]>(() => ([
@@ -58,29 +58,24 @@ export default function EncoderLayout(
             key: 'encoder.draft-materials.index',
             icon: <SquarePen size={15}/>,
             label: 'Drafted',
-            onClick: () => router.visit('/encoder/materials/draft-materials'),
+            onClick: () => router.visit('/encoder/materials/drafted-materials'),
           },
           {
             key: 'encoder.submit-materials.index',
             icon: <SendHorizontal size={15}/>,
             label: 'Submitted',
-            onClick: () => router.visit('/encoder/materials/submit-materials'),
+            onClick: () => router.visit('/encoder/materials/submitted-materials'),
           },
           {
             key: 'encoder.publish-materials.index',
             icon: <BookCheck size={15}/>,
             label: 'Published',
-            onClick: () => router.visit('/encoder/materials/publish-materials'),
+            onClick: () => router.visit('/encoder/materials/published-materials'),
           },
-          // {
-          //   key: 'encoder.materials.index',
-          //   label: 'Materials',
-          //   onClick: () => router.visit('/encoder/materials'),
-          // },
           {
             key: 'encoder.new-material-create.index',
             label: 'New Post/Material',
-            icon: <Newspaper size={15}/>,
+            icon: <Plus size={15}/>,
             onClick: () => router.visit('/encoder/materials/new-material/create'),
           },
 
@@ -122,7 +117,17 @@ export default function EncoderLayout(
         onClick: () => router.visit('/change-password')
 
     },
-  ]), []);
+    {
+      type: 'divider'
+    },
+    {
+      key: 'logout',
+      danger: true,
+      icon: <LogOut size={15} />,
+      label: 'Logout',
+      onClick: handleLogout,
+    },
+  ]), [handleLogout]);
 
   const currentRoute = `${route().current() ?? ''}`;
   const selectedMenuKey = currentRoute.startsWith('encoder.materials.')

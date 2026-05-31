@@ -17,7 +17,7 @@ class MaterialController extends Controller
 {
 
     public function store(Request $req){
-        return $req;
+
         $validated = $req->validate([
             'title' => ['required', 'string', 'max:255', 'unique:materials'],
             'content' => ['required', 'string'],
@@ -28,16 +28,19 @@ class MaterialController extends Controller
 
         $user = Auth::user();
 
-        DB::transaction(function () use ($validated, $user) {
+        DB::transaction(function () use ($req, $validated, $user) {
 
             $filterDom = new FilterDOM();
             $contentText = $filterDom->htmlToPlainText($validated['content']);
+
+            $submitType = $req->submit_type ?? 'draft';
 
             $material = Material::create([
                 'title' => $validated['title'],
                 'slug' => Str::slug($validated['title']),
                 'content' => $validated['content'],
                 'content_text' => $contentText,
+                'status' => $submitType === 'submit' ? 'submitted': 'draft',
                 'encoded_by_id' => $user->id
             ]);
 
@@ -58,11 +61,25 @@ class MaterialController extends Controller
             }
 
             $name = $user->lname . ', ' . $user->fname;
+            $desc = '';
+            $action = 'insert';
+
+
+            if($submitType === 'submit'){
+                $action = 'insert-submit';
+                $desc = "[$material->id] $material->title successfully insert and set to submitted by $name.";
+            }
+
+            if($submitType === 'draft'){
+                $action = 'draft';
+                $desc = "[$material->id] $material->title successfully insert and set to draft by $name.";
+            }
+
 
             ActivityLog::create([
                 'user_id' => $user->id,
-                'action' => 'insert',
-                'description' => "[$material->id] $material->title successfully inserted by $name."
+                'action' => $action,
+                'description' => $desc
             ]);
         });
 
@@ -73,6 +90,9 @@ class MaterialController extends Controller
         ], 200);
     }
 
+    function logsDescription($action){
+
+    }
 
 
 
@@ -89,10 +109,11 @@ class MaterialController extends Controller
 
         $user = Auth::user();
 
-        DB::transaction(function () use ($validated, $user, $id) {
+        DB::transaction(function () use ($req, $validated, $user, $id) {
 
             $filterDom = new FilterDOM();
             $contentText = $filterDom->htmlToPlainText($validated['content']);
+            $submitType = $req->submit_type ?? 'draft';
 
             $material = Material::find($id);
             $material->update([
@@ -100,6 +121,7 @@ class MaterialController extends Controller
                 'slug' => Str::slug($validated['title']),
                 'content' => $validated['content'],
                 'content_text' => $contentText,
+                'status' => $req->submit_type === 'publish' ? 'published': ($req->submit_type === 'submit' ? 'submitted': 'draft'),
                 'updated_by_id' => $user->id,
                 'updated_at' => now()
             ]);
@@ -122,12 +144,31 @@ class MaterialController extends Controller
                 MaterialCategory::insert($data);
             }
 
+
             $name = $user->lname . ', ' . $user->fname;
+            $desc = '';
+            $action = 'insert';
+
+
+            if($submitType === 'submit'){
+                $action = 'submit';
+                $desc = "[$material->id] $material->title successfully  set to submitted by $name.";
+            }
+
+            if($submitType === 'publish'){
+                $action = 'publish';
+                $desc = "[$material->id] $material->title successfully  set to published by $name.";
+            }
+
+            if($submitType === 'draft'){
+                $action = 'draft';
+                $desc = "[$material->id] $material->title successfully set to draft by $name.";
+            }
 
             ActivityLog::create([
                 'user_id' => $user->id,
-                'action' => 'update',
-                'description' => "[$material->id] $material->title successfully updated by $name."
+                'action' => $action,
+                'description' => $desc
             ]);
         });
 

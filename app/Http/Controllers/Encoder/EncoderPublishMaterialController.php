@@ -12,7 +12,7 @@ use App\Models\Material;
 class EncoderPublishMaterialController extends Controller
 {
     public function index(){
-        return Inertia::render('encoder/materials/publish-materials/encoder-publish-materials-index', [
+        return Inertia::render('encoder/materials/published-materials/encoder-published-materials-index', [
             'title' => 'Draft Materials'
         ]);
     }

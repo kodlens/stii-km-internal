@@ -18,7 +18,7 @@ type PageProps = {
   title:string;
 }
 
-const EncoderDraftMaterialsIndex = ( { title } : PageProps) => {
+const EncoderPublishedMaterialsIndex = ( { title } : PageProps) => {
   const { notification } = App.useApp();
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
@@ -37,7 +37,7 @@ const EncoderDraftMaterialsIndex = ( { title } : PageProps) => {
         // to_date: search.date.format('YYYY-MM-DD'),
       }).toString();
 
-      const response = await axios.get<PaginateResponse<Category>>(`/encoder/materials/get-draft-materials?${params}`);
+      const response = await axios.get<PaginateResponse<Category>>(`/encoder/materials/get-published-materials?${params}`);
       return response.data;
     },
   })
@@ -57,8 +57,8 @@ const EncoderDraftMaterialsIndex = ( { title } : PageProps) => {
           <div className="flex flex-col gap-4 border-b border-slate-200/70 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Topic</div>
-              <div className="text-xl font-semibold text-slate-900">Draft Materials</div>
-              <div className="text-sm text-slate-500">Manage your KM draft materials</div>
+              <div className="text-xl font-semibold text-slate-900">Published Materials</div>
+              <div className="text-sm text-slate-500">Manage your KM published materials</div>
             </div>
 
             {/* <Button
@@ -71,7 +71,6 @@ const EncoderDraftMaterialsIndex = ( { title } : PageProps) => {
             >
               New Topic
             </Button> */}
-
           </div>
 
 
@@ -141,9 +140,9 @@ const EncoderDraftMaterialsIndex = ( { title } : PageProps) => {
                       title="Delete Category"
                       description="Are you sure you want to delete this category record?"
                       onConfirm={() => {
-                        axios.delete(`/encoder/materials/draft-materials/${row.id}`)
+                        axios.delete(`/admin/topics/${row.id}`)
                           .then((res) => {
-                            if (res.data.success) {
+                            if (res.data.status === 'deleted') {
                               notification.success({
                                 message: 'Daily Expense Deleted',
                                 description: 'The daily expense record has been deleted successfully.',
@@ -194,9 +193,9 @@ const EncoderDraftMaterialsIndex = ( { title } : PageProps) => {
   )
 }
 
-export default EncoderDraftMaterialsIndex
+export default EncoderPublishedMaterialsIndex
 
-EncoderDraftMaterialsIndex.layout = (page: ReactNode) => (
+EncoderPublishedMaterialsIndex.layout = (page: ReactNode) => (
   <AuthenticatedLayout
     user={(page as ReactElement<{ auth: { user: User } }>).props.auth.user}
   >

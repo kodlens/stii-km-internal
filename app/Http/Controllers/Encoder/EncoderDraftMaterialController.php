@@ -11,16 +11,18 @@ use App\Models\Material;
 class EncoderDraftMaterialController extends Controller
 {
     public function index(){
-        return Inertia::render('encoder/materials/draft-materials/encoder-draft-materials-index', [
+        return Inertia::render('encoder/materials/drafted-materials/encoder-drafted-materials-index', [
             'title' => 'Draft Materials'
         ]);
     }
+
 
 
     public function getData(Request $req){
         $perPage = $req->perpage;
 
         $data = Material::where('status', 'draft')
+            ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
         return $data;

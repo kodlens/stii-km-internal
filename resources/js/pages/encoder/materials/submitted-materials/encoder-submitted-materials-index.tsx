@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Table, Pagination, Input, Space, Popconfirm, App } from 'antd';
 import Column from 'antd/es/table/Column';
@@ -12,13 +12,13 @@ import AuthenticatedLayout from '@/layouts/authenticated-layout';
 import { Category } from '@/types/category';
 import { PaginateResponse } from '@/types/paginateResponse';
 import { dateFormat } from '@/lib/utils';
-import ActiveChip from '@/components/active-chip';
+import StatusChip from '@/components/status-chip';
 
 type PageProps = {
   title:string;
 }
 
-const EncoderSubmitMaterialIndex = ( { title } : PageProps) => {
+const EncoderSubmittedMaterialIndex = ( { title } : PageProps) => {
   const { notification } = App.useApp();
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
@@ -37,7 +37,7 @@ const EncoderSubmitMaterialIndex = ( { title } : PageProps) => {
         // to_date: search.date.format('YYYY-MM-DD'),
       }).toString();
 
-      const response = await axios.get<PaginateResponse<Category>>(`/encoder/materials/get-draft-materials?${params}`);
+      const response = await axios.get<PaginateResponse<Category>>(`/encoder/materials/get-submitted-materials?${params}`);
       return response.data;
     },
   })
@@ -46,6 +46,10 @@ const EncoderSubmitMaterialIndex = ( { title } : PageProps) => {
     setPage(nextPage);
     if (pageSize) setPerPage(pageSize);
   };
+
+  const handleEdit = (record: Category) => {
+    router.visit(`/encoder/materials/new-material/${record.id}/edit`);
+  }
 
 
   return (
@@ -57,8 +61,8 @@ const EncoderSubmitMaterialIndex = ( { title } : PageProps) => {
           <div className="flex flex-col gap-4 border-b border-slate-200/70 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Topic</div>
-              <div className="text-xl font-semibold text-slate-900">Draft Materials</div>
-              <div className="text-sm text-slate-500">Manage your KM draft materials</div>
+              <div className="text-xl font-semibold text-slate-900">Submitted Materials</div>
+              <div className="text-sm text-slate-500">Manage your KM submitted materials</div>
             </div>
 
             {/* <Button
@@ -107,8 +111,18 @@ const EncoderSubmitMaterialIndex = ( { title } : PageProps) => {
             >
               <Column title="Id" dataIndex="id" key="id" />
 
-              <Column title="Slug" key="slug" dataIndex="slug" />
-              <Column title="Category" key="category" dataIndex="category" />
+              <Column title="Title" key="title" dataIndex="title" />
+              {/* <Column title="Slug" key="slug" dataIndex="slug" /> */}
+              {/* <Column title="Category" key="category" dataIndex={['category', 'category']} /> */}
+
+              <Column
+                title="Content"
+                key="content_text"
+                dataIndex="content_text"
+                render={(content_text) => (<>
+                  {content_text?.length > 100 ? content_text.slice(0, 100) + '...' : content_text}
+                </>)}
+              />
 
               <Column
                 title="Created"
@@ -119,9 +133,9 @@ const EncoderSubmitMaterialIndex = ( { title } : PageProps) => {
 
               <Column
                 title="Status"
-                key="active"
-                dataIndex="active"
-                render={(active) => <ActiveChip status={active}/>}
+                key="status"
+                dataIndex="status"
+                render={(status) => <StatusChip status={status}/>}
               />
 
               <Column
@@ -132,9 +146,7 @@ const EncoderSubmitMaterialIndex = ( { title } : PageProps) => {
                     <Button
                       type='text'
                       icon={<Edit2Icon size={15} />}
-                      onClick={() => {
-
-                      }}
+                      onClick={() => handleEdit(row)}
                     />
                     <Popconfirm
                       title="Delete Category"
@@ -193,9 +205,9 @@ const EncoderSubmitMaterialIndex = ( { title } : PageProps) => {
   )
 }
 
-export default EncoderSubmitMaterialIndex
+export default EncoderSubmittedMaterialIndex
 
-EncoderSubmitMaterialIndex.layout = (page: ReactNode) => (
+EncoderSubmittedMaterialIndex.layout = (page: ReactNode) => (
   <AuthenticatedLayout
     user={(page as ReactElement<{ auth: { user: User } }>).props.auth.user}
   >

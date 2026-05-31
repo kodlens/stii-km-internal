@@ -58,15 +58,15 @@ Route::middleware(['auth', 'role:encoder'])->group(function () {
     Route::get('/encoder/materials/all-materials', [\App\Http\Controllers\Encoder\EncoderAllMaterialController::class, 'index'])->name('encoder.all-materials-index');
     Route::get('/encoder/materials/get-all-materials', [\App\Http\Controllers\Encoder\EncoderAllMaterialController::class, 'getData'])->name('encoder.all-materials-index');
 
-    Route::get('/encoder/materials/draft-materials', [\App\Http\Controllers\Encoder\EncoderDraftMaterialController::class, 'index'])->name('encoder.draft-materials-index');
-    Route::get('/encoder/materials/get-draft-materials', [\App\Http\Controllers\Encoder\EncoderDraftMaterialController::class, 'getData'])->name('encoder.get-draft-materials-index');
+    Route::get('/encoder/materials/drafted-materials', [\App\Http\Controllers\Encoder\EncoderDraftMaterialController::class, 'index'])->name('encoder.drafted-materials-index');
+    Route::get('/encoder/materials/get-drafted-materials', [\App\Http\Controllers\Encoder\EncoderDraftMaterialController::class, 'getData'])->name('encoder.get-drafted-materials-index');
 
-    Route::get('/encoder/materials/submit-materials', [\App\Http\Controllers\Encoder\EncoderSubmitMaterialController::class, 'index'])->name('encoder.submit-materials-index');
-    Route::get('/encoder/materials/get-submit-materials', [\App\Http\Controllers\Encoder\EncoderSubmitMaterialController::class, 'getData'])->name('encoder.get-submit-materials-index');
+    Route::get('/encoder/materials/submitted-materials', [\App\Http\Controllers\Encoder\EncoderSubmitMaterialController::class, 'index'])->name('encoder.submitted-materials-index');
+    Route::get('/encoder/materials/get-submitted-materials', [\App\Http\Controllers\Encoder\EncoderSubmitMaterialController::class, 'getData'])->name('encoder.get-submitted-materials-index');
 
 
-    Route::get('/encoder/materials/publish-materials', [\App\Http\Controllers\Encoder\EncoderPublishMaterialController::class, 'index'])->name('encoder.publish-materials-index');
-    Route::get('/encoder/materials/get-publish-materials', [\App\Http\Controllers\Encoder\EncoderPublishMaterialController::class, 'getData'])->name('encoder.get-publish-materials-index');
+    Route::get('/encoder/materials/published-materials', [\App\Http\Controllers\Encoder\EncoderPublishMaterialController::class, 'index'])->name('encoder.published-materials-index');
+    Route::get('/encoder/materials/get-published-materials', [\App\Http\Controllers\Encoder\EncoderPublishMaterialController::class, 'getData'])->name('encoder.get-published-materials-index');
 
 
     Route::resource('/encoder/materials/new-material', \App\Http\Controllers\Encoder\EncoderNewMaterialController::class)->names('encoder.new-material');

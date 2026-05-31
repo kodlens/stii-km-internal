@@ -5,14 +5,19 @@ import Ckeditor from '@/components/ckeditor'
 import axios from 'axios'
 import AiClassifier from '@/components/ai-classifier'
 import { useEffect } from 'react'
+import { SendHorizontal } from 'lucide-react'
+
+
+type SubmitAction = 'draft' | 'submit';
 
 type Pageprops = {
   material: MaterialProps;
   ckLicense: string;
   form: FormInstance;
-  onSubmit: (values: object) => Promise<void>;
+  handleSubmit: (action: SubmitAction) => Promise<void>;
   errors: Record<string, unknown[]>;
   loading: boolean;
+  role: string;
 }
 
 //extends material since additional fields are added
@@ -20,8 +25,9 @@ type Pageprops = {
 const CreateEditMaterial = ({
   material, ckLicense, form,
   errors,
+  role,
   loading,
-  onSubmit
+  handleSubmit
 }
   : Pageprops) => {
 
@@ -70,7 +76,6 @@ const CreateEditMaterial = ({
       }
     },
     onRemove(info) {
-      //console.log(info.name);
 
       //return;
       if (material && material.id > 0) {
@@ -104,8 +109,6 @@ const CreateEditMaterial = ({
 
   const setDataForUpdate = () => {
 
-    console.log(material.material_categories);
-
     form.setFieldsValue({
       title: material.title,
       content: material.content,
@@ -121,6 +124,7 @@ const CreateEditMaterial = ({
   }
 
 
+
   return (
     <>
 
@@ -134,8 +138,9 @@ const CreateEditMaterial = ({
           content_text: true,
           upload: [],
           categories: [],
+          submit_type: null
         }}
-        onFinish={onSubmit}>
+      >
 
         <Form.Item className='w-full'
           name="title"
@@ -211,17 +216,40 @@ const CreateEditMaterial = ({
           <Checkbox>Active</Checkbox>
         </Form.Item> */}
 
-        <div className="mt-10 flex">
-          <Button
-            icon={<FileAddOutlined />}
-            type="primary"
-            loading={loading}
-            className="h-10 rounded-xl px-5 ml-auto"
-            htmlType='submit'
-          >
-            Save
-          </Button>
-        </div>
+
+          {role === 'encoder' && (
+            <div className='flex'>
+
+              <div className="ml-auto flex gap-3">
+                <Button
+                  icon={<SendHorizontal size={15} />}
+                  type="primary"
+                  loading={loading}
+                  className="h-10 rounded-xl px-5 bg-green-600! text-white
+                    hover:bg-green-500!
+                    active:bg-green-700!
+                    focus:outline-none! focus:ring-3! focus:ring-green-500!
+                    focus:ring-offset-1!"
+                  onClick={() => handleSubmit('submit')}
+                >
+                  Save & Submit
+                </Button>
+
+                <Button
+                  icon={<FileAddOutlined />}
+                  type="primary"
+                  loading={loading}
+                  className="h-10 rounded-xl px-5"
+                  onClick={() => handleSubmit('draft')}
+
+                >
+                  Save as Draft
+                </Button>
+              </div>
+
+            </div>
+          )}
+
 
       </Form>
 

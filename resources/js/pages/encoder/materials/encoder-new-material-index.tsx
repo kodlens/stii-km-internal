@@ -10,10 +10,15 @@ import { router } from '@inertiajs/react'
 type Pageprops = {
   material: MaterialProps;
   ckLicense: string;
+  auth: {
+    user: User;
+  };
 }
 
 
-const EncoderNewMaterial = ({ material, ckLicense }: Pageprops) => {
+const EncoderNewMaterial = ({ auth, material, ckLicense }: Pageprops) => {
+
+  const role = auth.user.role.toLowerCase();
 
   const [form] = Form.useForm();
   const [loading, setLoading] = useState<boolean>(false);
@@ -30,25 +35,30 @@ const EncoderNewMaterial = ({ material, ckLicense }: Pageprops) => {
   // };
 
 
-  const submit = async (values: object) => {
+  const submit = async (action:string) => {
+    const values = await form.validateFields();
+
     setLoading(true)
     if(material && material.id > 0) {
-      update(values, material.id);
+      update(values, action, material.id);
     }else{
-      store(values);
+      store(values, action);
     }
   }
 
-  const store = (values: object) => {
-    axios.post('/encoder/materials/new-material', values).then(res=> {
+  const store = (values: object, action:string) => {
+    axios.post('/encoder/materials/new-material', {
+      ...values,
+      submit_type: action
+    }).then(res=> {
       if(res.data.success) {
         notification.success({
           title: 'SAVED!',
           description: 'Material successfully recorded.'
         });
-        router.reload();
+        setLoading(false)
+        router.visit('/encoder/materials/all-materials');
       }
-      setLoading(false)
     }).catch((error:unknown) => {
       setLoading(false);
       if(isAxiosError(error) && error.response && error.response.status === 422){
@@ -66,16 +76,20 @@ const EncoderNewMaterial = ({ material, ckLicense }: Pageprops) => {
     })
   }
 
-  const update = (values: object, id:number) => {
-    axios.put(`/encoder/materials/new-material/${id}`, values).then(res=> {
+  const update = (values: object, action:string,  id:number) => {
+    axios.put(`/encoder/materials/new-material/${id}`, {
+      ...values,
+      submit_type: action
+    }).then(res=> {
       if(res.data.success) {
         notification.success({
           title: 'UDPATED!',
           description: 'Material successfully updated.'
         });
-        router.reload();
+        setLoading(false)
+        router.visit('/encoder/materials/all-materials');
       }
-      setLoading(false)
+
     }).catch((error:unknown) => {
       setLoading(false);
       if(isAxiosError(error) && error.response && error.response.status === 422){
@@ -112,7 +126,8 @@ const EncoderNewMaterial = ({ material, ckLicense }: Pageprops) => {
               material={material}
               ckLicense={ckLicense}
               form={form}
-              onSubmit={submit}
+              role={role}
+              handleSubmit={(values) => submit(values)}
               errors={errors} loading={loading} />
 
           </div>

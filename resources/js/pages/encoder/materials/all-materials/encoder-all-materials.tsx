@@ -12,6 +12,7 @@ import AuthenticatedLayout from '@/layouts/authenticated-layout';
 import { Category } from '@/types/category';
 import { PaginateResponse } from '@/types/paginateResponse';
 import { dateFormat } from '@/lib/utils';
+import StatusChip from '@/components/status-chip';
 // import ActiveChip from '@/components/active-chip';
 
 type PageProps = {
@@ -48,11 +49,8 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
   };
 
   const handleEdit = (record: Category) => {
-    console.log(record);
     router.visit(`/encoder/materials/new-material/${record.id}/edit`);
   }
-
-  console.log(title);
 
 
   return (
@@ -95,13 +93,6 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
               Search
             </Button>
           </div>
-          {/* <div className="px-6 pb-2">
-            <div className="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2">
-              <span className="text-xs font-semibold uppercase tracking-wide text-rose-700">Total Daily Expenses</span>
-              <span className="text-base font-bold text-rose-800">
-              </span>
-            </div>
-          </div> */}
 
           <div className="px-6 pb-6">
             <Table
@@ -134,12 +125,12 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
                 render={(createdAt) => (<>{dateFormat(createdAt)}</>)}
               />
 
-              {/* <Column
+              <Column
                 title="Status"
-                key="active"
-                dataIndex="active"
-                render={(active) => <ActiveChip status={active}/>}
-              /> */}
+                key="status"
+                dataIndex="status"
+                render={(status) => <StatusChip status={status}/>}
+              />
 
               <Column
                 title="Action"

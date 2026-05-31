@@ -11,7 +11,7 @@ use Inertia\Response;
 class EncoderSubmitMaterialController extends Controller
 {
     public function index(){
-        return Inertia::render('encoder/materials/submit-materials/encoder-submit-materials-index', [
+        return Inertia::render('encoder/materials/submitted-materials/encoder-submitted-materials-index', [
             'title' => 'Draft Materials'
         ]);
     }
@@ -21,6 +21,7 @@ class EncoderSubmitMaterialController extends Controller
         $perPage = $req->perpage;
 
         $data = Material::where('status', 'submitted')
+            ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
         return $data;

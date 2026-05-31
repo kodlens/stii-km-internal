@@ -2,6 +2,7 @@ import { Category } from "@/types/category";
 import { PaginateResponse } from "@/types/paginateResponse";
 import { Button, Modal, Table } from "antd";
 import axios from "axios";
+import { MousePointer2 } from "lucide-react";
 import { useEffect, useState } from "react";
 type PageProps = {
   onSelectCategory: (record: CategoryResult) => void
@@ -84,11 +85,13 @@ const ModalSelectCategory = ( { onSelectCategory } : PageProps) => {
             {
               title: "Action",
               key: "action",
+              align: "center",
               width: 150,
               render: (_, record) => (
                 <>
                   <Button
-                    type="link"
+                    type="primary"
+                    icon={<MousePointer2 size={15} />}
                     loading={loading}
                     onClick={() => {
                       onSelectCategory({
@@ -99,7 +102,7 @@ const ModalSelectCategory = ( { onSelectCategory } : PageProps) => {
                       });
                     }}
                   >
-                    Select
+
                   </Button>
                 </>
               ),
