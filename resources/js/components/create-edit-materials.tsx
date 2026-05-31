@@ -4,10 +4,11 @@ import { Material } from '@/types/material'
 import Ckeditor from '@/components/ckeditor'
 import axios from 'axios'
 import AiClassifier from '@/components/ai-classifier'
+import { useEffect } from 'react'
+import { Category } from '@/types/category'
 
 type Pageprops = {
-  id: number;
-  material: Material;
+  material: MaterialProps;
   ckLicense: string;
   form: FormInstance;
   onSubmit: (values: object) => Promise<void>;
@@ -15,8 +16,21 @@ type Pageprops = {
   loading: boolean;
 }
 
+//extends material since additional fields are added
+type MaterialProps = Material & {
+  material_categories: {
+    category: Category,
+    category_id: number;
+    id: number;
+    material_id: number;
+    score: number;
+    analysis: string;
+    created_at: Date;
+    updated_at: Date;
+  }
+};
 
-const CreateEditMaterial = ({ id,
+const CreateEditMaterial = ({
   material, ckLicense, form,
   errors,
   loading,
@@ -45,7 +59,7 @@ const CreateEditMaterial = ({ id,
 
     onChange(info) {
 
-      if (id > 0) {
+      if (material && material.id > 0) {
         //form.setFieldValue('docs', info.file.name)
       } else {
         if (info.file.status === "done") {
@@ -58,7 +72,6 @@ const CreateEditMaterial = ({ id,
           if(info.file.response.success){
             form.setFieldValue('content', info.file.response.message);
           }
-
 
           form.setFieldValue("docs", info.file.response);
         } else if (info.file.status === "error") {
@@ -73,10 +86,10 @@ const CreateEditMaterial = ({ id,
       //console.log(info.name);
 
       //return;
-      if (id > 0) {
+      if (material && material.id > 0) {
         //remove image if mode is update (temp,uploadedfiles)
         axios
-          .post(`/panel/image-remove/${id}/${info.name}`)
+          .post(`/panel/image-remove/${material.id}/${info.name}`)
           .then((res) => {
             if (res.data.status === "temp_deleted") {
               message.success("File removed.");
@@ -95,6 +108,23 @@ const CreateEditMaterial = ({ id,
     },
   };
 
+  useEffect(() => {
+    if (material && material.id > 0) {
+      //set text to the editor
+      setDataForUpdate();
+    }
+  }, [material])
+
+  const setDataForUpdate = () => {
+
+    console.log(material.material_categories);
+
+    form.setFieldsValue({
+      title: material.title,
+      content: material.content,
+     // categories: material.materialCategories.map((category) => category.category_id),
+    })
+  }
 
 
   return (
@@ -109,6 +139,7 @@ const CreateEditMaterial = ({ id,
           content: null,
           content_text: true,
           upload: [],
+          categories: [],
         }}
         onFinish={onSubmit}>
 
@@ -169,7 +200,7 @@ const CreateEditMaterial = ({ id,
         </div>
 
         <Form.Item
-          name="category">
+          name="categories">
           <AiClassifier id={0} form={form} errors={errors} />
         </Form.Item>
 

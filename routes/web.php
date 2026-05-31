@@ -69,10 +69,7 @@ Route::middleware(['auth', 'role:encoder'])->group(function () {
     Route::get('/encoder/materials/get-publish-materials', [\App\Http\Controllers\Encoder\EncoderPublishMaterialController::class, 'getData'])->name('encoder.get-publish-materials-index');
 
 
-
-
-    Route::get('/encoder/materials/new-material', [\App\Http\Controllers\Encoder\EncoderNewMaterialController::class, 'index'])->name('encoder.new-material.index');
-    Route::post('/encoder/materials/new-material', [\App\Http\Controllers\Encoder\EncoderNewMaterialController::class, 'store'])->name('encoder.new-material.store');
+    Route::resource('/encoder/materials/new-material', \App\Http\Controllers\Encoder\EncoderNewMaterialController::class)->names('encoder.new-material');
 
 });
 

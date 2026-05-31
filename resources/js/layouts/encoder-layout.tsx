@@ -78,10 +78,10 @@ export default function EncoderLayout(
           //   onClick: () => router.visit('/encoder/materials'),
           // },
           {
-            key: 'encoder.new-material.index',
+            key: 'encoder.new-material-create.index',
             label: 'New Post/Material',
             icon: <Newspaper size={15}/>,
-            onClick: () => router.visit('/encoder/materials/new-material'),
+            onClick: () => router.visit('/encoder/materials/new-material/create'),
           },
 
         ],

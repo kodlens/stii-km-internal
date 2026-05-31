@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Table, Pagination, Input, Space, Popconfirm, App } from 'antd';
 import Column from 'antd/es/table/Column';
@@ -49,11 +49,15 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
 
   const handleEdit = (record: Category) => {
     console.log(record);
+    router.visit(`/encoder/materials/new-material/${record.id}/edit`);
   }
+
+  console.log(title);
+
 
   return (
     <>
-      <Head title={title}></Head>
+      <Head title={title} />
 
       <div className="mx-2 md:mx-auto max-w-4xl">
         <div className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/60">

@@ -7,13 +7,12 @@ import axios, { isAxiosError } from 'axios'
 import CreateEditMaterial from '@/components/create-edit-materials'
 
 type Pageprops = {
-  id: number;
   material: Material;
   ckLicense: string;
 }
 
 
-const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
+const EncoderNewMaterial = ({ material, ckLicense }: Pageprops) => {
 
   const [form] = Form.useForm();
   const [loading, setLoading] = useState<boolean>(false);
@@ -75,7 +74,7 @@ const EncoderNewMaterial = ({ id, material, ckLicense }: Pageprops) => {
 
           <div className='px-6 py-6'>
 
-            <CreateEditMaterial id={id}
+            <CreateEditMaterial
               material={material}
               ckLicense={ckLicense}
               form={form}

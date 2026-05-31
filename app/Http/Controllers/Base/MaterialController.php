@@ -23,8 +23,8 @@ class MaterialController extends Controller
             'content' => ['required', 'string'],
             'category.*' => ['nullable'],
         ]);
-
-         $user = Auth::user();
+        return $req;
+        $user = Auth::user();
 
         DB::transaction(function () use ($validated, $user) {
 
@@ -43,7 +43,7 @@ class MaterialController extends Controller
 
                 $data = [];
 
-                foreach ($validated['category'] as $category) {
+                foreach ($validated['categories'] as $category) {
                     $data[] = [
                         'material_id' => $material->id,
                         'category_id' => $category['category_id'],
@@ -70,4 +70,7 @@ class MaterialController extends Controller
         ], 200);
 
     }
+
+
+
 }

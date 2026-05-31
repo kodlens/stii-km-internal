@@ -1,5 +1,5 @@
 
-import { App, Button, Form, FormInstance, Input, Table } from 'antd';
+import { App, Button, Form, FormInstance, Table } from 'antd';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { BrushCleaning } from 'lucide-react';
@@ -11,11 +11,11 @@ type PageProps = {
   form: FormInstance
   errors: Record<string, unknown[]>
 }
-type AIResult = {
-  id: number,
-  score: number,
-  analysis: string
-}
+// type AIResult = {
+//   id: number,
+//   score: number,
+//   analysis: string
+// }
 
 type CategoryResult = {
   category_id: number,
@@ -161,7 +161,7 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
           setData([...data, row]);
           form.setFieldsValue({
             ...form.getFieldsValue(),
-            category: [...data, row]
+            categories: [...data, row]
           });
         }} />
       </div>
