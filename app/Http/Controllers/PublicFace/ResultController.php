@@ -16,16 +16,26 @@ class ResultController extends Controller
     }
 
     public function getSearch(Request $req){
-        $search = $req->search ?? '';
+        $search = trim($req->search ?? '');
         $perPage = $req->per_page ?? 10;
 
-        $data = Material::with(['materialCategories.category'])
-            ->where('status', 'published')
-            ->where(function ($query) use ($search) {
-                $query->where('title', 'like', '%' . $search . '%')
-                    ->orWhere('content_text', 'like', '%' . $search . '%');
-            })
-            ->orderBy('materials.created_at', 'desc')
+        $query = Material::query()
+            ->with(['materialCategories.category'])
+            ->where('status', 'published');
+
+        if ($search !== '') {
+            $query
+                ->select('materials.*')
+                ->selectRaw(
+                    'MATCH(title, content_text) AGAINST (? IN NATURAL LANGUAGE MODE) as relevance',
+                    [$search]
+                )
+                ->whereFullText(['title', 'content_text'], $search)
+                ->orderByDesc('relevance');
+        }
+
+        $data = $query
+            ->orderByDesc('materials.created_at')
             ->paginate($perPage)
             ->through(function ($material) {
                 return [

@@ -38,6 +38,8 @@ export default function Result({ search = '' }: PageProps) {
   });
 
   const getSearch = (searchValue: string, page = 1) => {
+    if (isLoading) return;
+
     setIsLoading(true);
 
     axios
@@ -80,6 +82,7 @@ export default function Result({ search = '' }: PageProps) {
 
   const handleSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (isLoading) return;
 
     router.visit('/result', {
       data: { search: query },
@@ -89,6 +92,8 @@ export default function Result({ search = '' }: PageProps) {
   };
 
   const handlePageChange = (page: number) => {
+    if (isLoading) return;
+
     getSearch(query, page);
   };
 
@@ -145,10 +150,11 @@ export default function Result({ search = '' }: PageProps) {
                   </div>
                   <button
                     type="submit"
-                    className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-[#0D4E86] px-7 text-base font-semibold text-white shadow-lg shadow-[#0D4E86]/20 transition hover:bg-[#0A3F6D] focus:outline-none focus:ring-4 focus:ring-sky-200"
+                    disabled={isLoading}
+                    className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-[#0D4E86] px-7 text-base font-semibold text-white shadow-lg shadow-[#0D4E86]/20 transition hover:bg-[#0A3F6D] focus:outline-none focus:ring-4 focus:ring-sky-200 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:bg-[#0D4E86]"
                   >
-                    <Search size={18} />
-                    Search
+                    <Search size={18} className={isLoading ? 'animate-pulse' : ''} />
+                    {isLoading ? 'Searching...' : 'Search'}
                   </button>
                 </form>
               </div>
@@ -255,7 +261,7 @@ export default function Result({ search = '' }: PageProps) {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  disabled={pagination.current_page <= 1}
+                  disabled={isLoading || pagination.current_page <= 1}
                   onClick={() => handlePageChange(pagination.current_page - 1)}
                   className="h-10 rounded-lg border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:border-[#0D4E86] hover:text-[#0D4E86] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:border-slate-200 disabled:hover:text-slate-700"
                 >
@@ -263,7 +269,7 @@ export default function Result({ search = '' }: PageProps) {
                 </button>
                 <button
                   type="button"
-                  disabled={pagination.current_page >= pagination.last_page}
+                  disabled={isLoading || pagination.current_page >= pagination.last_page}
                   onClick={() => handlePageChange(pagination.current_page + 1)}
                   className="h-10 rounded-lg bg-[#0D4E86] px-4 text-sm font-semibold text-white transition hover:bg-[#0A3F6D] disabled:cursor-not-allowed disabled:opacity-45"
                 >

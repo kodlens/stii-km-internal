@@ -16,6 +16,7 @@ class Material extends Model
         'is_publish',
         'is_trash',
         'uploaded_file',
+        'access_level',
         'encoded_by_id',
         'updated_by_id'
     ];

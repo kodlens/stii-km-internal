@@ -18,7 +18,11 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'lname',
+        'fname',
+        'mname',
+        'role',
+        'access_level',
         'email',
         'password',
     ];
@@ -51,6 +55,7 @@ class User extends Authenticatable
         return match (strtolower($this->role)) {
             'admin', 'administrator' => 'admin.dashboard',
             'encoder' => 'encoder.dashboard',
+            'user' => 'user.welcome',
             default => 'dashboard',
         };
     }

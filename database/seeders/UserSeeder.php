@@ -33,6 +33,16 @@ class UserSeeder extends Seeder
                 'sex' => 'MALE',
                 'role'=> 'encoder',
                 'password' => Hash::make('a')
+            ],
+
+            [
+                'username' => 'user',
+                'lname' => 'Amparado',
+                'fname' => 'Etienne',
+                'mname' => 'N',
+                'sex' => 'MALE',
+                'role'=> 'user',
+                'password' => Hash::make('a')
             ]
         ];
 

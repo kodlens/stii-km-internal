@@ -1,17 +1,28 @@
 import { FormEvent, useState } from 'react';
-import { Head, router } from '@inertiajs/react';
-import {  Search, ShieldCheck, Sparkles } from 'lucide-react';
+import { Head, router, useForm } from '@inertiajs/react';
+import { LogOut, Search, ShieldCheck, Sparkles } from 'lucide-react';
 
 export default function Welcome() {
+  const { post, processing } = useForm();
   const [query, setQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+
+  const handleLogout = () => {
+    if (processing) return;
+
+    post(route('logout'));
+  };
 
   const handleSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (isSearching) return;
 
     router.visit('/result', {
       data: { search: query },
       preserveState: true,
       preserveScroll: true,
+      onStart: () => setIsSearching(true),
+      onFinish: () => setIsSearching(false),
     });
   };
 
@@ -39,13 +50,15 @@ export default function Welcome() {
                 </div>
               </div>
 
-              {/* <Link
-                href="/login"
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-white hover:text-[#0D4E86]"
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={processing}
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-white hover:text-[#0D4E86] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-white/10 disabled:hover:text-white"
               >
-                Staff Login
-                <ArrowRight size={16} />
-              </Link> */}
+                <LogOut size={16} className={processing ? 'animate-pulse' : ''} />
+                {processing ? 'Logging out...' : 'Logout'}
+              </button>
             </header>
 
             <div className="flex flex-1 items-center justify-center py-16">
@@ -82,10 +95,11 @@ export default function Welcome() {
                   </div>
                   <button
                     type="submit"
-                    className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-[#0D4E86] px-7 text-base font-semibold text-white shadow-lg shadow-[#0D4E86]/20 transition hover:bg-[#0A3F6D] focus:outline-none focus:ring-4 focus:ring-sky-200"
+                    disabled={isSearching}
+                    className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-[#0D4E86] px-7 text-base font-semibold text-white shadow-lg shadow-[#0D4E86]/20 transition hover:bg-[#0A3F6D] focus:outline-none focus:ring-4 focus:ring-sky-200 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:bg-[#0D4E86]"
                   >
-                    <Search size={18} />
-                    Search
+                    <Search size={18} className={isSearching ? 'animate-pulse' : ''} />
+                    {isSearching ? 'Searching...' : 'Search'}
                   </button>
                 </form>
 
