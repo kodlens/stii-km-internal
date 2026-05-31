@@ -2,7 +2,7 @@ import { Head, router } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Table, Pagination, Input, Space, Popconfirm, App } from 'antd';
 import Column from 'antd/es/table/Column';
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 import { ReactElement, ReactNode, useState } from 'react'
 import { Edit2Icon, Search, Trash } from 'lucide-react';
 
@@ -150,25 +150,48 @@ const EncoderDraftedtMaterialsIndex = ( { title } : PageProps) => {
                       onClick={() => handleEdit(row)}
                     />
                     <Popconfirm
-                      title="Delete Category"
-                      description="Are you sure you want to delete this category record?"
+                      title="Delete?"
+                      description="Are you sure you want to delete this record?"
                       onConfirm={() => {
-                        axios.delete(`/admin/topics/${row.id}`)
+                        axios.delete(`/encoder/materials/all-materials/${row.id}`)
                           .then((res) => {
-                            if (res.data.status === 'deleted') {
+                            if (res.data.success) {
                               notification.success({
-                                message: 'Daily Expense Deleted',
-                                description: 'The daily expense record has been deleted successfully.',
+                                message: 'Material Deleted',
+                                description: 'Material has been deleted successfully.',
                               });
                             }
                             refetch();
                             //setIsModalOpen(false);
                           })
-                          .catch(() => {
+                          .catch((err:unknown) => {
+
+                            if(isAxiosError(err) && err.response){
+                              if(err.response.status === 422){
+                                notification.error({
+                                  message: 'Error!',
+                                  description: err.response.data.message,
+                                });
+                              } else if(err.response.status === 403){
+                                notification.error({
+                                  message: 'Error!',
+                                  description: 'Action not allowed!',
+                                });
+                              } else {
+                                notification.error({
+                                  message: 'Error!',
+                                  description: 'Something went wrong. Please try again.',
+                                });
+                              }
+
+                              return;
+                            }
+
                             notification.error({
-                              message: 'Error',
-                              description: 'There was an error deleting the category.',
+                              message: 'Error!',
+                              description: 'Something went wrong. Please try again.',
                             });
+
                           });
                       }}
                       okText="Delete"

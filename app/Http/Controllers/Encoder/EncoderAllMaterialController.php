@@ -29,4 +29,27 @@ class EncoderAllMaterialController extends Controller
 
         return $data;
     }
+
+
+    public function destroy($id){
+        $material = Material::find($id);
+
+        if($material->status === 'published' || $material->status === 'submitted'){
+            return response()->json([
+                'errors' => [
+                    'material_id' => ['Material cannot be deleted.']
+                ],
+                'message' => 'Material cannot be deleted.'
+            ], 422);
+        }
+
+        $material->delete();
+
+        return response()->json([
+            'success' => true,
+            'type' => 'delete',
+            'message' => 'Material deleted successfully.'
+        ], 200);
+    }
+
 }

@@ -1,10 +1,10 @@
 import { Head } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Table, Pagination, Input, Space, Popconfirm, App } from 'antd';
+import { Button, Table, Pagination, Input } from 'antd';
 import Column from 'antd/es/table/Column';
 import axios from 'axios';
 import { ReactElement, ReactNode, useState } from 'react'
-import { Edit2Icon, Search, Trash } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 import { User } from '@/types';
 
@@ -12,14 +12,13 @@ import AuthenticatedLayout from '@/layouts/authenticated-layout';
 import { Category } from '@/types/category';
 import { PaginateResponse } from '@/types/paginateResponse';
 import { dateFormat } from '@/lib/utils';
-import ActiveChip from '@/components/active-chip';
+import StatusChip from '@/components/status-chip';
 
 type PageProps = {
   title:string;
 }
 
 const EncoderPublishedMaterialsIndex = ( { title } : PageProps) => {
-  const { notification } = App.useApp();
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState({
@@ -107,8 +106,18 @@ const EncoderPublishedMaterialsIndex = ( { title } : PageProps) => {
             >
               <Column title="Id" dataIndex="id" key="id" />
 
-              <Column title="Slug" key="slug" dataIndex="slug" />
-              <Column title="Category" key="category" dataIndex="category" />
+              <Column title="Title" key="title" dataIndex="title" />
+              {/* <Column title="Slug" key="slug" dataIndex="slug" /> */}
+              {/* <Column title="Category" key="category" dataIndex={['category', 'category']} /> */}
+
+              <Column
+                title="Content"
+                key="content_text"
+                dataIndex="content_text"
+                render={(content_text) => (<>
+                  {content_text?.length > 100 ? content_text.slice(0, 100) + '...' : content_text}
+                </>)}
+              />
 
               <Column
                 title="Created"
@@ -119,54 +128,12 @@ const EncoderPublishedMaterialsIndex = ( { title } : PageProps) => {
 
               <Column
                 title="Status"
-                key="active"
-                dataIndex="active"
-                render={(active) => <ActiveChip status={active}/>}
+                key="status"
+                dataIndex="status"
+                render={(status) => <StatusChip status={status}/>}
               />
 
-              <Column
-                title="Action"
-                key="action"
-                render={(_, row: Category) => (
-                  <Space size="small">
-                    <Button
-                      type='text'
-                      icon={<Edit2Icon size={15} />}
-                      onClick={() => {
 
-                      }}
-                    />
-                    <Popconfirm
-                      title="Delete Category"
-                      description="Are you sure you want to delete this category record?"
-                      onConfirm={() => {
-                        axios.delete(`/admin/topics/${row.id}`)
-                          .then((res) => {
-                            if (res.data.status === 'deleted') {
-                              notification.success({
-                                message: 'Daily Expense Deleted',
-                                description: 'The daily expense record has been deleted successfully.',
-                              });
-                            }
-                            refetch();
-                            //setIsModalOpen(false);
-                          })
-                          .catch(() => {
-                            notification.error({
-                              message: 'Error',
-                              description: 'There was an error deleting the category.',
-                            });
-                          });
-                      }}
-                      okText="Delete"
-                      okType="danger"
-                      cancelText="Cancel"
-                    >
-                      <Button type='text' danger icon={<Trash size={15} />} />
-                    </Popconfirm>
-                  </Space>
-                )}
-              />
             </Table>
 
             <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
