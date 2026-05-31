@@ -1,7 +1,7 @@
 
 import { App, Button, Form, FormInstance, Table } from 'antd';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import {  useState } from 'react';
 import { BrushCleaning } from 'lucide-react';
 import ModalSelectCategory from './modal-select-category';
 
@@ -17,17 +17,16 @@ type PageProps = {
 //   analysis: string
 // }
 
-type CategoryResult = {
-  category_id: number,
-  category: string,
-  score: number,
-  analysis: string
-}
-const AiClassifier = ( { form, errors, id } : PageProps) => {
+// type CategoryResult = {
+//   category_id: number,
+//   category: string,
+//   score: number,
+//   analysis: string
+// }
+const AiClassifier = ( { form, errors } : PageProps) => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const { notification, message } = App.useApp();
-  const [data, setData] = useState<CategoryResult[]>([]);
 
   const handleClassification = () => {
     setLoading(true)
@@ -84,50 +83,19 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
     });
   }
 
-  // const loadTopics = async () => {
-  //   //const res = await axios.get(`/get-subject-headings`);
-  //   const res = await axios.get(`/load-categories`);
-  //   setCategories(res.data);
-  // };
-
-  // useEffect(() => {
-  //   loadTopics();
-  // }, []);
-
-  //load data if edit mode
-  useEffect(() => {
-    // if(id > 0){
-    //   const subjH = form.getFieldValue('subject_headings');
-    //   setData(subjH)
-    // }
-  }, [form, id])
-
-
-  // useEffect(() => {
-
-  //   form.setFieldValue("subject_headings", data.map(item => (
-  //     {
-  //       subject_heading_id: item.subject_heading_id,
-  //       subject_heading: item.subject_heading,
-  //       score: item.score,
-  //       analysis: item.analysis
-  //     }
-  //   )));
-
-  // }, [data]);
-
 
   const handleDelete = (categoryId:number) => {
-    const index = data.findIndex(
-      item => item.category_id === categoryId
-    );
+    const categories = form.getFieldValue("categories") || [];
 
-    if (index !== -1) {
-      const newData = [...data];
-      newData.splice(index, 1);
-      setData(newData);
-    }
+    form.setFieldsValue({
+      categories: categories.filter(
+        (item: { category_id: number }) => item.category_id !== categoryId
+      ),
+    });
   }
+
+  console.log(form.getFieldValue('categories'));
+
 
   return (
     <div className='border border-gray-300 p-4 rounded-md'>
@@ -148,9 +116,12 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
         </Button>
 
         <ModalSelectCategory onSelectCategory={(row) => {
+          console.log(row);
+          const categories = form.getFieldValue("categories") || [];
+
           if(row.category_id > 0) {
-            const exists = data.some(
-              item => item.category_id === row.category_id
+            const exists = categories.some(
+              ( item: { category_id: number }) => item.category_id === row.category_id
             );
             if (exists) {
                 message.warning('Category already exists.');
@@ -158,11 +129,11 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
             }
           }
 
-          setData([...data, row]);
           form.setFieldsValue({
             ...form.getFieldsValue(),
-            categories: [...data, row]
+            categories: [...categories, row]
           });
+
         }} />
       </div>
 
@@ -175,7 +146,7 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
 
           <Table
             rowKey="category_id"
-            dataSource={data}
+            dataSource={form.getFieldValue("categories")}
             pagination={false}
             size="small"
             columns={[
@@ -206,7 +177,7 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
                 title: "Action",
                 key: "action",
                 width: 150,
-                render: (_, record) => (
+                render: (_, record: { category_id:number }) => (
                   <>
                     <Button
                       type="link"
@@ -227,7 +198,7 @@ const AiClassifier = ( { form, errors, id } : PageProps) => {
       <div className='flex gap-2'>
         <Button danger icon={<BrushCleaning size={15} />}
           onClick={()=>{
-            setData([])
+            form.setFieldValue('categories', [])
           }}
         >
           Remove All

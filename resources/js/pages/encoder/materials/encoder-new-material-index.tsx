@@ -2,12 +2,13 @@ import { App, Form } from 'antd'
 import AuthenticatedLayout from '@/layouts/authenticated-layout'
 import { ReactElement, ReactNode, useState } from 'react'
 import { User } from '@/types'
-import { Material } from '@/types/material'
+import {  MaterialProps } from '@/types/material'
 import axios, { isAxiosError } from 'axios'
 import CreateEditMaterial from '@/components/create-edit-materials'
+import { router } from '@inertiajs/react'
 
 type Pageprops = {
-  material: Material;
+  material: MaterialProps;
   ckLicense: string;
 }
 
@@ -29,17 +30,50 @@ const EncoderNewMaterial = ({ material, ckLicense }: Pageprops) => {
   // };
 
 
-
   const submit = async (values: object) => {
-    console.log(values);
     setLoading(true)
+    if(material && material.id > 0) {
+      update(values, material.id);
+    }else{
+      store(values);
+    }
+  }
+
+  const store = (values: object) => {
     axios.post('/encoder/materials/new-material', values).then(res=> {
       if(res.data.success) {
         notification.success({
           title: 'SAVED!',
           description: 'Material successfully recorded.'
         });
-        form.resetFields();
+        router.reload();
+      }
+      setLoading(false)
+    }).catch((error:unknown) => {
+      setLoading(false);
+      if(isAxiosError(error) && error.response && error.response.status === 422){
+        setErrors(error.response.data.errors);
+        notification.error({
+          title: 'Error!',
+          description: error.response.data.message
+        });
+      }else{
+        notification.error({
+          title: 'ERROR!',
+          description: `Unknown error. ${error}`
+        })
+      }
+    })
+  }
+
+  const update = (values: object, id:number) => {
+    axios.put(`/encoder/materials/new-material/${id}`, values).then(res=> {
+      if(res.data.success) {
+        notification.success({
+          title: 'UDPATED!',
+          description: 'Material successfully updated.'
+        });
+        router.reload();
       }
       setLoading(false)
     }).catch((error:unknown) => {

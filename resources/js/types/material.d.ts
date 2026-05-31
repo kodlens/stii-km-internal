@@ -13,3 +13,17 @@ export type Material = {
   updated_at: Date;
 
 }
+
+
+type MaterialProps = Material & {
+  material_categories: {
+    category: Category,
+    category_id: number;
+    id: number;
+    material_id: number;
+    score: number;
+    analysis: string;
+    created_at: Date;
+    updated_at: Date;
+  }[]
+};

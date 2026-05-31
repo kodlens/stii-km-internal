@@ -1,11 +1,10 @@
 import { App, Button, Form, FormInstance, Input, Upload, UploadProps } from 'antd'
 import { FileAddOutlined, UploadOutlined } from '@ant-design/icons'
-import { Material } from '@/types/material'
+import {  MaterialProps } from '@/types/material'
 import Ckeditor from '@/components/ckeditor'
 import axios from 'axios'
 import AiClassifier from '@/components/ai-classifier'
 import { useEffect } from 'react'
-import { Category } from '@/types/category'
 
 type Pageprops = {
   material: MaterialProps;
@@ -17,18 +16,6 @@ type Pageprops = {
 }
 
 //extends material since additional fields are added
-type MaterialProps = Material & {
-  material_categories: {
-    category: Category,
-    category_id: number;
-    id: number;
-    material_id: number;
-    score: number;
-    analysis: string;
-    created_at: Date;
-    updated_at: Date;
-  }
-};
 
 const CreateEditMaterial = ({
   material, ckLicense, form,
@@ -122,8 +109,15 @@ const CreateEditMaterial = ({
     form.setFieldsValue({
       title: material.title,
       content: material.content,
-     // categories: material.materialCategories.map((category) => category.category_id),
+      categories: material.material_categories.map((category) => ({
+        category_id: category.category_id,
+        score: category.score,
+        analysis: category.analysis,
+        category: category.category.category
+      })),
     })
+
+
   }
 
 
