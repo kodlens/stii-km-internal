@@ -148,8 +148,6 @@ const CreateEditMaterial = ({ id,
           </Upload>
         </Form.Item>
 
-
-
         <div className="min-h-[300px] ">
           <Form.Item
             label="PDF Content here"

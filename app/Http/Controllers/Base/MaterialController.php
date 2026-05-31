@@ -29,7 +29,7 @@ class MaterialController extends Controller
         DB::transaction(function () use ($validated, $user) {
 
             $filterDom = new FilterDOM();
-            $contentText = $filterDom->filterDom($validated['content']);
+            $contentText = $filterDom->htmlToPlainText($validated['content']);
 
             $material = Material::create([
                 'title' => $validated['title'],
@@ -46,7 +46,7 @@ class MaterialController extends Controller
                 foreach ($validated['category'] as $category) {
                     $data[] = [
                         'material_id' => $material->id,
-                        'category_id' => $category,
+                        'category_id' => $category['category_id'],
                         'score' => 0,
                         'analysis' => 'Manually added.',
                     ];

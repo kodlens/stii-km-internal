@@ -47,6 +47,9 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
     if (pageSize) setPerPage(pageSize);
   };
 
+  const handleEdit = (record: Category) => {
+    console.log(record);
+  }
 
   return (
     <>
@@ -142,9 +145,7 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
                     <Button
                       type='text'
                       icon={<Edit2Icon size={15} />}
-                      onClick={() => {
-
-                      }}
+                      onClick={() => handleEdit(row)}
                     />
                     <Popconfirm
                       title="Delete Category"
