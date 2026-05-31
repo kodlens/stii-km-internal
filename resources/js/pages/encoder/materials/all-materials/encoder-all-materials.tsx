@@ -227,6 +227,7 @@ export default EncoderAllMaterialsIndex
 EncoderAllMaterialsIndex.layout = (page: ReactNode) => (
   <AuthenticatedLayout
     user={(page as ReactElement<{ auth: { user: User } }>).props.auth.user}
+    header={(page as ReactElement<PageProps>).props.title}
   >
     {page}
   </AuthenticatedLayout>

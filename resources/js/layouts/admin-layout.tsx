@@ -1,4 +1,4 @@
-import { useMemo, useState, PropsWithChildren } from 'react';
+import { useMemo, useState, PropsWithChildren, ReactNode } from 'react';
 import { router, useForm } from '@inertiajs/react';
 
 import {
@@ -34,7 +34,7 @@ const siderStyle: React.CSSProperties = {
 };
 
 export default function AdminLayout(
-  { user, children }: PropsWithChildren<{ user: User }>) {
+  { user, children, header }: PropsWithChildren<{ user: User, header?: ReactNode }>) {
 
   const { post } = useForm();
 
@@ -276,7 +276,7 @@ export default function AdminLayout(
                 <div className='h-7 w-px bg-slate-200' />
                 <div className='leading-tight'>
                   <p className='text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500'>Admin Workspace</p>
-                  <p className='text-sm font-semibold text-slate-800'>{pageTitle}</p>
+                  <p className='text-sm font-semibold text-slate-800'>{header ?? pageTitle}</p>
                 </div>
               </div>
               <div className='flex items-center'>

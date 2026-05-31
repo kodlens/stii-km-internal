@@ -7,7 +7,7 @@ import EncoderLayout from './encoder-layout';
 import AdminLayout from './admin-layout';
 
 export default function AuthenticatedLayout(
-  { user, children }: PropsWithChildren<{ user: User, header?: ReactNode }>) {
+  { user, children, header }: PropsWithChildren<{ user: User, header?: ReactNode }>) {
 
   const role = user.role.toLowerCase();
 
@@ -15,11 +15,11 @@ export default function AuthenticatedLayout(
     <Layout>
 
       {(role === 'admin' || role === 'administrator') && (
-        <AdminLayout user={user} children={children}></AdminLayout>
+        <AdminLayout user={user} header={header} children={children}></AdminLayout>
       )}
 
       {role === 'encoder' && (
-        <EncoderLayout user={user} children={children}></EncoderLayout>
+        <EncoderLayout user={user} header={header} children={children}></EncoderLayout>
       )}
 
     </Layout>

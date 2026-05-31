@@ -25,7 +25,7 @@ const siderStyle: React.CSSProperties = {
 };
 
 export default function EncoderLayout(
-  { user, children }: PropsWithChildren<{ user: User, header?: ReactNode }>) {
+  { user, children, header }: PropsWithChildren<{ user: User, header?: ReactNode }>) {
 
   const { post } = useForm();
   const [collapsed, setCollapsed] = useState(false);
@@ -233,7 +233,7 @@ export default function EncoderLayout(
                 <div className='h-7 w-px bg-slate-200' />
                 <div className='leading-tight'>
                   <p className='text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500'>Encoder Workspace</p>
-                  <p className='text-sm font-semibold text-slate-800'>{pageTitle}</p>
+                  <p className='text-sm font-semibold text-slate-800'>{header ?? pageTitle}</p>
                 </div>
               </div>
 
