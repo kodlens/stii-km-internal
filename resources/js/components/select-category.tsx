@@ -26,6 +26,7 @@ const SelectCategory = ( { onChange }: Props) => {
   }
 
   return (
+
     <Select
       placeholder="Filter by category"
       className="w-full"
