@@ -3,6 +3,15 @@
 use Illuminate\Support\Facades\Route;
 
 
+    Route::get('/upload-size', function () {
+        return response()->json([
+            'size' => ini_get('upload_max_filesize'),
+            'post_size' => ini_get('post_max_size')
+        ]);
+    })->name('upload-size');
+
+
+
 Route::middleware(['auth'])->group(function () {
     /*
     |--------------------------------------------------------------------------
