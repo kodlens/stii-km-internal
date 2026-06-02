@@ -18,6 +18,7 @@ type Pageprops = {
 
 const EncoderNewMaterial = ({ auth, material, ckLicense }: Pageprops) => {
 
+
   const role = auth.user.role.toLowerCase();
 
   const [form] = Form.useForm();

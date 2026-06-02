@@ -6,6 +6,7 @@ import axios from 'axios'
 import AiClassifier from '@/components/ai-classifier'
 import { useEffect } from 'react'
 import { SendHorizontal } from 'lucide-react'
+import { usePage } from '@inertiajs/react'
 
 
 type SubmitAction = 'draft' | 'submit';
@@ -31,6 +32,9 @@ const CreateEditMaterial = ({
 }
   : Pageprops) => {
 
+
+  const { csrf_token }  = usePage().props;
+
   const { notification, message } = App.useApp();
   const csrfToken =
     document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") ?? "";
@@ -38,7 +42,7 @@ const CreateEditMaterial = ({
   const uploadProps: UploadProps = {
     name: "docs",
     action: "/docs/temp-upload",
-    headers: csrfToken ? { "X-CSRF-TOKEN": csrfToken } : undefined,
+    headers: csrfToken ? { "X-CSRF-TOKEN": (csrf_token) as string } : undefined,
     beforeUpload: (file) => {
       const isPDF = file.type === "application/pdf";
 
