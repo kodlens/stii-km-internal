@@ -36,13 +36,11 @@ const CreateEditMaterial = ({
   const { csrf_token }  = usePage().props;
 
   const { notification, message } = App.useApp();
-  const csrfToken =
-    document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") ?? "";
 
   const uploadProps: UploadProps = {
     name: "docs",
     action: "/docs/temp-upload",
-    headers: csrfToken ? { "X-CSRF-TOKEN": (csrf_token) as string } : undefined,
+    headers: csrf_token ? { "X-CSRF-TOKEN": (csrf_token) as string } : undefined,
     beforeUpload: (file) => {
       const isPDF = file.type === "application/pdf";
 
