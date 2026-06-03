@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Utils\FilterDOM;
+use Illuminate\Support\Facades\Storage;
 
 
 class MaterialController extends Controller
@@ -24,11 +25,17 @@ class MaterialController extends Controller
             'categories.*' => ['nullable'],
         ]);
 
-
-
         $user = Auth::user();
 
         DB::transaction(function () use ($req, $validated, $user) {
+
+            $uploadedFile = null;
+            $originalFilename = null;
+
+            if(isset($req->upload[0])){
+                $uploadedFile = $req->upload[0]['response']['path'];
+                $originalFilename = $req->upload[0]['name'];
+            }
 
             $filterDom = new FilterDOM();
             $contentText = $filterDom->htmlToPlainText($validated['content']);
@@ -40,9 +47,29 @@ class MaterialController extends Controller
                 'slug' => Str::slug($validated['title']),
                 'content' => $validated['content'],
                 'content_text' => $contentText,
+
+                // 'uploaded_file' => $req->upload['name'] ?? null,
+                // 'original_filename' => $req->upload && $req->upload['response'] ? $req->upload['response']['path'] : null,
+
+                'uploaded_file' => $uploadedFile,
+                'original_filename' => $originalFilename,
+
                 'status' => $submitType === 'submit' ? 'submitted': 'draft',
                 'encoded_by_id' => $user->id
             ]);
+
+
+            if (isset($req->upload[0]['response']['path'])) {
+
+                $tempPath = '/temp/docs/' . $req->upload[0]['response']['path'];
+                $destinationPath = '/materials/docs/' . $req->upload[0]['response']['path'];
+
+                if (Storage::exists($tempPath)) {
+                    Storage::move($tempPath, $destinationPath);
+                }
+            }
+
+
 
             if (!empty($validated['categories'])) {
 

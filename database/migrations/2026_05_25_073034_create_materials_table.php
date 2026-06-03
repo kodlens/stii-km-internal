@@ -23,6 +23,7 @@ return new class extends Migration
             $table->tinyInteger('is_publish')->default(0);
             $table->tinyInteger('is_trash')->default(0);
             $table->string('uploaded_file')->nullable();
+            $table->string('original_filename')->nullable();
             $table->integer('access_level')->default(0);
 
             $table->unsignedBigInteger('encoded_by_id')->default(0);
