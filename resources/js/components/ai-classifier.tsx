@@ -63,6 +63,8 @@ const AiClassifier = ( { form, errors } : PageProps) => {
           description: "The AI did not find any relevant topics for this article.",
           duration: 5,
         });
+
+        return;
       }
 
       console.log(res.data.results);
@@ -84,7 +86,6 @@ const AiClassifier = ( { form, errors } : PageProps) => {
         categories: [...categories, matchedTopics]
       });
       // "message": "Undefined array key \"category_id\"",
-
 
       // setData(matchedTopics);
       setLoading(false)
