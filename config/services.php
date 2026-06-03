@@ -40,4 +40,10 @@ return [
         'timeout' => env('OCR_API_TIMEOUT', 180),
     ],
 
+    'ai' => [
+        'url' => env('AI_API_URL', 'http://127.0.0.1:8000'),
+        'timeout' => env('AI_API_TIMEOUT', 180),
+        'model' => env('AI_API_MODEL', 'qwen3:14b'),
+    ]
+
 ];

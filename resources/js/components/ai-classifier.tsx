@@ -1,9 +1,10 @@
 
 import { App, Button, Form, FormInstance, Popconfirm, Table } from 'antd';
 import axios from 'axios';
-import {  useState } from 'react';
+import {  useEffect, useState } from 'react';
 import { BrushCleaning, Trash2 } from 'lucide-react';
 import ModalSelectCategory from './modal-select-category';
+import { Category } from '@/types/category';
 
 
 type PageProps = {
@@ -11,11 +12,12 @@ type PageProps = {
   form: FormInstance
   errors: Record<string, unknown[]>
 }
-// type AIResult = {
-//   id: number,
-//   score: number,
-//   analysis: string
-// }
+
+type AIResult = {
+  id: number,
+  score: number,
+  analysis: string
+}
 
 // type CategoryResult = {
 //   category_id: number,
@@ -25,8 +27,19 @@ type PageProps = {
 // }
 const AiClassifier = ( { form, errors } : PageProps) => {
 
+  //add load topics here
+
   const [loading, setLoading] = useState<boolean>(false);
   const { notification, message } = App.useApp();
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  const loadCategories = () => {
+    axios.get('/load-categories').then(res => {
+      setCategories(res.data)
+    }).catch(err => {
+      console.log(err)
+    })
+  }
 
   const handleClassification = () => {
     setLoading(true)
@@ -52,20 +65,29 @@ const AiClassifier = ( { form, errors } : PageProps) => {
         });
       }
 
-      // const resData:AIResult[] = res.data.results
+      console.log(res.data.results);
 
-      // const matchedTopics = resData.map(datum => {
-      //   const matched = topics.find((topic:Topic) => topic.id === datum.id);
-      //   return {
-      //     topic_id: datum.id,
-      //     topic: matched?.topic || "",
-      //     score: datum.score,
-      //     analysis: datum.analysis
-      //   };
-      // });
+      const resData:AIResult[] = res.data.results
+
+      const matchedTopics = resData.map(datum => {
+        const matched = categories.find((cat:Category) => cat.id === datum.id);
+        return {
+          id: datum.id,
+          category: matched?.category || "",
+          score: datum.score,
+          analysis: datum.analysis
+        };
+      });
+
+      form.setFieldsValue({
+        ...form.getFieldsValue(),
+        categories: [...categories, matchedTopics]
+      });
+      // "message": "Undefined array key \"category_id\"",
+
 
       // setData(matchedTopics);
-      // setLoading(false)
+      setLoading(false)
 
     }).catch((error) => {
       //message.error(`Classification failed: ${err.message}`);
@@ -94,6 +116,10 @@ const AiClassifier = ( { form, errors } : PageProps) => {
     });
   }
 
+  useEffect(() => {
+    loadCategories()
+  }, [])
+
   return (
     <div className='border border-gray-300 p-4 rounded-md'>
 
@@ -103,14 +129,14 @@ const AiClassifier = ( { form, errors } : PageProps) => {
       </div>
 
       <div className="flex gap-3">
-        {/* <Button
+        <Button
           type="primary"
           loading={loading}
           onClick={() => {
             handleClassification();
           }}>
           Generate Topics
-        </Button> */}
+        </Button>
 
         <ModalSelectCategory onSelectCategory={(row) => {
           const categories = form.getFieldValue("categories") || [];

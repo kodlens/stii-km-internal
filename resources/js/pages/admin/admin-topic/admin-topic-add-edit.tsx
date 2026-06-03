@@ -21,9 +21,6 @@ const AdminTopicAddEdit = ( {id, data }: Pageprops ) => {
 
   const submit = async(values:object) => {
     console.log(values);
-
-
-
   }
 
   return (

@@ -1,5 +1,3 @@
-import React from 'react'
-
 const ActiveChip = ( {status} : { status: number }) => {
   return (
     <span

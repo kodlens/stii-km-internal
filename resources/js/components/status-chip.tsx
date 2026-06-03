@@ -1,5 +1,3 @@
-import React from 'react';
-
 type Status = 'draft' | 'submitted' | 'published' | 'archived';
 
 type Props = {
