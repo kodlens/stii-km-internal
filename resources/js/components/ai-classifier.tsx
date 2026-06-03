@@ -103,14 +103,14 @@ const AiClassifier = ( { form, errors } : PageProps) => {
       </div>
 
       <div className="flex gap-3">
-        <Button
+        {/* <Button
           type="primary"
           loading={loading}
           onClick={() => {
             handleClassification();
           }}>
           Generate Topics
-        </Button>
+        </Button> */}
 
         <ModalSelectCategory onSelectCategory={(row) => {
           const categories = form.getFieldValue("categories") || [];

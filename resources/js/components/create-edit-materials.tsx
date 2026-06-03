@@ -8,7 +8,6 @@ import { useEffect } from 'react'
 import { SendHorizontal } from 'lucide-react'
 import { usePage } from '@inertiajs/react'
 
-
 type SubmitAction = 'draft' | 'submit';
 
 type Pageprops = {
