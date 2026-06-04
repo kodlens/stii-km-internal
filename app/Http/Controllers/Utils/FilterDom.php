@@ -20,7 +20,7 @@ class FilterDom
     One practical note: some websites block server-side image fetching with hotlink/CDN rules,
     so you should expect a few remote images to remain external when that happens.
     ================================================================================*/
-    public function filterDOM($content): string
+    public function filterDom($content): string
     {
         if (! is_string($content) || trim($content) === '') {
             return '';

@@ -269,7 +269,7 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
                       {
                         label: 'Delete',
                         key: `encoder.materials.delete`,
-                        disabled: row.status === 'submitted',
+                        disabled: row.status === 'submitted' || row.status === 'published',
                         icon: <Trash size={15}/>,
                         onClick: () =>
                           showDeleteConfirm(row),

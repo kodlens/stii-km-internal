@@ -105,6 +105,5 @@ class ClassifyController extends Controller
             'parsed' => $parsed,
         ]);
 
-
     }
 }

@@ -18,8 +18,6 @@ class EncoderDraftMaterialController extends Controller
         ]);
     }
 
-
-
     public function getData(Request $req){
         $perPage = $req->perpage;
 
@@ -43,13 +41,11 @@ class EncoderDraftMaterialController extends Controller
             'description' => "[$data->id] $data->title has been set to draft."
         ]);
 
-
         return response()->json([
             'success' => true,
             'message' => 'Material successfully set to draft.'
         ], 200);
     }
-
 
 
     public function destroy($id){

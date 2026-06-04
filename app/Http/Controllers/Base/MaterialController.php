@@ -10,7 +10,7 @@ use App\Models\MaterialCategory;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Utils\FilterDOM;
+use App\Http\Controllers\Utils\FilterDom;
 use Illuminate\Support\Facades\Storage;
 
 
@@ -37,8 +37,8 @@ class MaterialController extends Controller
                 $originalFilename = $req->upload[0]['name'];
             }
 
-            $filterDom = new FilterDOM();
-            $contentText = $filterDom->htmlToPlainText($validated['content']);
+            $filter = new FilterDom();
+            $contentText = $filter->htmlToPlainText($validated['content']);
 
             $submitType = $req->submit_type ?? 'draft';
 
@@ -138,8 +138,8 @@ class MaterialController extends Controller
 
         DB::transaction(function () use ($req, $validated, $user, $id) {
 
-            $filterDom = new FilterDOM();
-            $contentText = $filterDom->htmlToPlainText($validated['content']);
+            $filter = new FilterDom();
+            $contentText = $filter->htmlToPlainText($validated['content']);
             $submitType = $req->submit_type ?? 'draft';
 
             $material = Material::find($id);
