@@ -45,7 +45,7 @@ class ClassifyController extends Controller
             RULES (MUST FOLLOW):
             - Choose ONLY from the provided categories.
             - Do NOT guess or infer loosely related categories.
-            - Only select a cateory if it is DIRECTLY and CLEARLY related.
+            - Only select a category if it is DIRECTLY and CLEARLY related.
             - Maximum output items: $topK
             - Minimum relevance score to include an item: 0.50
             - If fewer than $topK meet the threshold, return fewer.
