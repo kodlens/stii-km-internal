@@ -20,7 +20,17 @@ const AdminTopicAddEdit = ( {id, data }: Pageprops ) => {
   const { notification } = App.useApp();
 
   const submit = async(values:object) => {
+    setLoading(true);
     console.log(values);
+    console.log(id, data);
+    setErrors({});
+
+    notification.success({
+      message: 'Topic Updated',
+      description: 'Topic has been updated successfully.',
+    });
+
+
   }
 
   return (
@@ -82,6 +92,7 @@ const AdminTopicAddEdit = ( {id, data }: Pageprops ) => {
               <Button
                 icon={<FileAddOutlined />}
                 type="primary"
+                loading={loading}
                 className="h-10 rounded-xl px-5"
                 htmlType='submit'
               >
@@ -89,9 +100,7 @@ const AdminTopicAddEdit = ( {id, data }: Pageprops ) => {
               </Button>
 
             </Form>
-
           </div>
-
 
         </div>
 

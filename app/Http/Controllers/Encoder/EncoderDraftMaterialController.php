@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Models\Material;
+use App\Models\ActivityLog;
+use Illuminate\Support\Facades\Auth;
 
 class EncoderDraftMaterialController extends Controller
 {
@@ -26,6 +28,26 @@ class EncoderDraftMaterialController extends Controller
             ->paginate($perPage);
 
         return $data;
+    }
+
+    public function setDraft($id){
+        $user = Auth::user();
+        $data = Material::find($id);
+        $data->status = 'draft';
+        $data->is_publish = 0;
+        $data->is_trash = 0;
+        $data->save();
+        ActivityLog::create([
+            'user_id' => $user->id,
+            'action' => "draft",
+            'description' => "[$data->id] $data->title has been set to draft."
+        ]);
+
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Material successfully set to draft.'
+        ], 200);
     }
 
 

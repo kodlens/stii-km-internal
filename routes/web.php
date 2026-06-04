@@ -71,9 +71,11 @@ Route::middleware(['auth', 'role:encoder'])->group(function () {
     Route::get('/encoder/materials/get-all-materials', [\App\Http\Controllers\Encoder\EncoderAllMaterialController::class, 'getData'])->name('encoder.all-materials.get-data');
 
     Route::get('/encoder/materials/drafted-materials', [\App\Http\Controllers\Encoder\EncoderDraftMaterialController::class, 'index'])->name('encoder.drafted-materials-index');
+    Route::post('/encoder/materials/set-draft-materials/{id}', [\App\Http\Controllers\Encoder\EncoderDraftMaterialController::class, 'setDraft'])->name('encoder.set-draft-materials');
     Route::get('/encoder/materials/get-drafted-materials', [\App\Http\Controllers\Encoder\EncoderDraftMaterialController::class, 'getData'])->name('encoder.get-drafted-materials-index');
 
     Route::get('/encoder/materials/submitted-materials', [\App\Http\Controllers\Encoder\EncoderSubmitMaterialController::class, 'index'])->name('encoder.submitted-materials-index');
+    Route::post('/encoder/materials/set-submit-materials/{id}', [\App\Http\Controllers\Encoder\EncoderSubmitMaterialController::class, 'setSubmit'])->name('encoder.set-submit-materials');
     Route::get('/encoder/materials/get-submitted-materials', [\App\Http\Controllers\Encoder\EncoderSubmitMaterialController::class, 'getData'])->name('encoder.get-submitted-materials-index');
 
 

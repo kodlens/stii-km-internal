@@ -1,10 +1,10 @@
 import { Head, router } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Table, Pagination, Input, Space, Popconfirm, App, Dropdown } from 'antd';
+import { Button, Table, Pagination, Input, Space, App, Dropdown, MenuProps } from 'antd';
 import Column from 'antd/es/table/Column';
 import axios, { isAxiosError } from 'axios';
 import { ReactElement, ReactNode, useState } from 'react'
-import { ChevronDown, Edit2Icon, Search, Trash } from 'lucide-react';
+import { ChevronDown, NotebookPen, Pencil, Search, SendHorizontal, Trash } from 'lucide-react';
 
 import { User } from '@/types';
 
@@ -13,6 +13,7 @@ import { MaterialProps } from '@/types/material';
 import { PaginateResponse } from '@/types/paginateResponse';
 import { dateFormat } from '@/lib/utils';
 import StatusChip from '@/components/status-chip';
+import { draft, submit } from '@/lib/material';
 // import ActiveChip from '@/components/active-chip';
 
 type PageProps = {
@@ -20,7 +21,7 @@ type PageProps = {
 }
 
 const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
-  const { notification } = App.useApp();
+  const { notification, modal } = App.useApp();
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState({
@@ -39,9 +40,12 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
       }).toString();
 
       const response = await axios.get<PaginateResponse<MaterialProps>>(`/encoder/materials/get-all-materials?${params}`);
+      //console.log(typeof(response.data));
       return response.data;
+
     },
   })
+
 
   const onPageChange = (nextPage: number, pageSize?: number) => {
     setPage(nextPage);
@@ -50,6 +54,72 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
 
   const handleEdit = (record: MaterialProps) => {
     router.visit(`/encoder/materials/new-material/${record.id}/edit`);
+  }
+
+
+  const showDeleteConfirm = (row: MaterialProps) => {
+    modal.confirm({
+      title: `Are you sure you want to delete ${row.title} ?`,
+      content: 'This action cannot be undone.',
+      okText: 'Delete',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk() {
+        handleDelete(row);
+      },
+    });
+  };
+
+  const handleDelete =(record:MaterialProps) => {
+
+    axios.delete(`/encoder/materials/all-materials/${record.id}`)
+      .then((res) => {
+        if (res.data.success) {
+          notification.success({
+            message: 'Material Deleted',
+            description: 'Material has been deleted successfully.',
+          });
+        }
+        refetch();
+        //setIsModalOpen(false);
+      })
+      .catch((err:unknown) => {
+
+        if(isAxiosError(err) && err.response){
+          if(err.response.status === 422){
+            notification.error({
+              message: 'Error!',
+              description: err.response.data.message,
+            });
+          } else if(err.response.status === 403){
+            notification.error({
+              message: 'Error!',
+              description: 'Action not allowed!',
+            });
+          } else {
+            notification.error({
+              message: 'Error!',
+              description: 'Something went wrong. Please try again.',
+            });
+          }
+
+          return;
+        }
+
+        notification.error({
+          message: 'Error!',
+          description: 'Something went wrong. Please try again.',
+        });
+
+      });
+  }
+
+  const handleDraft = (record:MaterialProps) => {
+    draft(record.id, refetch);
+  }
+
+  const handleSubmit = (record:MaterialProps) => {
+    submit(record.id, refetch);
   }
 
 
@@ -165,65 +235,52 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
               <Column
                 title="Action"
                 key="action"
-                render={(_, row: MaterialProps) => (
-                  <Space size="small">
-                    <Button
-                      type='text'
-                      icon={<Edit2Icon size={15} />}
-                      onClick={() => handleEdit(row)}
-                    />
-                    <Popconfirm
-                      title="Delete?"
-                      description="Are you sure you want to delete this record?"
-                      onConfirm={() => {
-                        axios.delete(`/encoder/materials/all-materials/${row.id}`)
-                          .then((res) => {
-                            if (res.data.success) {
-                              notification.success({
-                                message: 'Material Deleted',
-                                description: 'Material has been deleted successfully.',
-                              });
-                            }
-                            refetch();
-                            //setIsModalOpen(false);
-                          })
-                          .catch((err:unknown) => {
+                render={(_, row:MaterialProps) => (
+                  <Dropdown
+                    trigger={['click']}
+                    menu={{
+                      items: [
+                      {
+                        label: 'Edit',
+                        key: `encoder.materials.edit`,
+                        icon: <Pencil size={15} />,
+                        onClick: () => handleEdit(row),
+                      },
 
-                            if(isAxiosError(err) && err.response){
-                              if(err.response.status === 422){
-                                notification.error({
-                                  message: 'Error!',
-                                  description: err.response.data.message,
-                                });
-                              } else if(err.response.status === 403){
-                                notification.error({
-                                  message: 'Error!',
-                                  description: 'Action not allowed!',
-                                });
-                              } else {
-                                notification.error({
-                                  message: 'Error!',
-                                  description: 'Something went wrong. Please try again.',
-                                });
-                              }
-
-                              return;
-                            }
-
-                            notification.error({
-                              message: 'Error!',
-                              description: 'Something went wrong. Please try again.',
-                            });
-
-                          });
-                      }}
-                      okText="Delete"
-                      okType="danger"
-                      cancelText="Cancel"
-                    >
-                      <Button type='text' danger icon={<Trash size={15} />} />
-                    </Popconfirm>
-                  </Space>
+                      {
+                        label: 'Draft',
+                        key: `encoder.materials.draft`,
+                        disabled: row.status === 'draft',
+                        icon: <NotebookPen size={15}/>,
+                        onClick: () =>
+                          handleDraft(row),
+                      },
+                      {
+                        label: 'Submit',
+                        key: `encoder.materials.submit`,
+                        disabled: row.status === 'submitted',
+                        icon: <SendHorizontal size={15}/>,
+                        onClick: () =>
+                          handleSubmit(row),
+                      },
+                      {
+                        type: 'divider',
+                      },
+                      {
+                        label: 'Delete',
+                        key: `encoder.materials.delete`,
+                        disabled: row.status === 'submitted',
+                        icon: <Trash size={15}/>,
+                        onClick: () =>
+                          showDeleteConfirm(row),
+                      },
+                    ] as MenuProps['items'],
+                    }}
+                  >
+                    <Button size="small" type="text">
+                      •••
+                    </Button>
+                  </Dropdown>
                 )}
               />
             </Table>
