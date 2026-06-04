@@ -28,7 +28,7 @@ class ClassifyController extends Controller
         $categories = DB::table('categories')->get();
 
         $catId = $categories->pluck('id')->toArray();
-        $catName = $categories->pluck('subject_heading')->toArray();
+        $catName = $categories->pluck('category')->toArray();
 
         $catList = collect($catId)
             ->zip($catName)
@@ -40,12 +40,12 @@ class ClassifyController extends Controller
             You are a strict classification engine, not a chatbot.
 
             TASK:
-            Select up to {$topK} MOST RELEVANT topics from the content given below.
+            Select up to {$topK} MOST RELEVANT categories from the content given below.
 
             RULES (MUST FOLLOW):
-            - Choose ONLY from the provided topics.
-            - Do NOT guess or infer loosely related topics.
-            - Only select a topic if it is DIRECTLY and CLEARLY related.
+            - Choose ONLY from the provided categories.
+            - Do NOT guess or infer loosely related categories.
+            - Only select a cateory if it is DIRECTLY and CLEARLY related.
             - Maximum output items: $topK
             - Minimum relevance score to include an item: 0.50
             - If fewer than $topK meet the threshold, return fewer.
@@ -53,7 +53,7 @@ class ClassifyController extends Controller
             - Strictly output should in JSON FORMAT
             - Strictly don't add words to like "Here is the ouput", you are not conversational, you are a strict classifier.
 
-            topics (ID:Label):
+            categories (ID:Label):
             {$catList}
 
             Content:

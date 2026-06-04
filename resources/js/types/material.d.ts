@@ -1,3 +1,5 @@
+import { Category } from './category';
+
 export type Material = {
   id:number;
   title: string;
@@ -9,13 +11,13 @@ export type Material = {
   published_at: Date;
   is_publish: number;
   is_trash: number;
-  crated_at: Date;
+  created_at: Date;
   updated_at: Date;
 
 }
 
 
-type MaterialProps = Material & {
+export type MaterialProps = Material & {
   material_categories: {
     category: Category,
     category_id: number;

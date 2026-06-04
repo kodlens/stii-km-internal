@@ -1,15 +1,15 @@
 import { Head, router } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Table, Pagination, Input, Space, Popconfirm, App } from 'antd';
+import { Button, Table, Pagination, Input, Space, Popconfirm, App, Dropdown } from 'antd';
 import Column from 'antd/es/table/Column';
 import axios, { isAxiosError } from 'axios';
 import { ReactElement, ReactNode, useState } from 'react'
-import { Edit2Icon, Search, Trash } from 'lucide-react';
+import { ChevronDown, Edit2Icon, Search, Trash } from 'lucide-react';
 
 import { User } from '@/types';
 
 import AuthenticatedLayout from '@/layouts/authenticated-layout';
-import { Category } from '@/types/category';
+import { MaterialProps } from '@/types/material';
 import { PaginateResponse } from '@/types/paginateResponse';
 import { dateFormat } from '@/lib/utils';
 import StatusChip from '@/components/status-chip';
@@ -38,7 +38,7 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
         // to_date: search.date.format('YYYY-MM-DD'),
       }).toString();
 
-      const response = await axios.get<PaginateResponse<Category>>(`/encoder/materials/get-all-materials?${params}`);
+      const response = await axios.get<PaginateResponse<MaterialProps>>(`/encoder/materials/get-all-materials?${params}`);
       return response.data;
     },
   })
@@ -48,7 +48,7 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
     if (pageSize) setPerPage(pageSize);
   };
 
-  const handleEdit = (record: Category) => {
+  const handleEdit = (record: MaterialProps) => {
     router.visit(`/encoder/materials/new-material/${record.id}/edit`);
   }
 
@@ -57,7 +57,7 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
     <>
       <Head title={title} />
 
-      <div className="mx-2 md:mx-auto max-w-4xl">
+      <div className="mx-2 md:mx-auto max-w-7xl">
         <div className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/60">
           <div className="flex flex-col gap-4 border-b border-slate-200/70 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -107,7 +107,37 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
 
               <Column title="Title" key="title" dataIndex="title" />
               {/* <Column title="Slug" key="slug" dataIndex="slug" /> */}
-              {/* <Column title="Category" key="category" dataIndex={['category', 'category']} /> */}
+
+              <Column
+                title="Categories"
+                key="material_categories"
+                render={(_, row: MaterialProps) => {
+                  const materialCategories = row.material_categories ?? [];
+
+                  if (!materialCategories.length) {
+                    return <span className="text-slate-400">No category</span>;
+                  }
+
+                  return (
+                    <Dropdown
+                      trigger={['click']}
+                      menu={{
+                        items: materialCategories.map((materialCategory) => ({
+                          key: String(materialCategory.id ?? materialCategory.category_id),
+                          label: materialCategory.category?.category ?? 'Unknown category',
+                        })),
+                      }}
+                    >
+                      <Button size="small" onClick={(event) => event.preventDefault()}>
+                        <Space size={4}>
+                          {materialCategories.length} {materialCategories.length === 1 ? 'Category' : 'Categories'}
+                          <ChevronDown size={14} />
+                        </Space>
+                      </Button>
+                    </Dropdown>
+                  );
+                }}
+              />
 
               <Column
                 title="Content"
@@ -135,7 +165,7 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
               <Column
                 title="Action"
                 key="action"
-                render={(_, row: Category) => (
+                render={(_, row: MaterialProps) => (
                   <Space size="small">
                     <Button
                       type='text'

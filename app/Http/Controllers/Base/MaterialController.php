@@ -80,7 +80,7 @@ class MaterialController extends Controller
                         'material_id' => $material->id,
                         'category_id' => $category['category_id'],
                         'score' => 0,
-                        'analysis' => 'Manually added.',
+                        'analysis' => $category['analysis'],
                     ];
                 }
 

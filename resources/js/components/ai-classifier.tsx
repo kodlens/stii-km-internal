@@ -31,11 +31,11 @@ const AiClassifier = ( { form, errors } : PageProps) => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const { notification, message } = App.useApp();
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoryData, setCategoryData] = useState<Category[]>([]);
 
   const loadCategories = () => {
     axios.get('/load-categories').then(res => {
-      setCategories(res.data)
+      setCategoryData(res.data)
     }).catch(err => {
       console.log(err)
     })
@@ -72,9 +72,9 @@ const AiClassifier = ( { form, errors } : PageProps) => {
       const resData:AIResult[] = res.data.results
 
       const matchedTopics = resData.map(datum => {
-        const matched = categories.find((cat:Category) => cat.id === datum.id);
+        const matched = categoryData.find((cat:Category) => cat.id === datum.id);
         return {
-          id: datum.id,
+          category_id: datum.id,
           category: matched?.category || "",
           score: datum.score,
           analysis: datum.analysis
@@ -83,7 +83,7 @@ const AiClassifier = ( { form, errors } : PageProps) => {
 
       form.setFieldsValue({
         ...form.getFieldsValue(),
-        categories: [...categories, matchedTopics]
+        categories: matchedTopics
       });
       // "message": "Undefined array key \"category_id\"",
 
