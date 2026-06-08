@@ -67,7 +67,7 @@ const AiClassifier = ( { form, errors } : PageProps) => {
         return;
       }
 
-      console.log(res.data.results);
+      //console.log(res.data.results);
 
       const resData:AIResult[] = res.data.results
 
