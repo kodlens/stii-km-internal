@@ -1,5 +1,5 @@
 import { App, Button, Form, FormInstance, Input, Upload, UploadProps } from 'antd'
-import { FileAddOutlined, UploadOutlined } from '@ant-design/icons'
+import { FileAddOutlined, InboxOutlined } from '@ant-design/icons'
 import {  MaterialProps } from '@/types/material'
 import Ckeditor from '@/components/ckeditor'
 import axios from 'axios'
@@ -7,6 +7,7 @@ import AiClassifier from '@/components/ai-classifier'
 import { useEffect } from 'react'
 import { SendHorizontal } from 'lucide-react'
 import { usePage } from '@inertiajs/react'
+import Dragger from 'antd/es/upload/Dragger'
 
 type SubmitAction = 'draft' | 'submit';
 
@@ -166,7 +167,7 @@ const CreateEditMaterial = ({
           validateStatus={errors.upload ? "error" : ""}
           help={errors.upload ? errors.upload[0] as string : ""}>
 
-          <Upload
+          {/* <Upload
             maxCount={1}
             accept=".pdf,application/pdf"
             // fileList={fileList}
@@ -176,7 +177,21 @@ const CreateEditMaterial = ({
             <Button icon={<UploadOutlined />}>
                 Click to Upload
             </Button>
-          </Upload>
+          </Upload> */}
+
+          <Dragger {...uploadProps}
+            maxCount={1}
+            accept=".pdf,application/pdf">
+            <p className="ant-upload-drag-icon">
+              <InboxOutlined />
+            </p>
+            <p className="ant-upload-text">Click or drag file to this area to upload</p>
+            <p className="ant-upload-hint">
+              Support for a single or bulk upload. Strictly prohibited from uploading company data or
+              other banned files.
+            </p>
+          </Dragger>
+
         </Form.Item>
 
         <div className="min-h-[300px] ">

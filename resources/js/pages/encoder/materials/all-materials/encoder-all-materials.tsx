@@ -213,8 +213,14 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
                 title="Content"
                 key="content_text"
                 dataIndex="content_text"
-                render={(content_text) => (<>
-                  {content_text?.length > 100 ? content_text.slice(0, 100) + '...' : content_text}
+                render={(_, record) => (<>
+                  <div>
+                    {record.content_text?.length > 100 ? record.content_text.slice(0, 100) + '...' : record.content_text}
+                  </div>
+
+                  <div className="my-2 px-4 py-2 text-xs bg-gray-200 rounded-2xl inline-block">
+                    { record.original_filename}
+                  </div>
                 </>)}
               />
 
