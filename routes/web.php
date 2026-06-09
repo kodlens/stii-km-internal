@@ -85,8 +85,32 @@ Route::middleware(['auth', 'role:encoder'])->group(function () {
 
     Route::resource('/encoder/materials/new-material', \App\Http\Controllers\Encoder\EncoderNewMaterialController::class)->names('encoder.new-material');
 
+
 });
 
+
+
+Route::middleware(['auth', 'role:publisher'])->group(function () {
+
+    Route::get('/publisher/dashboard', [\App\Http\Controllers\Publisher\PublisherDashboardController::class, 'index'])->name('publisher.dashboard');
+
+    Route::get('/publisher/materials/submitted-materials', [\App\Http\Controllers\Publisher\PublisherSubmittedMaterialController::class, 'index'])->name('publisher.materials.submitted-materials.index');
+    Route::get('/publisher/materials/get-submitted-materials', [\App\Http\Controllers\Publisher\PublisherSubmittedMaterialController::class, 'getData'])->name('publisher.materials.submitted-materials.getData');
+
+
+    Route::get('/publisher/materials/published-materials', [\App\Http\Controllers\Publisher\PublisherPublishedMaterialController::class, 'index'])->name('publisher.materials.published-materials.index');
+    Route::get('/publisher/materials/get-published-materials', [\App\Http\Controllers\Publisher\PublisherPublishedMaterialController::class, 'getData'])->name('publisher.materials.published-materials.get-data');
+
+
+    Route::get('/publisher/materials/new-material/create', [\App\Http\Controllers\Publisher\PublisherNewMaterialController::class, 'index'])->name('publisher.materials.new-material.index');
+    Route::get('/publisher/materials/new-material/{id}/edit', [\App\Http\Controllers\Publisher\PublisherNewMaterialController::class, 'edit'])->name('publisher.materials.new-material.edit');
+    Route::post('/publisher/materials/new-material', [\App\Http\Controllers\Publisher\PublisherNewMaterialController::class, 'store'])->name('publisher.materials.new-material.store');
+    Route::post('/publisher/materials/new-material/{id}', [\App\Http\Controllers\Publisher\PublisherNewMaterialController::class, 'update'])->name('publisher.materials.new-material.update');
+
+    Route::post('/publisher/materials/set-publish-materials/{id}', [\App\Http\Controllers\Publisher\PublisherNewMaterialController::class, 'setPublish'])->name('publisher.set-publish-materials');
+
+
+});
 
 
 

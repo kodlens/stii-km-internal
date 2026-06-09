@@ -208,4 +208,26 @@ class MaterialController extends Controller
 
 
 
+    public function setPublish($id){
+
+        $user = Auth::user();
+        $material = Material::find($id);
+        $material->update([
+            'status' => 'published'
+        ]);
+
+         ActivityLog::create([
+            'user_id' => $user->id,
+            'action' => 'publish',
+            'description' => 'Material set to pubsihed.'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'type' => 'update',
+            'message' => 'Material successfully pubsihed.'
+        ], 200);
+    }
+
+
 }

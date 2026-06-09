@@ -45,3 +45,27 @@ export const submit = (id:number, onRefresh: () => void) => {
   });
 }
 
+
+export const publish = (id:number, onRefresh: () => void) => {
+  axios.post('/publisher/materials/set-publish-materials/' + id, {
+    id: id
+  }).then((res)=> {
+    if (res.data.success) {
+      notification.success({
+        message: 'Material Updated',
+        description: 'Material has been set to publish successfully.',
+      });
+    }
+    onRefresh();
+  })
+  .catch(err => {
+    if(isAxiosError(err) && err.response){
+      notification.error({
+        message: 'Error!',
+        description: err.response.data.message,
+      });
+    }
+  });
+}
+
+

@@ -9,7 +9,7 @@ import { SendHorizontal } from 'lucide-react'
 import { usePage } from '@inertiajs/react'
 import Dragger from 'antd/es/upload/Dragger'
 
-type SubmitAction = 'draft' | 'submit';
+type SubmitAction = 'draft' | 'submit' | 'publish';
 
 type Pageprops = {
   material: MaterialProps;
@@ -77,6 +77,7 @@ const CreateEditMaterial = ({
         }
       }
     },
+
     onRemove(info) {
 
       //return;
@@ -121,8 +122,6 @@ const CreateEditMaterial = ({
         category: category.category.category
       })),
     })
-
-
   }
 
 
@@ -232,8 +231,42 @@ const CreateEditMaterial = ({
           <Checkbox>Active</Checkbox>
         </Form.Item> */}
 
+        { role === 'publisher' && (
+            <div className='flex'>
 
-          {role === 'encoder' && (
+              <div className="ml-auto flex gap-3">
+                <Button
+                  icon={<SendHorizontal size={15} />}
+                  type="primary"
+                  loading={loading}
+                  className="h-10 rounded-xl px-5 bg-green-600! text-white
+                    hover:bg-green-500!
+                    active:bg-green-700!
+                    focus:outline-none! focus:ring-3! focus:ring-green-500!
+                    focus:ring-offset-1!"
+                  onClick={() => handleSubmit('publish')}
+                >
+                  Save & Publish
+                </Button>
+
+                <Button
+                  icon={<FileAddOutlined />}
+                  type="primary"
+                  loading={loading}
+                  className="h-10 rounded-xl px-5"
+                  onClick={() => handleSubmit('submit')}
+
+                >
+                  Save
+                </Button>
+              </div>
+
+            </div>
+          )}
+
+
+
+          { role === 'encoder' && (
             <div className='flex'>
 
               <div className="ml-auto flex gap-3">

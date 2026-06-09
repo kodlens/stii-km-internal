@@ -5,6 +5,7 @@ import { Layout } from 'antd';
 import { User } from '@/types';
 import EncoderLayout from './encoder-layout';
 import AdminLayout from './admin-layout';
+import PublisherLayout from './publisher-layout';
 
 export default function AuthenticatedLayout(
   { user, children, header }: PropsWithChildren<{ user: User, header?: ReactNode }>) {
@@ -16,6 +17,10 @@ export default function AuthenticatedLayout(
 
       {(role === 'admin' || role === 'administrator') && (
         <AdminLayout user={user} header={header} children={children}></AdminLayout>
+      )}
+
+      {(role === 'publisher') && (
+        <PublisherLayout user={user} header={header} children={children}></PublisherLayout>
       )}
 
       {role === 'encoder' && (
