@@ -47,6 +47,9 @@ class ResultController extends Controller
                     'title' => $material->title,
                     'content' => $material->content_text ?? strip_tags($material->content ?? ''),
                     'published_at' => optional($material->published_at)->format('F j, Y') ?? 'Not published',
+                    'document_url' => $material->uploaded_file
+                        ? route('user.materials.document', $material->uploaded_file)
+                        : null,
                 ];
             });
 

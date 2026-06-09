@@ -13,6 +13,7 @@ type ResultItem = {
   title: string;
   content: string;
   published_at: string;
+  document_url: string | null;
 };
 
 type PaginationMeta = {
@@ -236,18 +237,31 @@ export default function Result({ search = '' }: PageProps) {
                     <h3 className="mt-4 text-xl font-bold text-slate-950">
                       {item.title}
                     </h3>
-                    <p className="mt-3 text-sm leading-7 text-slate-600">
+                    {/* <p className="mt-3 text-sm leading-7 text-slate-600">
                       {item.content}
-                    </p>
+                    </p> */}
                   </div>
 
-                  <button
-                    type="button"
-                    className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:border-[#0D4E86] hover:bg-[#0D4E86] hover:text-white"
-                  >
-                    <FileText size={16} />
-                    View Details
-                  </button>
+                  {item.document_url ? (
+                    <a
+                      href={item.document_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:border-[#0D4E86] hover:bg-[#0D4E86] hover:text-white"
+                    >
+                      <FileText size={16} />
+                      View Details
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled
+                      className="inline-flex h-11 shrink-0 cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 text-sm font-semibold text-slate-400"
+                    >
+                      <FileText size={16} />
+                      No PDF
+                    </button>
+                  )}
                 </div>
               </article>
             ))}
