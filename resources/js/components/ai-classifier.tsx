@@ -63,7 +63,6 @@ const AiClassifier = ( { form, errors } : PageProps) => {
           description: "The AI did not find any relevant topics for this article.",
           duration: 5,
         });
-
         return;
       }
 
