@@ -242,7 +242,7 @@ export default function Result({ search = '' }: PageProps) {
                     </p> */}
                   </div>
 
-                  {item.document_url ? (
+                  { item.document_url ? (
                     <a
                       href={item.document_url}
                       target="_blank"
@@ -264,7 +264,7 @@ export default function Result({ search = '' }: PageProps) {
                   )}
                 </div>
               </article>
-            ))}
+            )) }
           </div>
 
           {!isLoading && pagination.last_page > 1 && (
