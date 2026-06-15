@@ -29,8 +29,6 @@ const AdminTopicAddEdit = ( {id, data }: Pageprops ) => {
       message: 'Topic Updated',
       description: 'Topic has been updated successfully.',
     });
-
-
   }
 
   return (

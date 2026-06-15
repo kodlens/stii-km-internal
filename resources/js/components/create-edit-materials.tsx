@@ -1,13 +1,13 @@
 import { App, Button, Form, FormInstance, Input, Upload, UploadProps } from 'antd'
 import { FileAddOutlined, InboxOutlined } from '@ant-design/icons'
 import {  MaterialProps } from '@/types/material'
-import Ckeditor from '@/components/ckeditor'
 import axios from 'axios'
 import AiClassifier from '@/components/ai-classifier'
-import { useEffect } from 'react'
+import { lazy, useEffect } from 'react'
 import { SendHorizontal } from 'lucide-react'
 import { usePage } from '@inertiajs/react'
 import Dragger from 'antd/es/upload/Dragger'
+const Ckeditor = lazy(() => import('@/components/ckeditor'))
 
 type SubmitAction = 'draft' | 'submit' | 'publish';
 
