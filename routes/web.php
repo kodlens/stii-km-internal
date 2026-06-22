@@ -21,6 +21,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', [\App\Http\Controllers\PublicFace\WelcomeController::class, 'index'])->name('user.welcome');
     Route::get('/result', [\App\Http\Controllers\PublicFace\ResultController::class, 'index'])->name('user.result');
     Route::get('/get-result', [\App\Http\Controllers\PublicFace\ResultController::class, 'getSearch'])->name('user.result.search');
+    Route::get('/view-material/{filename}', [\App\Http\Controllers\PublicFace\ViewMaterialController::class, 'view'])->name('user.materials.view');
     Route::get('/materials/{filename}', [\App\Http\Controllers\PublicFace\MaterialDocumentController::class, 'show'])->name('user.materials.document');
 
 

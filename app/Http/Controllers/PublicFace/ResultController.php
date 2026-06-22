@@ -50,6 +50,9 @@ class ResultController extends Controller
                     'document_url' => $material->uploaded_file
                         ? route('user.materials.document', $material->uploaded_file)
                         : null,
+                    'view_url' => $material->uploaded_file
+                        ? route('user.materials.view', $material->uploaded_file)
+                        : null,
                 ];
             });
 
