@@ -4,10 +4,11 @@ import { useEffect, useRef, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
+import pdfWorker from 'react-pdf/node_modules/pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 import PublicFaceLayout from '@/layouts/public-face-layout';
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 type ViewerMaterial = {
     id: number;
