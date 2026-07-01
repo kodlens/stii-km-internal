@@ -6,7 +6,7 @@ import {
   EditOutlined,
   FilterOutlined,
   SearchOutlined,
-  TeamOutlined,
+  TeamOutlined
 } from '@ant-design/icons'
 import {
   Table,
@@ -18,7 +18,7 @@ import {
   Popconfirm,
   Form,
   Tag,
-  Tooltip,
+  Tooltip
 } from 'antd'
 
 
