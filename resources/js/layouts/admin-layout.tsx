@@ -125,12 +125,6 @@ export default function AdminLayout(
           onClick: () => router.visit('/admin/materials'),
         },
         {
-          key: 'admin.uncategorized-materials',
-          label: 'Uncategorized Materials',
-          icon: <Newspaper size={15} />,
-          onClick: () => router.visit('/admin/uncategorized-materials'),
-        },
-        {
           key: 'admin.ojt-materials',
           label: 'OJT Entry Materials',
           icon: <UserPen size={15} />,

@@ -310,7 +310,7 @@ const CreateEditMaterial = ({
               onClick={() => handleSubmit('save')}
 
             >
-              Save as Draft
+              Save Only
             </Button>
           )}
 

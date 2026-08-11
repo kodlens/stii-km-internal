@@ -12,8 +12,8 @@ import { User } from '@/types';
 import AuthenticatedLayout from '@/layouts/authenticated-layout';
 import { PaginateResponse } from '@/types/paginateResponse';
 import { dateFormat } from '@/lib/utils';
-import ActiveChip from '@/components/active-chip';
 import { Material } from '@/types/material';
+import StatusChip from '@/components/status-chip';
 
 type PageProps = {
   title:string;
@@ -120,7 +120,7 @@ const AdminMaterialIndex = ( { title } : PageProps) => {
               <Column title="Categories" key="categories" dataIndex="material_categories" render={(_, row) => (
                 <>
                   { row.material_categories.map((cat: MaterialCategory) =>
-                      <div className="my-2 inline-block px-2 py-1 rounded-2xl bg-blue-100 mx-2 text-sm" key={cat.id}>
+                      <div className="my-1 inline-block px-2 py-1 rounded-2xl bg-blue-100 mx-2 text-sm" key={cat.id}>
                         { cat.category.category }
                       </div>
                     )
@@ -129,17 +129,19 @@ const AdminMaterialIndex = ( { title } : PageProps) => {
               )} />
 
               <Column
+                className=''
+                title="Status"
+                key="status"
+                dataIndex="status"
+                render={(status) => <StatusChip status={status} />}
+              />
+
+              <Column
+                className=''
                 title="Created"
                 key="created_at"
                 dataIndex="created_at"
                 render={(createdAt) => (<>{dateFormat(createdAt)}</>)}
-              />
-
-              <Column
-                title="Status"
-                key="active"
-                dataIndex="active"
-                render={(active) => <ActiveChip status={active}/>}
               />
 
               <Column
@@ -220,3 +222,5 @@ AdminMaterialIndex.layout = (page: ReactNode) => (
     {page}
   </AuthenticatedLayout>
 )
+
+

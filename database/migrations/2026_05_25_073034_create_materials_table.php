@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('slug')->nullable();
             $table->mediumText('content')->nullable();
             $table->mediumText('content_text')->nullable();
-            $table->enum('status', ['draft', 'submitted', 'published', 'archived'])->default('draft');
+            $table->enum('status', ['save', 'draft', 'submit', 'publish', 'archive'])->default('draft');
             $table->dateTime('submitted_at')->nullable();
             $table->dateTime('published_at')->nullable();
             $table->tinyInteger('is_publish')->default(0);
@@ -28,6 +28,7 @@ return new class extends Migration
 
             $table->unsignedBigInteger('encoded_by_id')->default(0);
             $table->unsignedBigInteger('updated_by_id')->default(0);
+            $table->tinyInteger('is_ojt')->default(0);
 
             $table->timestamps();
         });

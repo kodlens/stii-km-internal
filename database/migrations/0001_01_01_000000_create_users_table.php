@@ -24,6 +24,8 @@ return new class extends Migration
             $table->integer('access_level')->default(0);
             $table->string('password');
             $table->date('last_login')->nullable();
+            $table->tinyInteger('is_ojt')->default(0);
+
             $table->rememberToken();
             $table->timestamps();
         });

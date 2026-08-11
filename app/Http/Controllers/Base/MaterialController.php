@@ -50,7 +50,6 @@ class MaterialController extends Controller
                 'upload.0.name'
             );
 
-
             $filter = new FilterDom();
             $contentText = $filter->htmlToPlainText($validated['content']);
 
@@ -60,13 +59,10 @@ class MaterialController extends Controller
                 'content' => $validated['content'],
                 'content_text' => $contentText,
 
-                // 'uploaded_file' => $req->upload['name'] ?? null,
-                // 'original_filename' => $req->upload && $req->upload['response'] ? $req->upload['response']['path'] : null,
-
                 'uploaded_file' => $uploadedFile,
                 'original_filename' => $originalFilename,
 
-                'status' => $this->status($submitType, $user),
+                'status' => $submitType,
                 'encoded_by_id' => $user->id
             ]);
 
@@ -130,16 +126,16 @@ class MaterialController extends Controller
 
     //This will return the status base on the user role
     //and the submit type
-    private function status($submitType, $user){
-        $role = $user->role;
+    // private function status($submitType, $user, $lag){
+    //     $role = $user->role;
 
-        if($role === 'admin'){
-            if($status === 'submit'){
-                return 'submit';
-            }
-        }
-        return $submitType;
-    }
+    //     if($role === 'admin'){
+    //         if($status === 'save'){
+    //             return 'save';
+    //         }
+    //     }
+    //     return $submitType;
+    // }
 
 
 
@@ -158,26 +154,37 @@ class MaterialController extends Controller
             'title' => ['required', 'string', 'max:255', 'unique:materials,title,' . $id . ',id'],
             'content' => ['required', 'string'],
             'categories.*' => ['nullable'],
+            'submit_type' => ['required', 'in:save,draft,publish,submit'],
+            'upload' => ['nullable', 'array'],
+            'upload.*.name' => ['nullable', 'string'],
+            'upload.*.type' => ['nullable', 'string', Rule::in(['application/pdf'])],
+            'upload.*.response.path' => ['nullable', 'string'],
         ]);
 
         $user = Auth::user();
 
-        DB::transaction(function () use ($req, $validated, $user, $id) {
+        DB::transaction(function () use ($validated, $user, $id) {
 
             $filter = new FilterDom();
             $contentText = $filter->htmlToPlainText($validated['content']);
-            $submitType = $req->submit_type ?? 'draft';
+            $submitType = $validated['submit_type'];
 
             $material = Material::find($id);
-            $material->update([
-                'title' => $validated['title'],
-                'slug' => Str::slug($validated['title']),
-                'content' => $validated['content'],
-                'content_text' => $contentText,
-                'status' => $req->submit_type === 'publish' ? 'published': ($req->submit_type === 'submit' ? 'submitted': 'draft'),
-                'updated_by_id' => $user->id,
-                'updated_at' => now()
-            ]);
+            $material->title = $validated['title'];
+            $material->slug = Str::slug($validated['title']);
+            $material->content = $validated['content'];
+            $material->content_text = $contentText;
+
+            if($user->role !== 'admin') {
+                $material->status = $submitType;
+            }
+
+            if($user->role !== 'admin') {
+                $material->updated_by_id = $user->id;
+            }
+
+            $material->updated_at = now();
+            $material->save();
 
             //for update, to make it simple, delete all and insert again
             MaterialCategory::where('material_id', $material->id)->delete();

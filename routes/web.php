@@ -61,6 +61,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('/admin/materials', \App\Http\Controllers\Admin\AdminMaterialController::class)->names('admin.materials');
     Route::get('/admin/get-materials', [\App\Http\Controllers\Admin\AdminMaterialController::class, 'getData'])->name('admin.materials.get-data');
 
+     Route::resource('/admin/ojt-materials', \App\Http\Controllers\Admin\AdminOjtMaterialController::class)->names('admin.ojt-materials');
+    Route::get('/admin/get-ojt-materials', [\App\Http\Controllers\Admin\AdminOjtMaterialController::class, 'getData'])->name('admin.ojt-materials.get-data');
+
 
     Route::resource('/admin/users', \App\Http\Controllers\Admin\AdminUserController::class)->names('admin.users');
     Route::get('/admin/get-users', [\App\Http\Controllers\Admin\AdminUserController::class, 'getData'])->name('admin.users.get-data');

@@ -19,7 +19,8 @@ class Material extends Model
         'original_filename',
         'access_level',
         'encoded_by_id',
-        'updated_by_id'
+        'updated_by_id',
+        'is_ojt'
     ];
 
 
