@@ -7,13 +7,13 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Models\Material;
+use Illuminate\Http\Jsonresponse;
 
 class AdminOjtMaterialController extends Controller
 {
     public function index(){
         return Inertia::render('admin/admin-ojt-material/admin-ojt-material-index');
     }
-
 
     public function getData(Request $req) : JsonResponse
     {

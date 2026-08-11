@@ -12,10 +12,8 @@ import {
 
 import { Avatar, Button, ConfigProvider, Dropdown, Layout, Menu, MenuProps } from 'antd';
 
-import { Book, DatabaseZap,
-    LogOut,
-    Newspaper, Plus, Sparkle,
-    SquareArrowOutUpRight,
+import { Book,
+    LogOut, Plus,
     SquareChartGantt, UserPen,
      UserRoundCog } from 'lucide-react';
 
@@ -130,12 +128,12 @@ export default function AdminLayout(
           icon: <UserPen size={15} />,
           onClick: () => router.visit('/admin/ojt-materials'),
         },
-        {
-          key: 'admin.trash-articles',
-          label: 'Trash Post/Article',
-          icon: <DatabaseZap size={15} />,
-          onClick: () => router.visit('/admin/trash-materials'),
-        },
+        // {
+        //   key: 'admin.trash-articles',
+        //   label: 'Trash Post/Article',
+        //   icon: <DatabaseZap size={15} />,
+        //   onClick: () => router.visit('/admin/trash-materials'),
+        // },
         {
           key: 'admin.materials.create',
           label: 'New Material',
@@ -146,26 +144,26 @@ export default function AdminLayout(
       ],
     },
 
-    {
-      key: 'admin.external-api',
-      icon: <SquareArrowOutUpRight size={15} />,
-      label: 'External API',
-      children: [
-        {
-          key: 'admin.external-apis.dostv',
-          label: 'DOSTV API',
-          icon: <Sparkle size={15} />,
-          onClick: () => router.visit('/admin/external-api/dostv'),
-        },
+    // {
+    //   key: 'admin.external-api',
+    //   icon: <SquareArrowOutUpRight size={15} />,
+    //   label: 'External API',
+    //   children: [
+    //     {
+    //       key: 'admin.external-apis.dostv',
+    //       label: 'DOSTV API',
+    //       icon: <Sparkle size={15} />,
+    //       onClick: () => router.visit('/admin/external-api/dostv'),
+    //     },
 
-        // {
-        //   key: 'admin.external-apis.science-gov',
-        //   label: 'Science.gov API',
-        //   icon: <SquareArrowOutUpRight size={15} />,
-        //   onClick: () => router.visit('/admin/external-api/science-gov'),
-        // },
-      ]
-    },
+    //     // {
+    //     //   key: 'admin.external-apis.science-gov',
+    //     //   label: 'Science.gov API',
+    //     //   icon: <SquareArrowOutUpRight size={15} />,
+    //     //   onClick: () => router.visit('/admin/external-api/science-gov'),
+    //     // },
+    //   ]
+    // },
     {
       type: 'divider'
     },
