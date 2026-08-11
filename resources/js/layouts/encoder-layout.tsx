@@ -130,6 +130,9 @@ export default function EncoderLayout(
   ]), [handleLogout]);
 
   const currentRoute = `${route().current() ?? ''}`;
+  //console.log(currentRoute);
+
+
   const selectedMenuKey = currentRoute.startsWith('encoder.materials.')
     ? (currentRoute === 'encoder.materials.index' || currentRoute === 'encoder.materials.create'
       ? currentRoute

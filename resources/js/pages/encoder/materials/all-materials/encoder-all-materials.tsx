@@ -50,7 +50,6 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
       const response = await axios.get<PaginateResponse<MaterialProps>>(`/encoder/materials/get-all-materials?${params}`);
       //console.log(typeof(response.data));
       return response.data;
-
     },
   })
 
