@@ -23,7 +23,8 @@ class UserSeeder extends Seeder
                 'mname' => 'N',
                 'sex' => 'MALE',
                 'role'=> 'admin',
-                'password' => Hash::make('a')
+                'password' => Hash::make('a'),
+                'is_ojt' => 0
             ],
             [
                 'username' => 'encoder',
@@ -32,9 +33,9 @@ class UserSeeder extends Seeder
                 'mname' => 'N',
                 'sex' => 'MALE',
                 'role'=> 'encoder',
-                'password' => Hash::make('a')
+                'password' => Hash::make('a'),
+                'is_ojt' => 0
             ],
-
             [
                 'username' => 'user',
                 'lname' => 'Amparado',
@@ -42,7 +43,18 @@ class UserSeeder extends Seeder
                 'mname' => 'N',
                 'sex' => 'MALE',
                 'role'=> 'user',
-                'password' => Hash::make('a')
+                'password' => Hash::make('a'),
+                'is_ojt' => 0
+            ],
+            [
+                'username' => 'ojt',
+                'lname' => 'Amparado',
+                'fname' => 'Etienne',
+                'mname' => 'N',
+                'sex' => 'MALE',
+                'role'=> 'user',
+                'password' => Hash::make('a'),
+                'is_ojt' => 1
             ]
         ];
 

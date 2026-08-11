@@ -25,6 +25,7 @@ class User extends Authenticatable
         'access_level',
         'email',
         'password',
+        'is_ojt'
     ];
 
     /**
