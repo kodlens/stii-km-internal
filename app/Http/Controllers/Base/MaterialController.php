@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Utils\FilterDom;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Validation\Rule;
 
 class MaterialController extends Controller
 {
@@ -23,24 +23,36 @@ class MaterialController extends Controller
             'title' => ['required', 'string', 'max:255', 'unique:materials'],
             'content' => ['required', 'string'],
             'categories.*' => ['nullable'],
+            'submit_type' => ['required', 'in:save,draft,publish,submit'],
+            'upload' => ['nullable', 'array'],
+            'upload.*.name' => ['nullable', 'string'],
+            'upload.*.type' => ['nullable', 'string', Rule::in(['application/pdf'])],
+            'upload.*.response.path' => ['nullable', 'string'],
         ]);
 
         $user = Auth::user();
 
-        DB::transaction(function () use ($req, $validated, $user) {
+        DB::transaction(function () use ($validated, $user) {
 
             $uploadedFile = null;
             $originalFilename = null;
 
-            if(isset($req->upload[0])){
-                $uploadedFile = $req->upload[0]['response']['path'];
-                $originalFilename = $req->upload[0]['name'];
-            }
+            $upload = $validated['upload'] ?? null;
+            $submitType = $validated['submit_type'];
+
+            $uploadedFile = data_get(
+                $validated,
+                'upload.0.response.path'
+            );
+
+            $originalFilename = data_get(
+                $validated,
+                'upload.0.name'
+            );
+
 
             $filter = new FilterDom();
             $contentText = $filter->htmlToPlainText($validated['content']);
-
-            $submitType = $req->submit_type ?? 'draft';
 
             $material = Material::create([
                 'title' => $validated['title'],
@@ -54,21 +66,19 @@ class MaterialController extends Controller
                 'uploaded_file' => $uploadedFile,
                 'original_filename' => $originalFilename,
 
-                'status' => $submitType === 'submit' ? 'submitted': 'draft',
+                'status' => $this->status($submitType, $user),
                 'encoded_by_id' => $user->id
             ]);
 
 
-            if (isset($req->upload[0]['response']['path'])) {
-
-                $tempPath = '/temp/docs/' . $req->upload[0]['response']['path'];
-                $destinationPath = '/materials/docs/' . $req->upload[0]['response']['path'];
+            if (!empty($uploadedFile)) {
+                $tempPath = '/temp/docs/' . $uploadedFile;
+                $destinationPath = '/materials/docs/' . $uploadedFile;
 
                 if (Storage::exists($tempPath)) {
                     Storage::move($tempPath, $destinationPath);
                 }
             }
-
 
 
             if (!empty($validated['categories'])) {
@@ -116,6 +126,22 @@ class MaterialController extends Controller
             'message' => 'Material successfully inserted.'
         ], 200);
     }
+
+
+    //This will return the status base on the user role
+    //and the submit type
+    private function status($submitType, $user){
+        $role = $user->role;
+
+        if($role === 'admin'){
+            if($status === 'submit'){
+                return 'submit';
+            }
+        }
+        return $submitType;
+    }
+
+
 
     function logsDescription($action){
 

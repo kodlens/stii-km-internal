@@ -18,6 +18,7 @@ class MaterialCategory extends Model
         return $this->belongsTo(Material::class);
     }
 
+
     public function category(){
         return $this->belongsTo(Category::class);
     }

@@ -58,6 +58,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('/admin/topics', \App\Http\Controllers\Admin\AdminTopicController::class)->names('admin.topics');
     Route::get('/admin/get-topics', [\App\Http\Controllers\Admin\AdminTopicController::class, 'getData'])->name('admin.topics.getData');
 
+    Route::resource('/admin/materials', \App\Http\Controllers\Admin\AdminMaterialController::class)->names('admin.materials');
+    Route::get('/admin/get-materials', [\App\Http\Controllers\Admin\AdminMaterialController::class, 'getData'])->name('admin.materials.get-data');
+
+
     Route::resource('/admin/users', \App\Http\Controllers\Admin\AdminUserController::class)->names('admin.users');
     Route::get('/admin/get-users', [\App\Http\Controllers\Admin\AdminUserController::class, 'getData'])->name('admin.users.get-data');
     Route::post('/admin/users-change-password/{id}', [App\Http\Controllers\Admin\AdminUserController::class, 'changePassword'])->name('admin.users.change-password');

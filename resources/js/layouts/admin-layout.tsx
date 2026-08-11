@@ -12,10 +12,9 @@ import {
 
 import { Avatar, Button, ConfigProvider, Dropdown, Layout, Menu, MenuProps } from 'antd';
 
-import { Book, DatabaseZap, FunnelPlus,
-    LandPlot,
+import { Book, DatabaseZap,
     LogOut,
-    Newspaper, Sparkle,
+    Newspaper, Plus, Sparkle,
     SquareArrowOutUpRight,
     SquareChartGantt, UserPen,
      UserRoundCog } from 'lucide-react';
@@ -99,18 +98,18 @@ export default function AdminLayout(
     //   label: 'Categories',
     //   onClick: () => router.visit('/admin/categories'),
     // },
-    {
-      key: 'admin.regions',
-      icon: <LandPlot size={15} />,
-      label: 'Regions',
-      onClick: () => router.visit('/admin/regions'),
-    },
-    {
-      key: 'admin.filter-types',
-      icon: <FunnelPlus size={15} />,
-      label: 'Filter Types',
-      onClick: () => router.visit('/admin/filter-types'),
-    },
+    // {
+    //   key: 'admin.regions',
+    //   icon: <LandPlot size={15} />,
+    //   label: 'Regions',
+    //   onClick: () => router.visit('/admin/regions'),
+    // },
+    // {
+    //   key: 'admin.filter-types',
+    //   icon: <FunnelPlus size={15} />,
+    //   label: 'Filter Types',
+    //   onClick: () => router.visit('/admin/filter-types'),
+    // },
     {
       type: 'divider',
     },
@@ -143,6 +142,12 @@ export default function AdminLayout(
           icon: <DatabaseZap size={15} />,
           onClick: () => router.visit('/admin/trash-materials'),
         },
+        {
+          key: 'admin.materials.create',
+          label: 'New Material',
+          icon: <Plus size={15} />,
+          onClick: () => router.visit('/admin/materials/create'),
+        },
 
       ],
     },
@@ -158,6 +163,7 @@ export default function AdminLayout(
           icon: <Sparkle size={15} />,
           onClick: () => router.visit('/admin/external-api/dostv'),
         },
+
         // {
         //   key: 'admin.external-apis.science-gov',
         //   label: 'Science.gov API',

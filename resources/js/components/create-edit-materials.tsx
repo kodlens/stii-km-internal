@@ -9,7 +9,7 @@ import { usePage } from '@inertiajs/react'
 import Dragger from 'antd/es/upload/Dragger'
 const Ckeditor = lazy(() => import('@/components/ckeditor'))
 
-type SubmitAction = 'draft' | 'submit' | 'publish';
+type SubmitAction = 'save' | 'draft' | 'submit' | 'publish';
 
 type Pageprops = {
   material: MaterialProps;
@@ -24,7 +24,9 @@ type Pageprops = {
 //extends material since additional fields are added
 
 const CreateEditMaterial = ({
-  material, ckLicense, form,
+  material,
+  ckLicense,
+  form,
   errors,
   role,
   loading,
@@ -297,6 +299,19 @@ const CreateEditMaterial = ({
               </div>
 
             </div>
+          )}
+
+          { role === 'admin' && (
+            <Button
+              icon={<FileAddOutlined />}
+              type="primary"
+              loading={loading}
+              className="h-10 rounded-xl px-5"
+              onClick={() => handleSubmit('save')}
+
+            >
+              Save as Draft
+            </Button>
           )}
 
 
