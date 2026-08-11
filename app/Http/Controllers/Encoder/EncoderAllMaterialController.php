@@ -17,13 +17,18 @@ class EncoderAllMaterialController extends Controller
     }
 
     public function getData(Request $req){
-        $perPage = $req->perpage;
+        $validated = $req->validate([
+            'search' => ['nullable', 'string'],
+            'perpage' => ['nullable', 'numeric'],
+        ]);
 
-        // $data = Material::with(['category'])
-        //     ->join('material_categories', 'material_categories.material_id', '=', 'materials.id')
-        //     ->orderBy('materials.created_at', 'desc')
-        //     ->paginate($perPage);
+        $search = $validated['search'];
+        $perPage = $validated['perpage'] ?? 10;
+
         $data = Material::with(['materialCategories.category'])
+            ->when($search, function ($q) use ($search) {
+                $q->where('title','like', "%{$search}%");
+            })
             ->orderBy('materials.created_at', 'desc')
             ->paginate($perPage);
 

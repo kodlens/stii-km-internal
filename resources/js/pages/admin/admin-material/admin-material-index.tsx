@@ -40,7 +40,7 @@ const AdminMaterialIndex = ( { title } : PageProps) => {
     queryFn: async () => {
       const params = new URLSearchParams({
         page: page.toString(),
-        per_page: perPage.toString(),
+        perpage: perPage.toString(),
         search: search.search,
         // from_date: search.date.format('YYYY-MM-DD'),
         // to_date: search.date.format('YYYY-MM-DD'),

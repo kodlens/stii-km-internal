@@ -1,10 +1,10 @@
 import { Head, router } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Table, Pagination, Input, Space, App, Dropdown, MenuProps } from 'antd';
+import { Button, Table, Pagination, Input, App, Dropdown, MenuProps } from 'antd';
 import Column from 'antd/es/table/Column';
 import axios, { isAxiosError } from 'axios';
 import { ReactElement, ReactNode, useState } from 'react'
-import { ChevronDown, NotebookPen, Pencil, Search, SendHorizontal, Trash } from 'lucide-react';
+import { NotebookPen, Pencil, Search, SendHorizontal, Trash } from 'lucide-react';
 
 import { User } from '@/types';
 
@@ -20,6 +20,14 @@ type PageProps = {
   title:string;
 }
 
+type MaterialCategory = {
+  id: number;
+  category: {
+    id: number;
+    category: string;
+  };
+};
+
 const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
   const { notification, modal } = App.useApp();
   const [perPage, setPerPage] = useState(10);
@@ -33,7 +41,7 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
     queryFn: async () => {
       const params = new URLSearchParams({
         page: page.toString(),
-        per_page: perPage.toString(),
+        perpage: perPage.toString(),
         search: search.topic,
         // from_date: search.date.format('YYYY-MM-DD'),
         // to_date: search.date.format('YYYY-MM-DD'),
@@ -178,36 +186,16 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
               <Column title="Title" key="title" dataIndex="title" />
               {/* <Column title="Slug" key="slug" dataIndex="slug" /> */}
 
-              <Column
-                title="Categories"
-                key="material_categories"
-                render={(_, row: MaterialProps) => {
-                  const materialCategories = row.material_categories ?? [];
-
-                  if (!materialCategories.length) {
-                    return <span className="text-slate-400">No category</span>;
+              <Column title="Categories" key="categories" dataIndex="material_categories" render={(_, row) => (
+                <>
+                  { row.material_categories.map((cat: MaterialCategory) =>
+                      <div className="my-1 inline-block px-2 py-1 rounded-2xl bg-blue-100 mx-2 text-sm" key={cat.id}>
+                        { cat.category.category }
+                      </div>
+                    )
                   }
-
-                  return (
-                    <Dropdown
-                      trigger={['click']}
-                      menu={{
-                        items: materialCategories.map((materialCategory) => ({
-                          key: String(materialCategory.id ?? materialCategory.category_id),
-                          label: materialCategory.category?.category ?? 'Unknown category',
-                        })),
-                      }}
-                    >
-                      <Button size="small" onClick={(event) => event.preventDefault()}>
-                        <Space size={4}>
-                          {materialCategories.length} {materialCategories.length === 1 ? 'Category' : 'Categories'}
-                          <ChevronDown size={14} />
-                        </Space>
-                      </Button>
-                    </Dropdown>
-                  );
-                }}
-              />
+                </>
+              )} />
 
               <Column
                 title="Content"

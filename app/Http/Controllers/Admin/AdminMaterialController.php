@@ -21,11 +21,11 @@ class AdminMaterialController extends MaterialController
 
         $validated = $req->validate([
             'search' => ['nullable', 'string', 'max:255'],
-            'per_page' => ['nullable', 'numeric']
+            'perpage' => ['nullable', 'numeric']
         ]);
 
         $search = trim($validated['search'] ?? '');
-        $perPage = $validated['per_page'] ?? 10;
+        $perPage = $validated['perpage'] ?? 10;
 
         $data = Material::with(['materialCategories.category'])
             ->when($search, function ($q) use ($search) {
