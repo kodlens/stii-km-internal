@@ -177,7 +177,8 @@ const AdminUserIndex = () => {
               <Column title="Last Name" dataIndex="lname" width={150} />
               <Column title="First Name" dataIndex="fname" width={150} />
               <Column title="Middle Name" dataIndex="mname" width={150} />
-              <Column
+
+              {/* <Column
                 title="Email"
                 dataIndex="email"
                 ellipsis={{ showTitle: false }}
@@ -186,7 +187,8 @@ const AdminUserIndex = () => {
                     <span className='block max-w-[220px] truncate'>{email}</span>
                   </Tooltip>
                 )}
-              />
+              /> */}
+
               <Column
                 title="Role"
                 dataIndex="role"

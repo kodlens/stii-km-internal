@@ -21,8 +21,6 @@ class AdminUserController extends Controller
         return User::find($id);
     }
 
-
-
     public function getData(Request $req){
         $validate = $req->validate([
             'search' => [ 'string', 'nullable'],
@@ -41,7 +39,7 @@ class AdminUserController extends Controller
             'username' => ['required', 'string', 'unique:users'],
             'lname' => ['required', 'string'],
             'fname' => ['required', 'string'],
-            'email' => ['required', 'email', 'unique:users'],
+            //'email' => ['required', 'email', 'unique:users'],
             'password' => ['required', 'string', 'confirmed'],
             //'sex' => ['required', 'string'],
             'role' => ['required', 'string'],
@@ -53,11 +51,11 @@ class AdminUserController extends Controller
             'lname' => $req->lname,
             'fname' => $req->fname,
             'mname' => $req->mname,
-            'email' => $req->email,
+            //'email' => $req->email,
             //'sex' => strtoupper($req->sex),
             'role' => $req->role,
-            'is_ojt' =>$req->is_ojt ? 1 : 0,
-            'active' => $req->active ? 1 : 0,
+            'is_ojt' =>$req->is_ojt ? 1 : 0
+            // 'active' => $req->active ? 1 : 0,
         ]);
 
         return response()->json([
@@ -70,7 +68,7 @@ class AdminUserController extends Controller
         $req->validate([
             'username' => ['required', 'string', 'unique:users,username,'. $id . ',id'],
             'lname' => ['required', 'string'],
-            'email' => ['required', 'email', 'unique:users,email,'. $id . ',id'],
+            //'email' => ['required', 'email', 'unique:users,email,'. $id . ',id'],
             //'sex' => ['required', 'string'],
             'role' => ['required', 'string'],
         ]);
@@ -81,7 +79,7 @@ class AdminUserController extends Controller
                 'lname' => $req->lname,
                 'fname' => $req->fname,
                 'mname' => $req->mname,
-                'email' => $req->email,
+                //'email' => $req->email,
                // 'sex' => strtoupper($req->sex),
                 'role' => $req->role,
                 'is_ojt' =>$req->is_ojt ? 1 : 0,

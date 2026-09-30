@@ -91,7 +91,7 @@ const ModalCreateEditUser = ({ user, modalOpen, onClose, refetch, form }: Props)
             onFinish={onFinish}
             initialValues={{
               username: null,
-              email: null,
+              //email: null,
               fname: null,
               mname: null,
               sex: 'MALE',
@@ -114,11 +114,11 @@ const ModalCreateEditUser = ({ user, modalOpen, onClose, refetch, form }: Props)
               <Input />
             </Form.Item>
 
-            <Form.Item name="email" label="Email"
+            {/* <Form.Item name="email" label="Email"
               validateStatus={errors.email ? 'error' : ''}
               help={errors.email?.[0] as string }>
               <Input />
-            </Form.Item>
+            </Form.Item> */}
 
 
             <div className='flex gap-4'>
