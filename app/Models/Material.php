@@ -8,6 +8,7 @@ class Material extends Model
 {
     protected $fillable = [
         'title',
+        'slug',
         'content',
         'content_text',
         'status',

@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Table, Pagination, Input, App, Dropdown, MenuProps } from 'antd';
+import { Button, Table, Pagination, Input, App, Dropdown, MenuProps, Select } from 'antd';
 import Column from 'antd/es/table/Column';
 import axios, { isAxiosError } from 'axios';
 import { ReactElement, ReactNode, useState } from 'react'
@@ -28,13 +28,21 @@ type MaterialCategory = {
   };
 };
 
-const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
+const EncoderMaterialsPage = ( { title } : PageProps) => {
   const { notification, modal } = App.useApp();
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState({
-    topic: '',
+    title: '',
+    status: '',
   });
+
+  const statuses = [
+     { label: 'All', value: '' },
+     { label: 'Draft', value: 'draft' },
+     { label: 'Submit', value: 'submit' },
+     { label: 'Publish', value: 'publish' },
+  ]
 
   const { data, isFetching, refetch } = useQuery({
     queryKey: ['categories', page, perPage],
@@ -42,12 +50,13 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
       const params = new URLSearchParams({
         page: page.toString(),
         perpage: perPage.toString(),
-        search: search.topic,
+        search: search.title,
+        status: search.status
         // from_date: search.date.format('YYYY-MM-DD'),
         // to_date: search.date.format('YYYY-MM-DD'),
       }).toString();
 
-      const response = await axios.get<PaginateResponse<MaterialProps>>(`/encoder/materials/get-all-materials?${params}`);
+      const response = await axios.get<PaginateResponse<MaterialProps>>(`/encoder/materials/data?${params}`);
       //console.log(typeof(response.data));
       return response.data;
     },
@@ -60,7 +69,7 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
   };
 
   const handleEdit = (record: MaterialProps) => {
-    router.visit(`/encoder/materials/new-material/${record.id}/edit`);
+    router.visit(`/encoder/materials/${record.id}/edit`);
   }
 
 
@@ -79,7 +88,7 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
 
   const handleDelete =(record:MaterialProps) => {
 
-    axios.delete(`/encoder/materials/all-materials/${record.id}`)
+    axios.delete(`/encoder/materials/${record.id}`)
       .then((res) => {
         if (res.data.success) {
           notification.success({
@@ -157,13 +166,25 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
 
 
           <div className='my-4 flex items-center gap-3 px-6'>
+            <Select
+              className='w-full'
+              options={statuses}
+              placeholder='Select status'
+              onChange={(value)=>{
+                setSearch((prev)=> ({
+                  ...prev,
+                  status: value,
+                }))
+              }}
+            />
+
             <Input
               placeholder='Search ...'
-              value={search.topic}
+              value={search.title}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') refetch();
               }}
-              onChange={(e) => setSearch({ ...search, topic: e.target.value })}
+              onChange={(e) => setSearch((prev) => ({ ...prev, title: e.target.value }))}
             />
 
             <Button type='primary' icon={<Search size={15} />} onClick={() => refetch()}>
@@ -302,9 +323,9 @@ const EncoderAllMaterialsIndex = ( { title } : PageProps) => {
   )
 }
 
-export default EncoderAllMaterialsIndex
+export default EncoderMaterialsPage
 
-EncoderAllMaterialsIndex.layout = (page: ReactNode) => (
+EncoderMaterialsPage.layout = (page: ReactNode) => (
   <AuthenticatedLayout
     user={(page as ReactElement<{ auth: { user: User } }>).props.auth.user}
     header={(page as ReactElement<PageProps>).props.title}

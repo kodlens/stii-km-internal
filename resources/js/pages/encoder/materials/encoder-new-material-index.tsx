@@ -48,7 +48,7 @@ const EncoderNewMaterial = ({ auth, material, ckLicense }: Pageprops) => {
   }
 
   const store = (values: object, action:string) => {
-    axios.post('/encoder/materials/new-material', {
+    axios.post('/encoder/materials', {
       ...values,
       submit_type: action
     }).then(res=> {
@@ -58,7 +58,7 @@ const EncoderNewMaterial = ({ auth, material, ckLicense }: Pageprops) => {
           description: 'Material successfully recorded.'
         });
         setLoading(false)
-        router.visit('/encoder/materials/all-materials');
+        router.visit('/encoder/materials');
       }
     }).catch((error:unknown) => {
       setLoading(false);
@@ -78,7 +78,7 @@ const EncoderNewMaterial = ({ auth, material, ckLicense }: Pageprops) => {
   }
 
   const update = (values: object, action:string,  id:number) => {
-    axios.put(`/encoder/materials/new-material/${id}`, {
+    axios.put(`/encoder/materials/${id}`, {
       ...values,
       submit_type: action
     }).then(res=> {

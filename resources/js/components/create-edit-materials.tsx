@@ -126,6 +126,11 @@ const CreateEditMaterial = ({
     })
   }
 
+  const handleBlueTitle = () => {
+    console.log('checking');
+
+  }
+
 
 
   return (
@@ -150,7 +155,8 @@ const CreateEditMaterial = ({
           label="Title"
           validateStatus={errors.title ? "error" : ""}
           help={errors.title ? errors.title[0] as string : ""}>
-          <Input placeholder="Title" />
+          <Input placeholder="Title"
+            onBlur={handleBlueTitle} />
         </Form.Item>
 
         <Form.Item

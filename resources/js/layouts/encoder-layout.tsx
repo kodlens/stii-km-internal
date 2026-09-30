@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons';
 
 import { Avatar, Button, ConfigProvider, Dropdown, Layout, Menu, MenuProps } from 'antd';
-import { BookCheck, LogOut, Plus, SendHorizontal, SquarePen, WalletCards } from 'lucide-react';
+import { LogOut, Plus, WalletCards } from 'lucide-react';
 import PanelSideBarLogo from '@/components/panel-sidebar-logo';
 
 const { Header, Sider, Content } = Layout;
@@ -49,34 +49,16 @@ export default function EncoderLayout(
         label: 'Materials',
         children: [
           {
-            key: 'encoder.materials.all-materials.index',
+            key: 'encoder.materials.index',
             icon: <WalletCards size={15}/>,
             label: 'All Materials',
-            onClick: () => router.visit('/encoder/materials/all-materials'),
+            onClick: () => router.visit('/encoder/materials'),
           },
           {
-            key: 'encoder.draft-materials.index',
-            icon: <SquarePen size={15}/>,
-            label: 'Drafted',
-            onClick: () => router.visit('/encoder/materials/drafted-materials'),
-          },
-          {
-            key: 'encoder.submit-materials.index',
-            icon: <SendHorizontal size={15}/>,
-            label: 'Submitted',
-            onClick: () => router.visit('/encoder/materials/submitted-materials'),
-          },
-          {
-            key: 'encoder.publish-materials.index',
-            icon: <BookCheck size={15}/>,
-            label: 'Published',
-            onClick: () => router.visit('/encoder/materials/published-materials'),
-          },
-          {
-            key: 'encoder.new-material-create.index',
+            key: 'encoder.materials.create',
             label: 'New Post/Material',
             icon: <Plus size={15}/>,
-            onClick: () => router.visit('/encoder/materials/new-material/create'),
+            onClick: () => router.visit('/encoder/materials/create'),
           },
 
         ],

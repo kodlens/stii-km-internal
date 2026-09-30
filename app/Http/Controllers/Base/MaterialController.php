@@ -58,7 +58,6 @@ class MaterialController extends Controller
                 'slug' => Str::slug($validated['title']),
                 'content' => $validated['content'],
                 'content_text' => $contentText,
-
                 'uploaded_file' => $uploadedFile,
                 'original_filename' => $originalFilename,
 

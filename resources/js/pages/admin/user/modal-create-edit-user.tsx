@@ -65,7 +65,6 @@ const ModalCreateEditUser = ({ user, modalOpen, onClose, refetch, form }: Props)
       }
 
       setLoading(false)
-
     }
   }
 
