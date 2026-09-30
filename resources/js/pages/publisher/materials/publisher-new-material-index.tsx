@@ -130,7 +130,7 @@ const PublisherNewMaterialIndex = ({ auth, material, ckLicense }: Pageprops) => 
               form={form}
               role={role}
               handleSubmit={(values) => submit(values)}
-              errors={errors} loading={loading} />
+              errors={errors} setErrors={setErrors} loading={loading} />
 
           </div>
 

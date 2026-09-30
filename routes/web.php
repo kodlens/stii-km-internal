@@ -79,6 +79,7 @@ Route::middleware(['auth', 'role:encoder'])->group(function () {
 
     Route::get('/encoder/dashboard', [\App\Http\Controllers\Encoder\EncoderDashboardController::class, 'index'])->name('encoder.dashboard');
 
+    Route::get('/encoder/materials/{id}/check-title', [\App\Http\Controllers\Encoder\EncoderMaterialController::class, 'checkTitle'])->name('encoder.materials.check-title');
     Route::get('/encoder/materials/data', [\App\Http\Controllers\Encoder\EncoderMaterialController::class, 'data'])->name('encoder.materials.data');
     Route::resource('/encoder/materials', \App\Http\Controllers\Encoder\EncoderMaterialController::class)->names('encoder.materials');
 

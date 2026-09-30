@@ -18,6 +18,28 @@ class EncoderMaterialController extends MaterialController
         ]);
     }
 
+    public function checkTitle(Request $req, $id){
+        $title = $req->input('title', '');
+
+        if (!ctype_digit((string) $id)) {
+            return response()->json([
+                'message' => 'Invalid material ID.',
+            ], 422);
+        }
+
+        $validated = $req->validate([
+            'title' => ['required', 'string'],
+        ]);
+
+        $exists = Material::where('title', $validated['title'])
+            ->when($id > 0, function ($query) use ($id) {
+                $query->where('id', '!=', $id);
+            })
+            ->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
+
     public function show($id){
         $data = Material::findOrFail($id);
         return response()->json($data, 200);

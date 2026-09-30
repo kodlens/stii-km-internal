@@ -1,9 +1,9 @@
 import { App, Button, Form, FormInstance, Input, Upload, UploadProps } from 'antd'
 import { FileAddOutlined, InboxOutlined } from '@ant-design/icons'
 import {  MaterialProps } from '@/types/material'
-import axios from 'axios'
+import axios, { isAxiosError } from 'axios'
 import AiClassifier from '@/components/ai-classifier'
-import { lazy, useEffect } from 'react'
+import { lazy, useEffect, useRef, type Dispatch, type SetStateAction } from 'react'
 import { SendHorizontal } from 'lucide-react'
 import { usePage } from '@inertiajs/react'
 import Dragger from 'antd/es/upload/Dragger'
@@ -17,6 +17,7 @@ type Pageprops = {
   form: FormInstance;
   handleSubmit: (action: SubmitAction) => Promise<void>;
   errors: Record<string, unknown[]>;
+  setErrors: Dispatch<SetStateAction<Record<string, unknown[]>>>;
   loading: boolean;
   role: string;
 }
@@ -28,6 +29,7 @@ const CreateEditMaterial = ({
   ckLicense,
   form,
   errors,
+  setErrors,
   role,
   loading,
   handleSubmit
@@ -38,6 +40,16 @@ const CreateEditMaterial = ({
   const { csrf_token }  = usePage().props;
 
   const { notification, message } = App.useApp();
+  const titleCheckVersion = useRef(0);
+
+  const clearTitleError = () => {
+    titleCheckVersion.current += 1;
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.title;
+      return next;
+    });
+  };
 
   const uploadProps: UploadProps = {
     name: "docs",
@@ -126,9 +138,43 @@ const CreateEditMaterial = ({
     })
   }
 
-  const handleBlueTitle = () => {
-    console.log('checking');
+  const handleCheckTitle = () => {
+    if (role !== 'encoder') return;
 
+    const title = form.getFieldValue('title');
+    const id = material?.id ?? 0;
+    const version = ++titleCheckVersion.current;
+    const isCurrent = () => version === titleCheckVersion.current && form.getFieldValue('title') === title;
+
+    if (!title?.trim()) return;
+
+    axios.get<{ exists: boolean }>(`/${role}/materials/${id}/check-title`, {
+      params: { title },
+    }).then(res => {
+      if (!isCurrent()) return;
+
+      setErrors((prev) => {
+        const next = { ...prev };
+        if (res.data.exists) {
+          next.title = ['This title already exists. Please enter a different title.'];
+        } else {
+          delete next.title;
+        }
+        return next;
+      });
+    }).catch(error => {
+      if (!isCurrent()) return;
+
+      if (isAxiosError(error) && error.response?.status === 422 && error.response.data.errors?.title) {
+        setErrors((prev) => ({ ...prev, title: error.response!.data.errors.title }));
+        return;
+      }
+
+      notification.error({
+        title: 'Title check failed',
+        description: 'Unable to check this title. Please try again.',
+      });
+    });
   }
 
 
@@ -156,7 +202,8 @@ const CreateEditMaterial = ({
           validateStatus={errors.title ? "error" : ""}
           help={errors.title ? errors.title[0] as string : ""}>
           <Input placeholder="Title"
-            onBlur={handleBlueTitle} />
+            onChange={clearTitleError}
+            onBlur={handleCheckTitle} />
         </Form.Item>
 
         <Form.Item
