@@ -199,6 +199,7 @@ const AdminUserIndex = () => {
                   </Tag>
                 )}
               />
+
               <Column
                 title="OJT"
                 dataIndex="is_ojt"
