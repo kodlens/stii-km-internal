@@ -1,11 +1,11 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Table, Pagination, Input, Space, Popconfirm, App } from 'antd';
+import { Button, Table, Pagination, Input } from 'antd';
 import { FileAddOutlined } from '@ant-design/icons';
 import Column from 'antd/es/table/Column';
 import axios from 'axios';
 import { ReactElement, ReactNode, useState } from 'react'
-import { Edit2Icon, Search, Trash } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 import { User } from '@/types';
 
@@ -14,6 +14,7 @@ import { PaginateResponse } from '@/types/paginateResponse';
 import { dateFormat } from '@/lib/utils';
 import { Material } from '@/types/material';
 import StatusChip from '@/components/status-chip';
+import MaterialDropdown from './partials/material-dropdown';
 
 type PageProps = {
   title:string;
@@ -28,7 +29,7 @@ type MaterialCategory = {
 };
 
 const AdminMaterialIndex = ( { title } : PageProps) => {
-  const { notification } = App.useApp();
+
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState({
@@ -69,17 +70,12 @@ const AdminMaterialIndex = ( { title } : PageProps) => {
               <div className="text-xl font-semibold text-slate-900">Material Management</div>
               <div className="text-sm text-slate-500">Manage your KM materials</div>
             </div>
-            <Button
-              icon={<FileAddOutlined />}
+            <Link
               type="primary"
-              className="h-10 rounded-xl px-5"
-              onClick={() => {
-                //setIsModalOpen(true);
-                //setCategory(undefined);
-              }}
-            >
+              className="bg-blue-500 h-10 rounded-xl px-5"
+              href={'/admin/materials/create'}            >
               Add Material
-            </Button>
+            </Link>
           </div>
 
           <div className='my-4 flex items-center gap-3 px-6'>
@@ -147,47 +143,7 @@ const AdminMaterialIndex = ( { title } : PageProps) => {
               <Column
                 title="Action"
                 key="action"
-                render={(_, row: Material) => (
-                  <Space size="small">
-                    <Button
-                      type='text'
-                      icon={<Edit2Icon size={15} />}
-                      onClick={() => {
-                        router.visit(route('admin.materials.edit', row.id));
-                        //setCategory(row);
-                        //setIsModalOpen(true);
-                      }}
-                    />
-                    <Popconfirm
-                      title="Delete Category"
-                      description="Are you sure you want to delete this category record?"
-                      onConfirm={() => {
-                        axios.delete(`/admin/materials/${row.id}`)
-                          .then((res) => {
-                            if (res.data.success) {
-                              notification.success({
-                                message: 'Daily Expense Deleted',
-                                description: 'The daily expense record has been deleted successfully.',
-                              });
-                            }
-                            refetch();
-                            //setIsModalOpen(false);
-                          })
-                          .catch(() => {
-                            notification.error({
-                              message: 'Error',
-                              description: 'There was an error deleting the material.',
-                            });
-                          });
-                      }}
-                      okText="Delete"
-                      okType="danger"
-                      cancelText="Cancel"
-                    >
-                      <Button type='text' danger icon={<Trash size={15} />} />
-                    </Popconfirm>
-                  </Space>
-                )}
+                render={(_, row: Material) => <MaterialDropdown refetch={refetch} row={row}/>}
               />
             </Table>
 

@@ -13,9 +13,17 @@ declare global {
   const route: typeof routeFn;
 }
 
-const queryClient = new QueryClient()
-
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 30_000,
+    },
+  },
+});
 
 createInertiaApp({
   title: (title) => `${title} - ${appName}`,

@@ -53,17 +53,22 @@ class MaterialController extends Controller
             $filter = new FilterDom();
             $contentText = $filter->htmlToPlainText($validated['content']);
 
-            $material = Material::create([
+            $materialData = [
                 'title' => $validated['title'],
                 'slug' => Str::slug($validated['title']),
                 'content' => $validated['content'],
                 'content_text' => $contentText,
                 'uploaded_file' => $uploadedFile,
                 'original_filename' => $originalFilename,
+                'encoded_by_id' => $user->id,
+            ];
 
-                'status' => $submitType,
-                'encoded_by_id' => $user->id
-            ]);
+
+            if ($user->role !== 'admin') {
+                $materialData['status'] = $submitType;
+            }
+
+            $material = Material::create($materialData);
 
 
             if (!empty($uploadedFile)) {
