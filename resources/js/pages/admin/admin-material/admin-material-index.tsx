@@ -1,22 +1,23 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Table, Pagination, Input } from 'antd';
 import Column from 'antd/es/table/Column';
 import axios from 'axios';
-import { ReactElement, ReactNode, useState } from 'react'
+import { ReactElement, useState } from 'react'
 import { Plus, Search } from 'lucide-react';
 
-import { User } from '@/types';
+import { SharedData } from '@/types';
 
-import AuthenticatedLayout from '@/layouts/authenticated-layout';
+
 import { PaginateResponse } from '@/types/paginateResponse';
 import { dateFormat } from '@/lib/utils';
 import { Material } from '@/types/material';
 import StatusChip from '@/components/status-chip';
 import MaterialDropdown from './partials/material-dropdown';
+import AdminLayout from '@/layouts/admin-layout';
 
 type PageProps = {
-  title:string;
+  title: string;
 }
 
 type MaterialCategory = {
@@ -27,7 +28,8 @@ type MaterialCategory = {
   };
 };
 
-const AdminMaterialIndex = ( { title } : PageProps) => {
+const AdminMaterialIndex = ( { title }: PageProps ) => {
+
 
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
@@ -59,7 +61,7 @@ const AdminMaterialIndex = ( { title } : PageProps) => {
 
   return (
     <>
-      <Head title={title}></Head>
+      <Head title={title} />
 
       <div className="mx-2 md:mx-auto max-w-7xl">
         <div className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/60">
@@ -70,10 +72,11 @@ const AdminMaterialIndex = ( { title } : PageProps) => {
               <div className="text-sm text-slate-500">Manage your KM materials</div>
             </div>
 
-            <Button type="link"
-              icon={<Plus size={14}/>}
-              className='bg-blue-500! text-white! hover:bg-blue-400!'
-              href='/admin/materials/create'>
+            <Button icon={<Plus size={14}/>}
+              type='primary'
+              onClick={()=>{
+                router.visit('/admin/materials/create')
+              }}>
                 New Material
             </Button>
 
@@ -89,7 +92,10 @@ const AdminMaterialIndex = ( { title } : PageProps) => {
               onChange={(e) => setSearch({ ...search, search: e.target.value })}
             />
 
-            <Button type='primary' icon={<Search size={15} />} onClick={() => refetch()}>
+            <Button
+              type='primary'
+              icon={<Search size={15} />}
+              onClick={() => refetch()}>
               Search
             </Button>
           </div>
@@ -108,7 +114,6 @@ const AdminMaterialIndex = ( { title } : PageProps) => {
               loading={isFetching}
               rowKey={(row) => row.id}
               pagination={false}
-              size="middle"
               locale={{ emptyText: 'No category records yet. Create your first record.' }}
             >
               <Column title="Id" dataIndex="id" key="id" />
@@ -134,11 +139,12 @@ const AdminMaterialIndex = ( { title } : PageProps) => {
               />
 
               <Column
-                className=''
-                title="Created"
+                title="Publish/Created"
                 key="created_at"
-                dataIndex="created_at"
-                render={(createdAt) => (<>{dateFormat(createdAt)}</>)}
+                render={(_, row) => (<div className='flex flex-col gap-2 text-center text-[0.7rem]'>
+                  <div className='bg-gray-200 px-2 py-1 rounded-2xl'>{dateFormat(row.publish_date)}</div>
+                  <div className='bg-amber-200 px-2 py-1 rounded-2xl'>{dateFormat(row.created_at)}</div>
+                </div>)}
               />
 
               <Column
@@ -170,14 +176,13 @@ const AdminMaterialIndex = ( { title } : PageProps) => {
   )
 }
 
-export default AdminMaterialIndex
 
-AdminMaterialIndex.layout = (page: ReactNode) => (
-  <AuthenticatedLayout
-    user={(page as ReactElement<{ auth: { user: User } }>).props.auth.user}
-  >
+
+AdminMaterialIndex.layout = (page: ReactElement<SharedData>) => (
+  <AdminLayout user={page.props.auth.user}>
     {page}
-  </AuthenticatedLayout>
+  </AdminLayout>
 )
 
+export default AdminMaterialIndex
 

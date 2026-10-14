@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Utils\FilterDom;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Carbon\Carbon;
+
 
 class MaterialController extends Controller
 {
@@ -22,6 +24,7 @@ class MaterialController extends Controller
         $validated = $req->validate([
             'title' => ['required', 'string', 'max:255', 'unique:materials'],
             'content' => ['required', 'string'],
+            'publish_date' => ['required', 'date_format:Y-m-d'],
             'categories.*' => ['nullable'],
             'submit_type' => ['required', 'in:save,draft,publish,submit'],
             'upload' => ['nullable', 'array'],
@@ -40,6 +43,8 @@ class MaterialController extends Controller
             $upload = $validated['upload'] ?? null;
             $submitType = $validated['submit_type'];
 
+            $publishDate = Carbon::parse($validated['publish_date'], 'Asia/Manila')->format('Y-m-d');
+
             $uploadedFile = data_get(
                 $validated,
                 'upload.0.response.path'
@@ -57,6 +62,7 @@ class MaterialController extends Controller
                 'title' => $validated['title'],
                 'slug' => Str::slug($validated['title']),
                 'content' => $validated['content'],
+                'publish_date' => $publishDate,
                 'content_text' => $contentText,
                 'uploaded_file' => $uploadedFile,
                 'original_filename' => $originalFilename,
@@ -158,6 +164,7 @@ class MaterialController extends Controller
             'title' => ['required', 'string', 'max:255', 'unique:materials,title,' . $id . ',id'],
             'content' => ['required', 'string'],
             'categories.*' => ['nullable'],
+            'publish_date' => ['required', 'date_format:Y-m-d'],
             'submit_type' => ['required', 'in:save,draft,publish,submit'],
             'upload' => ['nullable', 'array'],
             'upload.*.name' => ['nullable', 'string'],
@@ -169,6 +176,8 @@ class MaterialController extends Controller
 
         DB::transaction(function () use ($validated, $user, $id) {
 
+            $publishDate = Carbon::parse($validated['publish_date'], 'Asia/Manila')->format('Y-m-d');
+
             $filter = new FilterDom();
             $contentText = $filter->htmlToPlainText($validated['content']);
             $submitType = $validated['submit_type'];
@@ -178,6 +187,7 @@ class MaterialController extends Controller
             $material->slug = Str::slug($validated['title']);
             $material->content = $validated['content'];
             $material->content_text = $contentText;
+            $material->publish_date = $publishDate;
 
             if($user->role !== 'admin') {
                 $material->status = $submitType;

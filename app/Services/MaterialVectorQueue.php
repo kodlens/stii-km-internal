@@ -29,12 +29,10 @@ class MaterialVectorQueue
     public function queue(
         int $limit,
         bool $force = false,
-        array $include = [],
-        array $exclude = [],
         int $afterId = 0,
         ?int $materialId = null
     ): array {
-        $scope = fn () => $this->materialsQuery($force, $include, $exclude, $afterId, $materialId);
+        $scope = fn () => $this->materialsQuery($force, $afterId, $materialId);
 
         $pending = $scope()->count();
         $queued = 0;
@@ -79,8 +77,6 @@ class MaterialVectorQueue
 
     private function materialsQuery(
         bool $force,
-        array $include,
-        array $exclude,
         int $afterId,
         ?int $materialId
     ): Builder {

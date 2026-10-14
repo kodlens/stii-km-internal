@@ -2,7 +2,7 @@ import { App, Form } from 'antd'
 import AuthenticatedLayout from '@/layouts/authenticated-layout'
 import { ReactElement, ReactNode, useState } from 'react'
 import { User } from '@/types'
-import {  MaterialProps } from '@/types/material'
+import {  Material, MaterialProps } from '@/types/material'
 import axios, { isAxiosError } from 'axios'
 import CreateEditMaterial from '@/components/create-edit-materials'
 import { router } from '@inertiajs/react'
@@ -38,9 +38,12 @@ const AdminMaterialAddEdit = ({ auth, material, ckLicense }: Pageprops) => {
     }
   }
 
-  const store = (values: object, action:string) => {
+  const store = (values: Material, action:string) => {
     axios.post('/admin/materials', {
       ...values,
+      publish_date: values.publish_date
+        ? values.publish_date.format('YYYY-MM-DD')
+        : null,
       submit_type: action
     }).then(res=> {
       if(res.data.success) {
@@ -68,9 +71,12 @@ const AdminMaterialAddEdit = ({ auth, material, ckLicense }: Pageprops) => {
     })
   }
 
-  const update = (values: object, action:string,  id:number) => {
+  const update = (values: Material, action:string,  id:number) => {
     axios.put(`/admin/materials/${id}`, {
       ...values,
+      publish_date: values.publish_date
+        ? values.publish_date.format('YYYY-MM-DD')
+        : null,
       submit_type: action
     }).then(res=> {
       if(res.data.success) {

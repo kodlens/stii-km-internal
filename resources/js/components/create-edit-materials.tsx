@@ -1,5 +1,5 @@
-import { App, Button, Form, FormInstance, Input, Upload, UploadProps } from 'antd'
-import { FileAddOutlined, InboxOutlined } from '@ant-design/icons'
+import { App, Button, DatePicker, Form, FormInstance, Input, Upload, UploadProps } from 'antd'
+import { CalendarOutlined, FileAddOutlined, InboxOutlined } from '@ant-design/icons'
 import {  MaterialProps } from '@/types/material'
 import axios, { isAxiosError } from 'axios'
 import AiClassifier from '@/components/ai-classifier'
@@ -7,6 +7,11 @@ import { lazy, useEffect, useRef, type Dispatch, type SetStateAction } from 'rea
 import { SendHorizontal } from 'lucide-react'
 import { usePage } from '@inertiajs/react'
 import Dragger from 'antd/es/upload/Dragger'
+
+import dayjs from 'dayjs';
+
+
+
 const Ckeditor = lazy(() => import('@/components/ckeditor'))
 
 type SubmitAction = 'save' | 'draft' | 'submit' | 'publish';
@@ -118,25 +123,24 @@ const CreateEditMaterial = ({
   };
 
   useEffect(() => {
-    if (material && material.id > 0) {
-      //set text to the editor
-      setDataForUpdate();
+    if (material?.id > 0) {
+        form.setFieldsValue({
+          title: material.title,
+          content: material.content,
+          publish_date: material.publish_date
+              ? dayjs(material.publish_date)
+              : null,
+          categories: material.material_categories.map((category) => ({
+              category_id: category.category_id,
+              score: category.score,
+              analysis: category.analysis,
+              category: category.category.category,
+          })),
+        });
+    } else {
+        form.resetFields();
     }
-  }, [material])
-
-  const setDataForUpdate = () => {
-
-    form.setFieldsValue({
-      title: material.title,
-      content: material.content,
-      categories: material.material_categories.map((category) => ({
-        category_id: category.category_id,
-        score: category.score,
-        analysis: category.analysis,
-        category: category.category.category
-      })),
-    })
-  }
+  }, [material, form]);
 
   const handleCheckTitle = () => {
     if (role !== 'encoder') return;
@@ -177,8 +181,6 @@ const CreateEditMaterial = ({
     });
   }
 
-
-
   return (
     <>
 
@@ -190,6 +192,7 @@ const CreateEditMaterial = ({
           title: null,
           content: null,
           content_text: true,
+          publish_date: null,
           upload: [],
           categories: [],
           submit_type: null
@@ -246,6 +249,23 @@ const CreateEditMaterial = ({
             </p>
           </Dragger>
 
+        </Form.Item>
+
+        <Form.Item
+          name="publish_date"
+          label="Publish Date"
+          className="w-full"
+          validateStatus={errors.publish_date ? "error" : ""}
+          help={
+            errors.publish_date ? (errors.publish_date[0] as string) : ""
+          }
+        >
+          <DatePicker
+            prefix={<CalendarOutlined />}
+            className="w-full"
+            format="YYYY-MM-DD"
+            placeholder="Publish Date"
+          />
         </Form.Item>
 
         <div className="min-h-[300px] ">

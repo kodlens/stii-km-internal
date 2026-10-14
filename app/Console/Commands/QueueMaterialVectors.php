@@ -12,8 +12,6 @@ class QueueMaterialVectors extends Command
                             {--limit=100 : Maximum materials to queue (0 for no limit)}
                             {--all : Queue every matching material, ignoring --limit}
                             {--force : Reindex even if already vectorized}
-                            {--classification= : Only queue these classifications (comma separated)}
-                            {--exclude-classification= : Skip these classifications (comma separated)}
                             {--after-id=0 : Only queue materials with a higher id}';
 
     protected $description = 'Queue chunking and Qdrant vectorization for existing materials';
@@ -45,19 +43,19 @@ class QueueMaterialVectors extends Command
             $limit = 0;
         }
 
-        $include = $this->parseList($this->option('classification'));
-        $exclude = $this->parseList($this->option('exclude-classification'));
+        // $include = $this->parseList($this->option('classification'));
+        // $exclude = $this->parseList($this->option('exclude-classification'));
 
-        if ($conflicts = array_intersect($include, $exclude)) {
-            $this->error('Cannot include and exclude the same classification: '.implode(', ', $conflicts).'.');
+        // if ($conflicts = array_intersect($include, $exclude)) {
+        //     $this->error('Cannot include and exclude the same classification: '.implode(', ', $conflicts).'.');
 
-            return self::FAILURE;
-        }
+        //     return self::FAILURE;
+        // }
 
         $force = (bool) $this->option('force');
         $materialId = $id === null ? null : (int) $id;
 
-        $result = $queue->queue($limit, $force, $include, $exclude, $afterId, $materialId);
+        $result = $queue->queue($limit, $force, $afterId, $materialId);
 
         if ($result['queued'] === 0) {
             $this->info('Nothing to queue; no materials matched the current filters.');

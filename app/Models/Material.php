@@ -15,7 +15,7 @@ class Material extends Model
     {
         static::saving(function (Material $material) {
             if (! $material->exists || $material->isDirty(['title', 'content_text'])) {
-                $material->is_ai_summarized = 0;
+                $material->is_summarized = 0;
                 $material->is_vectorized = 0;
             }
         });
@@ -64,7 +64,7 @@ class Material extends Model
         'is_ojt',
         'is_categorized',
         'is_vectorized',
-        'is_ai_summarized'
+        'is_summarized'
     ];
 
 

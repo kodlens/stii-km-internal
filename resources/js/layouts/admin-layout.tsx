@@ -42,7 +42,6 @@ export default function AdminLayout(
     post(route('logout'));
   }
 
-  console.log('admin login');
 
   type MenuItem = Required<MenuProps>['items'][number];
 

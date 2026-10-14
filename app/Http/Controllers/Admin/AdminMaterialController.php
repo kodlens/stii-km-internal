@@ -12,7 +12,9 @@ use App\Http\Controllers\Base\MaterialController;
 class AdminMaterialController extends MaterialController
 {
     public function index(){
-        return Inertia::render('admin/admin-material/admin-material-index');
+        return Inertia::render('admin/admin-material/admin-material-index', [
+            'title' => 'Material Management'
+        ]);
     }
 
 

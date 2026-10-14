@@ -10,17 +10,17 @@ type Prop = {
 }
 export default function MaterialDropdown( { refetch, row } : Prop ) {
 
-  const { modal } = App.useApp();
+  const { modal, notification } = App.useApp();
 
   // const handleUpdateClassification = (row:Material) => {
 
   // }
 
-  const handlePublish = (row:number) => {
+  const handlePublish = (rowId:number) => {
 
   }
 
-  const handleCategorize = (row:number) => {
+  const handleCategorize = (rowId:number) => {
 
   }
 
@@ -28,8 +28,25 @@ export default function MaterialDropdown( { refetch, row } : Prop ) {
 
   }
 
-  const handleDeleteClick = (row:number) => {
-
+  const handleDeleteClick = async (rowId:number) => {
+    try {
+      const res = await axios.delete('/admin/materials/' + rowId);
+      if (res.data.suceess) {
+        notification.success({
+          message: 'Material Deleted',
+          description: 'The material was successfully removed.',
+          placement: 'topRight',
+        });
+      }
+    } catch {
+      notification.error({
+        message: 'Deletion Failed',
+        description: 'Unable to delete material. Please try again.',
+        placement: 'topRight',
+      });
+    } finally {
+      refetch()
+    }
   }
 
 

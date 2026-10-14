@@ -181,7 +181,7 @@ const AiClassifier = ( { form, errors } : PageProps) => {
                 width: 120,
               },
               {
-                title: "Cattegory",
+                title: "Category",
                 dataIndex: "category",
                 key: "category",
                 width: 200,
