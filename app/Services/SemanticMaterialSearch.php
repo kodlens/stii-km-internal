@@ -21,7 +21,7 @@ class SemanticMaterialSearch
         $points = $resolved['points'];
         $matches = $resolved['matches'];
         $categoryCounts = $resolved['categoryCounts'];
-        $topicCounts = $resolved['topicCounts'];
+        // $topicCounts = $resolved['topicCounts'];
         $candidateLimit = $resolved['candidateLimit'];
 
         $page = max(1, (int) ($options['page'] ?? 1));
@@ -58,8 +58,7 @@ class SemanticMaterialSearch
             // Facets are built from every match, before the slice, so the counts
             // describe the whole candidate set rather than this page.
             'facets' => [
-                'categories' => $this->sortFacets($categoryCounts),
-                'topics' => $this->sortFacets($topicCounts),
+                'categories' => $this->sortFacets($categoryCounts)
             ],
             // Mirrors Laravel's paginator shape so clients can reuse the same
             // pagination component they use for the keyword search endpoints.
@@ -107,7 +106,6 @@ class SemanticMaterialSearch
             'success' => true,
             'facets' => [
                 'categories' => $this->sortFacets($resolved['categoryCounts']),
-                'topics' => $this->sortFacets($resolved['topicCounts']),
             ],
             'meta' => [
                 'query' => $query,
@@ -191,24 +189,19 @@ class SemanticMaterialSearch
                 'id' => $material->id,
                 'title' => $material->title,
                 'slug' => $material->slug,
-                'classification' => $material->classification,
-                'filter_type' => $material->filter_type,
                 'publish_date' => $material->publish_date,
                 'source_url' => $material->source_url,
                 // Video landing page, needed to render the preview thumbnail.
                 // Keyword search results carry this too, so a material looks
                 // the same in both lists.
-                'urls' => $material->urls,
                 'score' => (float) $score,
                 // The article's opening text, not the matched chunk. A chunk can
                 // begin mid-sentence partway through an article, which reads as a
                 // fragment on a result card. Capped because the client fetches
                 // every candidate in one response, and full text averages far
                 // more than a card can show.
-                'description_text' => Str::limit($material->description_text, 200),
+                'content_text' => Str::limit($material->content_text, 200),
                 'matched_chunk_id' => $chunk->id,
-                'categories' => [],
-                'topics' => [],
             ];
 
         }
@@ -220,12 +213,11 @@ class SemanticMaterialSearch
         $categoryCounts = [];
         $topicCounts = [];
         if ($matches !== []) {
-            $labels = DB::table('material_subject_headings as msh')
-                ->join('subject_headings as sh', 'sh.id', '=', 'msh.subject_heading_id')
-                ->join('categories as c', 'c.id', '=', 'sh.category_id')
-                ->whereIn('msh.material_id', array_keys($matches))
+            $labels = DB::table('material_categories as mc')
+                ->join('categories as c', 'c.id', '=', 'mc.category_id')
+                ->whereIn('mc.material_id', array_keys($matches))
                 ->orderBy('c.category')->orderBy('sh.subject_heading')
-                ->get(['msh.material_id', 'c.id as category_id', 'c.category', 'c.slug as category_slug',
+                ->get(['mc.material_id', 'c.id as category_id', 'c.category', 'c.slug as category_slug',
                     'sh.id as topic_id', 'sh.subject_heading', 'sh.slug as topic_slug']);
 
             foreach ($labels as $label) {
@@ -240,16 +232,16 @@ class SemanticMaterialSearch
                     ];
                     $categoryCounts[$label->category_id]['count']++;
                 }
-                if (! isset($matches[$label->material_id]['topics'][$label->topic_id])) {
-                    $topicCounts[$label->topic_id] ??= [
-                        'id' => $label->topic_id,
-                        'name' => $label->subject_heading,
-                        'slug' => $label->topic_slug,
-                        'category_id' => $label->category_id,
-                        'count' => 0,
-                    ];
-                    $topicCounts[$label->topic_id]['count']++;
-                }
+                // if (! isset($matches[$label->material_id]['topics'][$label->topic_id])) {
+                //     $topicCounts[$label->topic_id] ??= [
+                //         'id' => $label->topic_id,
+                //         'name' => $label->subject_heading,
+                //         'slug' => $label->topic_slug,
+                //         'category_id' => $label->category_id,
+                //         'count' => 0,
+                //     ];
+                //     $topicCounts[$label->topic_id]['count']++;
+                // }
                 $matches[$label->material_id]['categories'][$label->category_id] = [
                     'name' => $label->category, 'slug' => $label->category_slug,
                 ];

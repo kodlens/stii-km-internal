@@ -1,5 +1,3 @@
-import '../css/app.css';
-
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
@@ -8,6 +6,7 @@ import { route as routeFn } from 'ziggy-js';
 import { ConfigProvider, App as AntApp } from 'antd';
 import { StrictMode } from 'react';
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import '../css/app.css';
 
 declare global {
   const route: typeof routeFn;
@@ -45,7 +44,7 @@ createInertiaApp({
                 // defaultActiveBg: '#3d8069', //color when hover after click
                 // defaultHoverBorderColor: '#244a3d',
                 // defaultHoverColor: 'white', //Text color of default button when hover
-                // linkHoverBg: '#244a3d', //Background color of link button when hover
+                //linkHoverBg: '#244a3d', //Background color of link button when hover
                 // defaultHoverBg: '#1b382e', //Background color of default button when hover
 
                 // defaultActiveBorderColor: '#244a3d',

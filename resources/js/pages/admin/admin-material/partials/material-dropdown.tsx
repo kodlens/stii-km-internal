@@ -1,6 +1,6 @@
 import { Link } from "@inertiajs/react";
 import { App, Button, Dropdown, MenuProps, Space, Tooltip } from "antd";
-import { Database, GitCompareArrows, Globe, MoreHorizontal, NotepadTextDashed, Pencil, Trash2 } from "lucide-react";
+import { Database, Globe, MoreHorizontal, NotepadTextDashed, Pencil, Trash2 } from "lucide-react";
 import axios from 'axios'
 import { Material } from "@/types/material";
 
@@ -31,8 +31,6 @@ export default function MaterialDropdown( { refetch, row } : Prop ) {
   const handleDeleteClick = (row:number) => {
 
   }
-
-
 
 
 

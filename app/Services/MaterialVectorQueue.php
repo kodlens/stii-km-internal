@@ -42,7 +42,7 @@ class MaterialVectorQueue
         $lastId = null;
 
         $query = $scope()->orderBy('id')
-            ->select(['id', 'title', 'description_text'])
+            ->select(['id', 'title', 'content_text'])
             ->when($limit > 0, fn (Builder $q) => $q->limit($limit));
 
         // Streamed only when unbounded. lazy() pages with forPage(), which
@@ -98,15 +98,6 @@ class MaterialVectorQueue
             $query->where('id', '>', $afterId);
         }
 
-        if ($include !== []) {
-            $query->whereIn('classification', $include);
-        }
-
-        if ($exclude !== []) {
-            // Keep rows with no classification; SQL NOT IN would drop them.
-            $query->where(fn (Builder $q) => $q->whereNotIn('classification', $exclude)
-                ->orWhereNull('classification'));
-        }
 
         return $query;
     }

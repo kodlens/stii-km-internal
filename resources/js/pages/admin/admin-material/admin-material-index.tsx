@@ -1,11 +1,10 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Table, Pagination, Input } from 'antd';
-import { FileAddOutlined } from '@ant-design/icons';
 import Column from 'antd/es/table/Column';
 import axios from 'axios';
 import { ReactElement, ReactNode, useState } from 'react'
-import { Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 
 import { User } from '@/types';
 
@@ -70,12 +69,14 @@ const AdminMaterialIndex = ( { title } : PageProps) => {
               <div className="text-xl font-semibold text-slate-900">Material Management</div>
               <div className="text-sm text-slate-500">Manage your KM materials</div>
             </div>
-            <Link
-              type="primary"
-              className="bg-blue-500 h-10 rounded-xl px-5"
-              href={'/admin/materials/create'}            >
-              Add Material
-            </Link>
+
+            <Button type="link"
+              icon={<Plus size={14}/>}
+              className='bg-blue-500! text-white! hover:bg-blue-400!'
+              href='/admin/materials/create'>
+                New Material
+            </Button>
+
           </div>
 
           <div className='my-4 flex items-center gap-3 px-6'>

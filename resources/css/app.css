@@ -1,5 +1,15 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=UnifrakturCook:wght@700&display=swap");
 
+/*
+ * antd (v6) injects its cssinjs styles into a cascade layer named "antd".
+ * Without an explicit order that layer is appended *after* Tailwind's, and
+ * since layer order is resolved before specificity, antd's global reset
+ * (e.g. `a { background-color: transparent }`) overrides Tailwind utilities
+ * on plain <a>/<Link> elements. Declaring "antd" ahead of the Tailwind
+ * layers lets utility classes win again.
+ */
+@layer theme, base, antd, components, utilities;
+
 @import 'tailwindcss';
 
 @plugin 'tailwindcss-animate';
@@ -89,7 +99,7 @@ html, body {
         border-color: var(--color-gray-200, currentColor);
     }
 } */
-
+/*
 :root {
     --background: hsl(0, 0%, 100%);
     --foreground: hsl(0, 0%, 3.9%);
@@ -159,7 +169,7 @@ html, body {
     --sidebar-accent-foreground: hsl(240, 4.8%, 95.9%);
     --sidebar-border: hsl(0, 0%, 15.9%);
     --sidebar-ring: hsl(217.2, 91.2%, 59.8%);
-}
+} */
 
 /* @layer base {
     * {
