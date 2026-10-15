@@ -172,7 +172,7 @@ const AdminMaterialIndex = ({ title }: PageProps) => {
         search,
       }).toString();
 
-      const response = await axios.get<PaginateResponse<MaterialProps>>(`/admin/get-materials?${params}`);
+      const response = await axios.get<PaginateResponse<MaterialProps>>(`/admin/materials/data?${params}`);
       return response.data;
     },
     placeholderData: keepPreviousData,

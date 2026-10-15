@@ -58,8 +58,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('/admin/topics', \App\Http\Controllers\Admin\AdminTopicController::class)->names('admin.topics');
     Route::get('/admin/get-topics', [\App\Http\Controllers\Admin\AdminTopicController::class, 'getData'])->name('admin.topics.getData');
 
+    Route::get('/admin/materials/data', [\App\Http\Controllers\Admin\AdminMaterialController::class, 'getData'])->name('admin.materials.get-data');
     Route::resource('/admin/materials', \App\Http\Controllers\Admin\AdminMaterialController::class)->names('admin.materials');
-    Route::get('/admin/get-materials', [\App\Http\Controllers\Admin\AdminMaterialController::class, 'getData'])->name('admin.materials.get-data');
     Route::post('/admin/materials/{id}/publish', [\App\Http\Controllers\Admin\AdminMaterialController::class, 'publish'])->name('admin.materials.publish');
 
      Route::resource('/admin/ojt-materials', \App\Http\Controllers\Admin\AdminOjtMaterialController::class)->names('admin.ojt-materials');
