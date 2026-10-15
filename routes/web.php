@@ -60,6 +60,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::resource('/admin/materials', \App\Http\Controllers\Admin\AdminMaterialController::class)->names('admin.materials');
     Route::get('/admin/get-materials', [\App\Http\Controllers\Admin\AdminMaterialController::class, 'getData'])->name('admin.materials.get-data');
+    Route::post('/admin/materials/{id}/publish', [\App\Http\Controllers\Admin\AdminMaterialController::class, 'publish'])->name('admin.materials.publish');
 
      Route::resource('/admin/ojt-materials', \App\Http\Controllers\Admin\AdminOjtMaterialController::class)->names('admin.ojt-materials');
     Route::get('/admin/get-ojt-materials', [\App\Http\Controllers\Admin\AdminOjtMaterialController::class, 'getData'])->name('admin.ojt-materials.get-data');

@@ -1,40 +1,41 @@
 import { Link } from "@inertiajs/react";
-import { App, Button, Dropdown, MenuProps, Space, Tooltip } from "antd";
-import { Database, Globe, MoreHorizontal, NotepadTextDashed, Pencil, Trash2 } from "lucide-react";
+import { App, Button, Dropdown, MenuProps, Space, Tag, Tooltip } from "antd";
+import { Database, Globe, MoreHorizontal, Pencil, Tag as TagIcon, Trash2 } from "lucide-react";
 import axios from 'axios'
-import { Material } from "@/types/material";
+import { ReactNode } from 'react'
+import { MaterialProps } from "@/types/material";
 
 type Prop = {
   refetch : ()=> void
-  row: Material
+  row: MaterialProps
 }
+
+const UNAVAILABLE = 'Not available yet — this action has no backend endpoint.';
+
+const unavailableLabel = (label: string): ReactNode => (
+  <span className="flex items-center gap-2">
+    <span>{label}</span>
+    <Tag bordered={false} className="!ml-auto !text-[0.65rem] !leading-4">Soon</Tag>
+  </span>
+);
+
 export default function MaterialDropdown( { refetch, row } : Prop ) {
 
   const { modal, notification } = App.useApp();
 
-  // const handleUpdateClassification = (row:Material) => {
-
-  // }
-
-  const handlePublish = (rowId:number) => {
-
-  }
-
-  const handleCategorize = (rowId:number) => {
-
-  }
-
-  const confirmVectorize = (row:Material) => {
-
-  }
-
   const handleDeleteClick = async (rowId:number) => {
     try {
       const res = await axios.delete('/admin/materials/' + rowId);
-      if (res.data.suceess) {
+      if (res.data?.success) {
         notification.success({
           message: 'Material Deleted',
           description: 'The material was successfully removed.',
+          placement: 'topRight',
+        });
+      } else {
+        notification.error({
+          message: 'Deletion Failed',
+          description: res.data?.message ?? 'The material could not be deleted.',
           placement: 'topRight',
         });
       }
@@ -49,7 +50,32 @@ export default function MaterialDropdown( { refetch, row } : Prop ) {
     }
   }
 
-
+  const handlePublish = async (rowId:number) => {
+    try {
+      const res = await axios.post(`/admin/materials/${rowId}/publish`);
+      if (res.data?.success) {
+        notification.success({
+          message: 'Material Publish',
+          description: 'The material was successfully published.',
+          placement: 'topRight',
+        });
+      } else {
+        notification.error({
+          message: 'Publish Failed',
+          description: res.data?.message ?? 'The material could not be publish.',
+          placement: 'topRight',
+        });
+      }
+    } catch {
+      notification.error({
+        message: 'Publish Failed',
+        description: 'Unable to publish material. Please try again.',
+        placement: 'topRight',
+      });
+    } finally {
+      refetch()
+    }
+  }
 
   return (
     <Space size="small">
@@ -59,33 +85,32 @@ export default function MaterialDropdown( { refetch, row } : Prop ) {
         menu={{
           items: [
             {
-              label: <Link href={`/admin/materials/${row.id}/edit`}>Edit Material</Link>,
+              label: <Link href={route('admin.materials.edit', row.id)}>Edit Material</Link>,
               key: 'admin.materials.edit',
               icon: <Pencil size={14} className="text-blue-600" />,
             },
-            // {
-            //   label: 'Update Classification',
-            //   key: 'admin.materials.update-classification',
-            //   icon: <GitCompareArrows size={14} className="text-indigo-600" />,
-            //   onClick: () => handleUpdateClassification(row),
-            // },
+            {
+              type: 'divider',
+            },
             {
               label: 'Publish Material',
               key: 'admin.materials.publish',
               icon: <Globe size={14} className="text-emerald-600" />,
-              onClick: () => handlePublish(row.id),
+              onClick: ()=> handlePublish(row.id),
             },
             {
-              label: 'Categorize',
+              label: unavailableLabel('Categorize'),
               key: 'admin.materials.categorize',
-              icon: <NotepadTextDashed size={14} className="text-blue-600" />,
-              onClick: () => handleCategorize(row.id),
+              icon: <TagIcon size={14} className="text-blue-600" />,
+              disabled: true,
+              title: UNAVAILABLE,
             },
             {
-              label: 'Vectorize',
+              label: unavailableLabel('Vectorize'),
               key: 'admin.materials.vectorize',
               icon: <Database size={14} className="text-emerald-600" />,
-              onClick: () => confirmVectorize(row),
+              disabled: true,
+              title: UNAVAILABLE,
             },
             {
               type: 'divider',
@@ -118,6 +143,7 @@ export default function MaterialDropdown( { refetch, row } : Prop ) {
       >
         <Tooltip title="Options">
           <Button
+            aria-label={`Actions for ${row.title}`}
             size="small"
             type="text"
             icon={<MoreHorizontal size={17} />}

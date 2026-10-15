@@ -1,4 +1,4 @@
-import { useMemo, useState, PropsWithChildren, ReactNode } from 'react';
+import { useEffect, useMemo, useState, PropsWithChildren, ReactNode } from 'react';
 import { router, useForm } from '@inertiajs/react';
 
 import {
@@ -42,52 +42,61 @@ export default function AdminLayout(
     post(route('logout'));
   }
 
-
   type MenuItem = Required<MenuProps>['items'][number];
 
-  const currentMenuKey = `${route().current()?.split('.')?.slice(0, -1).join('.')}`;
   const currentRoute = `${route().current() ?? ''}`;
+  // e.g. admin.materials.index -> admin.materials
+  const currentMenuKey = currentRoute.split('.').slice(0, -1).join('.');
+
+  // Open the section containing the current page, so the active item is
+  // never hidden behind a closed submenu after a full page load.
+  useEffect(() => {
+    if (currentMenuKey.startsWith('admin.materials') || currentMenuKey.startsWith('admin.ojt')) {
+      setOpenKeys((keys) => (keys.includes('materials') ? keys : [...keys, 'materials']));
+    }
+  }, [currentMenuKey]);
+
   const userInitials = `${user?.fname?.[0] ?? ''}${user?.lname?.[0] ?? ''}`.toUpperCase();
   const fullName = `${user?.lname ?? ''}, ${user?.fname ?? ''}`.trim();
   const compactName = `${user?.lname ?? ''}, ${user?.fname?.[0] ?? ''}.`.trim();
-  const pageTitle = currentMenuKey === 'admin.dashboard'
-    ? 'Dashboard'
-    : currentMenuKey === 'admin.categories.index'
-      ? 'Categories'
-      : currentMenuKey === 'admin.regions'
-        ? 'Regions'
-        : currentMenuKey === 'admin.materials'
-          ? 'Materials'
-          : currentMenuKey === 'admin.ojt-materials'
-            ? 'OJT Entry Materials'
-            : currentMenuKey === 'admin.trash-articles'
-              ? 'Trash Materials'
-              : currentMenuKey === 'admin.users'
-                ? 'Users'
-                : currentRoute.startsWith('my-account')
-                  ? 'My Account'
-                  : currentRoute.startsWith('change-password')
-                    ? 'Change Password'
-                    : 'Admin Panel';
+
+  const PAGE_TITLES: Record<string, string> = {
+    'admin.dashboard': 'Dashboard',
+    'admin.categories': 'Categories',
+    'admin.topics': 'Topics',
+    'admin.materials': 'Materials',
+    'admin.ojt-materials': 'OJT Entry Materials',
+    'admin.users': 'Users',
+  };
+
+  const pageTitle =
+    PAGE_TITLES[currentMenuKey] ??
+    PAGE_TITLES[currentRoute] ??
+    (currentRoute.startsWith('admin.materials') ? 'New Material' : 'Admin Panel');
+
+  // "New Material" should highlight itself rather than "All Materials".
+  const selectedKeys = currentRoute.startsWith('admin.materials.create')
+    ? ['admin.materials.create']
+    : [currentMenuKey];
 
   const navigationItems = useMemo<MenuItem[]>(() => ([
     {
       key: 'admin.dashboard',
       icon: <DashboardOutlined />,
       label: 'Dashboard',
-      onClick: () => router.visit('/admin/dashboard'),
+      onClick: () => router.visit(route('admin.dashboard')),
     },
     {
       key: 'admin.categories',
       icon: <ProfileOutlined />,
       label: 'Categories', //this is subjects, but display as categories
-      onClick: () => router.visit('/admin/categories'),
+      onClick: () => router.visit(route('admin.categories.index')),
     },
     {
       key: 'admin.topics',
       icon: <Book size={15}/>,
       label: 'Topics', //this is subjects, but display as categories
-      onClick: () => router.visit('/admin/topics'),
+      onClick: () => router.visit(route('admin.topics.index')),
     },
     // {
     //   key: 'admin.categories',
@@ -119,13 +128,13 @@ export default function AdminLayout(
           key: 'admin.materials',
           label: 'All Materials',
           icon: <FormOutlined />,
-          onClick: () => router.visit('/admin/materials'),
+          onClick: () => router.visit(route('admin.materials.index')),
         },
         {
           key: 'admin.ojt-materials',
           label: 'OJT Entry Materials',
           icon: <UserPen size={15} />,
-          onClick: () => router.visit('/admin/ojt-materials'),
+          onClick: () => router.visit(route('admin.ojt-materials.index')),
         },
         // {
         //   key: 'admin.trash-articles',
@@ -137,7 +146,7 @@ export default function AdminLayout(
           key: 'admin.materials.create',
           label: 'New Material',
           icon: <Plus size={15} />,
-          onClick: () => router.visit('/admin/materials/create'),
+          onClick: () => router.visit(route('admin.materials.create')),
         },
 
       ],
@@ -176,7 +185,7 @@ export default function AdminLayout(
       key: 'admin.users',
       icon: <UserOutlined />,
       label: 'Users',
-      onClick: () => router.visit('/admin/users'),
+      onClick: () => router.visit(route('admin.users.index')),
     },
     {
       key: 'admin.activity-logs',
@@ -198,18 +207,26 @@ export default function AdminLayout(
             setCollapsed(broken)
             if (!broken) setOpenKeys(['materials'])
           }}>
-          <div className='border-b border-blue-100/25 pb-3'>
-            <PanelSideBarLogo />
-            {!collapsed && (
-              <div className='mx-4 mt-1 rounded-xl border border-blue-100/25 bg-white/10 px-3 py-2 text-blue-50 backdrop-blur-[1px]'>
-                <p className='text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-100/90'>Admin Workspace</p>
-                <div className='mt-1 flex items-center gap-2'>
-                  <div className='inline-flex h-7 w-7 items-center justify-center rounded-full border border-blue-100/35 bg-blue-200/20 text-[11px] font-semibold'>
-                    {userInitials || 'AD'}
-                  </div>
-                  <p className='truncate text-xs text-blue-50/90'>{user.lname}, {user.fname}</p>
-                </div>
+          <div className='border-b border-blue-100/25 px-4 pb-4 pt-5'>
+            {collapsed ? (
+              <div className='flex justify-center'>
+                <span className='inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-sm font-bold text-blue-50'>
+                  {userInitials || 'AD'}
+                </span>
               </div>
+            ) : (
+              <>
+                <PanelSideBarLogo />
+                <div className='mt-4 rounded-xl border border-blue-100/25 bg-white/10 px-3 py-2'>
+                  <p className='text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-100/90'>Admin Workspace</p>
+                  <div className='mt-1.5 flex items-center gap-2'>
+                    <div className='inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-blue-100/35 bg-blue-200/20 text-[11px] font-semibold'>
+                      {userInitials || 'AD'}
+                    </div>
+                    <p className='truncate text-xs text-blue-50/90'>{user.lname}, {user.fname}</p>
+                  </div>
+                </div>
+              </>
             )}
           </div>
           <ConfigProvider
@@ -243,7 +260,7 @@ export default function AdminLayout(
                 paddingInline: 8,
                 paddingTop: 8,
               }}
-              selectedKeys={[currentMenuKey]}
+              selectedKeys={selectedKeys}
               openKeys={collapsed ? [] : openKeys}
               onOpenChange={(keys) => setOpenKeys(keys as string[])}
               items={navigationItems}

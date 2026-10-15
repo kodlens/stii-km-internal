@@ -1,9 +1,11 @@
 
 const PanelSideBarLogo = ()=> {
   return (
-    <div className="demo-logo-vertical my-10 mx-4">
-        <img width="300" className='mx-auto' src="/img/app-logo-black-update.png"></img>
-    </div>
+    <img
+      className="mx-auto block h-auto w-full max-w-[200px] object-contain"
+      src="/img/app-logo-black-update.png"
+      alt="STII Knowledge Management"
+    />
   )
 };
 

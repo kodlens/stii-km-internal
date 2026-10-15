@@ -255,12 +255,13 @@ class MaterialController extends Controller
 
 
 
-    public function setPublish($id){
+    public function publish($id){
 
         $user = Auth::user();
         $material = Material::find($id);
         $material->update([
-            'status' => 'published'
+            'status' => 'publish',
+            'is_publish' => 1
         ]);
 
          ActivityLog::create([
