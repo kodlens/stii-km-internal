@@ -220,7 +220,7 @@ export default function AdminLayout(
                 <div className='mt-4 rounded-xl border border-blue-100/25 bg-white/10 px-3 py-2'>
                   <p className='text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-100/90'>Admin Workspace</p>
                   <div className='mt-1.5 flex items-center gap-2'>
-                    <div className='inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-blue-100/35 bg-blue-200/20 text-[11px] font-semibold'>
+                    <div className='inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-blue-100/35 bg-blue-200/20 text-[11px] font-semibold text-white'>
                       {userInitials || 'AD'}
                     </div>
                     <p className='truncate text-xs text-blue-50/90'>{user.lname}, {user.fname}</p>
