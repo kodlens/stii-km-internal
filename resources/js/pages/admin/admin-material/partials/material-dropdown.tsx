@@ -25,7 +25,7 @@ export default function MaterialDropdown( { refetch, row } : Prop ) {
 
   const handleDeleteClick = async (rowId:number) => {
     try {
-      const res = await axios.delete('/admin/materials/' + rowId);
+      const res = await axios.delete(`/admin/materials/${rowId}`);
       if (res.data?.success) {
         notification.success({
           message: 'Material Deleted',
