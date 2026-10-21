@@ -32,13 +32,13 @@ return [
 
     'ollama' => [
         'url' => env('OLLAMA_EMBED_URL', 'http://localhost:11434'),
-        'model' => env('OLLAMA_EMBED_MODEL', 'nomic-embed-text:v1.5'),
+        'model' => env('OLLAMA_EMBED_MODEL', 'nomic-embed-text:latest'),
         'dimensions' => (int) env('OLLAMA_EMBED_DIMENSIONS', 768),
         'batch_size' => (int) env('OLLAMA_EMBED_BATCH_SIZE', 8),
     ],
     'qdrant' => [
         'url' => env('QDRANT_URL', 'http://localhost:6333'),
         'api_key' => env('QDRANT_API_KEY'),
-        'collection' => env('QDRANT_COLLECTION', 'material_chunks_nomic_v1_5'),
+        'collection' => env('QDRANT_COLLECTION', 'material_chunks_internal_nomic_v1_5'),
     ],
 ];

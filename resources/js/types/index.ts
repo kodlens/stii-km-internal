@@ -1,4 +1,5 @@
 import { LucideIcon } from 'lucide-react';
+import { Category } from './category';
 
 export interface Auth {
     user: User;
@@ -42,3 +43,40 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+
+export interface SemanticSearchResult {
+    material_id: number;
+    title: string;
+    content: string;
+    content_text: string;
+    publish_date: string | null;
+    uploaded_file: string | null;
+    categories: Category[];
+}
+
+export interface LaravelPagination<T> {
+    current_page: number;
+    data: T[];
+    first_page_url: string | null;
+    from: number | null;
+    last_page: number;
+    last_page_url: string | null;
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number | null;
+    total: number;
+}
+
+export interface SemanticSearchResponse {
+    search: string;
+    results: LaravelPagination<SemanticSearchResult>;
+}
+

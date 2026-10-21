@@ -14,7 +14,5 @@ class Category extends Model
         'active'
     ];
 
-    public function topics(){
-        return $this->hasMany(Topic::class);
-    }
+
 }

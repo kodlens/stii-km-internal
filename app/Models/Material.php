@@ -73,6 +73,15 @@ class Material extends Model
         return $this->hasMany(MaterialCategory::class);
     }
 
+    public function categories() {
+        return $this->belongsToMany(
+            Category::class,
+            'material_categories',
+            'material_id',
+            'category_id'
+        );
+    }
+
     // public function contributions()
     // {
     //     return $this->hasMany(MaterialContribution::class);
