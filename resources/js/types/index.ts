@@ -52,6 +52,8 @@ export interface SemanticSearchResult {
     content_text: string;
     publish_date: string | null;
     uploaded_file: string | null;
+    document_url: string | null;
+    view_url: string | null;
     categories: Category[];
 }
 

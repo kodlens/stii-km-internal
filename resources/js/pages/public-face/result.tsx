@@ -3,16 +3,33 @@ import axios from 'axios';
 import { ArrowLeft, CalendarDays, ChevronLeft, ChevronRight, FileSearch,
   FileText,
   LoaderCircle, Search, Tag } from 'lucide-react';
-import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 
 import PublicFaceLayout from '@/layouts/public-face-layout';
 import { LaravelPagination, SemanticSearchResult } from '@/types';
 
 type PageProps = {
   search?: string;
+  page?: number;
 };
 
 const loadingCards = [1, 2, 3];
+
+const emptyResults: LaravelPagination<SemanticSearchResult> = {
+  current_page: 1,
+  data: [],
+  first_page_url: null,
+  from: null,
+  last_page: 1,
+  last_page_url: null,
+  links: [],
+  next_page_url: null,
+  path: '',
+  per_page: 10,
+  prev_page_url: null,
+  to: null,
+  total: 0,
+};
 
 function getContentPreview(content: string) {
   const plainContent = content.replace(/\s+/g, ' ').trim();
@@ -24,80 +41,74 @@ function getContentPreview(content: string) {
   return plainContent.length > 220 ? `${plainContent.slice(0, 220)}...` : plainContent;
 }
 
-const initialPaginatedResponse = {
-  current_page: 1,
-  data: [],
-  first_page_url: null,
-  from: null,
-  last_page: 1,
-  last_page_url: null,
-  links: [],
-  next_page_url: null,
-  path: "",
-  per_page: 10,
-  prev_page_url: null,
-  to: null,
-  total: 0,
-}
-
-
-
-
-export default function Result({ search = '' }: PageProps) {
-  const urlSearch = typeof window !== 'undefined' ? (new URLSearchParams(window.location.search).get('search') ?? '') : '';
-
-  const [query, setQuery] = useState(search || urlSearch);
-  const [results, setResults] = useState<LaravelPagination<SemanticSearchResult>>(initialPaginatedResponse);
-  const [searchParams, setSearchParams] = useState({
-    search: '',
-    perpage: 0,
-    page: 1
-  })
-
+export default function Result({ search = '', page = 1 }: PageProps) {
+  const [query, setQuery] = useState(search);
+  const [results, setResults] = useState<LaravelPagination<SemanticSearchResult>>(emptyResults);
   const [isLoading, setIsLoading] = useState(false);
-  const isLoadingRef = useRef(false);
 
-  const getSearch = useCallback((searchValue: string, page = 1) => {
+  // Keep the input in sync with the search term in the URL.
+  useEffect(() => {
+    setQuery(search);
+  }, [search]);
+
+  // Load the results for the search term and page that are in the URL.
+  // The URL is the single source of truth, so every search or page change
+  // (form submit, pagination, back button) goes through this effect.
+  useEffect(() => {
+    if (!search.trim()) {
+      setResults(emptyResults);
+      setIsLoading(false);
+
+      return;
+    }
+
+    // A newer search may start before this request finishes, so the response
+    // is ignored when it is no longer the latest one.
+    let ignore = false;
+
     setIsLoading(true);
+
     axios
       .get('/semantic-search', {
-        params: { search: searchValue, page },
+        params: { search, page },
       })
       .then((res) => {
-        const payload = res.data?.results ?? res.data?.data ?? res.data;
+        if (ignore) return;
 
-        setResults(payload)
-
+        setResults(res.data?.results ?? emptyResults);
       })
       .catch(() => {
-        setResults(initialPaginatedResponse);
+        if (ignore) return;
+
+        setResults(emptyResults);
       })
       .finally(() => {
+        if (ignore) return;
+
         setIsLoading(false);
       });
 
-  }, []);
-
-  useEffect(() => {
-    getSearch(query);
-  }, []);
+    return () => {
+      ignore = true;
+    };
+  }, [search, page]);
 
   const handleSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (isLoadingRef.current) return;
-
     router.visit('/result', {
-      data: { search: query },
+      data: { search: query.trim(), page: 1 },
       preserveState: true,
       preserveScroll: true,
     });
   };
 
-  const handlePageChange = (page: number) => {
-    if (isLoadingRef.current) return;
-
-    getSearch(query, page);
+  const handlePageChange = (nextPage: number) => {
+    router.visit('/result', {
+      data: { search, page: nextPage },
+      preserveState: true,
+      preserveScroll: true,
+    });
   };
 
   return (
@@ -156,7 +167,7 @@ export default function Result({ search = '' }: PageProps) {
                 {isLoading ? 'Searching materials' : `${results.total} results found`}
               </p>
               <h2 className="mt-1 text-2xl leading-tight font-bold text-slate-950">
-                {query ? `Results for "${query}"` : 'Featured knowledge materials'}
+                {search ? `Results for "${search}"` : 'Featured knowledge materials'}
               </h2>
             </div>
 
@@ -164,7 +175,7 @@ export default function Result({ search = '' }: PageProps) {
               {isLoading
                 ? 'Searching knowledge materials...'
                 : results.total > 0
-                  ? `Showing ${results.current_page}-${results.to} of ${results.total}`
+                  ? `Showing ${results.from}-${results.to} of ${results.total}`
                   : 'Try a more specific keyword or title.'}
             </p>
           </div>
@@ -196,9 +207,13 @@ export default function Result({ search = '' }: PageProps) {
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-[#0D4E86]/10 text-[#0D4E86]">
                   <FileSearch size={25} />
                 </div>
-                <h3 className="mt-5 text-xl font-bold text-slate-950">No materials found</h3>
+                <h3 className="mt-5 text-xl font-bold text-slate-950">
+                  {search.trim() ? 'No materials found' : 'Start typing to search'}
+                </h3>
                 <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-                  Try another keyword, topic, or material title to search the knowledge hub.
+                  {search.trim()
+                    ? 'Try another keyword, topic, or material title to search the knowledge hub.'
+                    : 'Enter a keyword, topic, or material title above to search the knowledge hub.'}
                 </p>
               </div>
             )}
@@ -223,7 +238,6 @@ export default function Result({ search = '' }: PageProps) {
                         ))}
                         <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1 text-slate-600">
                           <CalendarDays size={14} />
-                          {/* {item.publish_date} */}
                           {item.publish_date
                             ? new Date(`${item.publish_date}T00:00:00`).toLocaleDateString(
                                   'en-PH',
@@ -241,9 +255,9 @@ export default function Result({ search = '' }: PageProps) {
                       <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-600">{getContentPreview(item.content)}</p>
                     </div>
 
-                    {item.uploaded_file ? (
+                    {item.view_url ? (
                       <a
-                        href={item.uploaded_file}
+                        href={item.view_url}
                         className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:border-[#0D4E86] hover:bg-[#0D4E86] hover:text-white focus:ring-4 focus:ring-[#0D4E86]/15 focus:outline-none"
                       >
                         <FileText size={16} />

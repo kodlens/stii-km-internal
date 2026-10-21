@@ -21,6 +21,7 @@ class CategorizeMaterial implements ShouldQueue
 
     /**
      * Create a new job instance.
+     * Hi im Jomar Rabanera
      */
     public function __construct(public int $materialId,)
     {

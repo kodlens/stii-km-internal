@@ -23,6 +23,7 @@ class ChunkMaterial implements ShouldQueue
 
     /**
      * Create a new job instance.
+     * Hi im Jomarrrrrr
      */
     public function __construct(public int $materialId, ?string $contentHash = null)
     {

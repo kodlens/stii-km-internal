@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
-import { ArrowLeft, CalendarDays, ChevronLeft, ChevronRight, FileText, FolderOpen, Layers3, Minus, Plus, Search, Tag } from 'lucide-react';
+import { ArrowLeft, CalendarDays, ChevronLeft, ChevronRight, Clock, Download, FileText, FolderOpen, HardDrive, Layers3, Minus, Plus, Search, Tag } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
@@ -15,33 +16,55 @@ type ViewerMaterial = {
     title: string;
     content: string;
     category: string;
-    published_at: string;
+    publish_date: string | null;
     document_url: string;
+    file_name: string;
+    file_type: string;
+    file_size: number;
+    updated_at: string | null;
 };
 
 type RelatedMaterial = {
     id: number;
     title: string;
     category: string;
-    published_at: string;
+    publish_date: string | null;
     view_url: string | null;
+};
+
+type CategoryCount = {
+    category: string;
+    count: number;
 };
 
 type ViewMaterialProps = {
     material: ViewerMaterial;
+    categoryBreakdown: CategoryCount[];
+    topics: string[];
     relatedMaterials: RelatedMaterial[];
 };
 
-const sampleCategoryCounts = [
-    { category: 'Research', count: 18 },
-    { category: 'Policy', count: 12 },
-    { category: 'Operations', count: 9 },
-    { category: 'Reference', count: 7 },
-    { category: 'Training', count: 5 },
-];
+function formatFileSize(bytes: number) {
+    if (!bytes) return 'Unknown';
 
-function getContentPreview(content: string) {
-    const plainContent = content.replace(/\s+/g, ' ').trim();
+    const units = ['B', 'KB', 'MB', 'GB'];
+    const exponent = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+    const value = bytes / 1024 ** exponent;
+
+    return `${value.toFixed(exponent === 0 ? 0 : 1)} ${units[exponent]}`;
+}
+
+function MetaItem({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
+    return (
+        <div className="flex items-center gap-2">
+            <Icon size={14} className="shrink-0 text-sky-200" />
+            <span className="text-sky-100/70">{label}</span>
+            <span className="font-semibold text-white">{value}</span>
+        </div>
+    );
+}
+
+function getContentPreview(content: string) {    const plainContent = content.replace(/\s+/g, ' ').trim();
 
     if (!plainContent) {
         return 'No summary is available for this material yet.';
@@ -50,7 +73,7 @@ function getContentPreview(content: string) {
     return plainContent.length > 180 ? `${plainContent.slice(0, 180)}...` : plainContent;
 }
 
-export default function ViewMaterial({ material, relatedMaterials }: ViewMaterialProps) {
+export default function ViewMaterial({ material, categoryBreakdown, topics, relatedMaterials }: ViewMaterialProps) {
     const viewerRef = useRef<HTMLDivElement>(null);
     const [pageNumber, setPageNumber] = useState(1);
     const [pageCount, setPageCount] = useState(0);
@@ -93,8 +116,12 @@ export default function ViewMaterial({ material, relatedMaterials }: ViewMateria
         setScale((currentScale) => Math.min(Number((currentScale + 0.1).toFixed(1)), 1.6));
     };
 
+    // The longest bar is the biggest category, so the chart is readable
+    // whatever the numbers are.
+    const maxCategoryCount = Math.max(...categoryBreakdown.map((item) => item.count), 1);
+
     return (
-        <PublicFaceLayout title={material.title}>
+        <PublicFaceLayout title={material.title} wide>
             <div className="flex flex-1 flex-col py-8">
                 <section className="mb-6 flex flex-col justify-between gap-4 text-white lg:flex-row lg:items-end">
                     <div className="max-w-4xl">
@@ -116,46 +143,126 @@ export default function ViewMaterial({ material, relatedMaterials }: ViewMateria
                                     {category}
                                 </span>
                             ))}
-                            <span className="inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/10 px-2.5 py-1">
-                                <CalendarDays size={14} />
-                                {material.published_at}
-                            </span>
+                            {material.publish_date && (
+                                <span className="inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/10 px-2.5 py-1">
+                                    <CalendarDays size={14} />
+                                    {material.publish_date}
+                                </span>
+                            )}
                         </div>
 
                         <h1 className="mt-4 text-3xl leading-tight font-bold sm:text-4xl">{material.title}</h1>
                         <p className="mt-3 max-w-3xl text-sm leading-6 text-sky-100/85">{getContentPreview(material.content)}</p>
+
+                        <dl className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 rounded-xl border border-white/15 bg-white/10 px-5 py-4 text-xs backdrop-blur">
+                            <MetaItem icon={Tag} label="Category" value={material.category} />
+                            <MetaItem icon={CalendarDays} label="Published" value={material.publish_date ?? '—'} />
+                            <MetaItem icon={FileText} label="Pages" value={pageCount ? String(pageCount) : '—'} />
+                            <MetaItem icon={HardDrive} label="Size" value={formatFileSize(material.file_size)} />
+                            <MetaItem icon={Clock} label="Updated" value={material.updated_at ?? '—'} />
+
+                            <div className="flex items-center gap-2">
+                                <a
+                                    href={`${material.document_url}?download=1`}
+                                    className="inline-flex items-center gap-1.5 rounded-lg border border-white/25 bg-white/10 px-3 py-1.5 font-semibold text-white transition hover:bg-white hover:text-[#0D4E86] focus:ring-4 focus:ring-white/20 focus:outline-none"
+                                >
+                                    <Download size={13} />
+                                    Download
+                                </a>
+                            </div>
+                        </dl>
                     </div>
                 </section>
 
-                <section className="grid min-h-[760px] gap-4 rounded-xl bg-slate-50 p-4 text-slate-900 shadow-2xl shadow-slate-950/20 lg:grid-cols-[260px_minmax(0,1fr)_320px]">
-                    <aside className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                        <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
+                <section className="grid min-h-[760px] gap-4 rounded-xl bg-slate-50 p-4 text-slate-900 shadow-2xl shadow-slate-950/20 lg:h-[780px] lg:grid-cols-[260px_minmax(0,1fr)_320px]">
+                    <aside className="flex flex-col rounded-lg border border-slate-200 bg-white p-4 shadow-sm lg:min-h-0">
+                        <div className="flex shrink-0 items-center gap-2 border-b border-slate-200 pb-3">
                             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0D4E86]/10 text-[#0D4E86]">
                                 <Layers3 size={18} />
                             </div>
                             <div>
-                                <h2 className="text-sm font-bold text-slate-950">Category Count</h2>
-                                <p className="text-xs text-slate-500">Sample data for now</p>
+                                <h2 className="text-sm font-bold text-slate-950">Material Details</h2>
+                                <p className="text-xs text-slate-500">Categories, topics and file info</p>
                             </div>
                         </div>
 
-                        <div className="mt-4 space-y-3">
-                            {sampleCategoryCounts.map((item) => (
-                                <div key={item.category} className="rounded-lg border border-slate-100 bg-slate-50 p-3">
-                                    <div className="flex items-center justify-between gap-3">
-                                        <span className="text-sm font-semibold text-slate-700">{item.category}</span>
-                                        <span className="rounded-md bg-[#0D4E86] px-2 py-1 text-xs font-bold text-white">{item.count}</span>
+                        <div className="mt-4 min-h-0 flex-1 space-y-5 overflow-y-auto lg:pr-1">
+                            <div>
+                                <h3 className="text-xs font-bold tracking-wide text-slate-500 uppercase">Category count</h3>
+
+                                {categoryBreakdown.length > 0 ? (
+                                    <div className="mt-3 space-y-3">
+                                        {categoryBreakdown.map((item) => (
+                                            <div key={item.category} className="rounded-lg border border-slate-100 bg-slate-50 p-3">
+                                                <div className="flex items-center justify-between gap-3">
+                                                    <span className="text-sm font-semibold text-slate-700">{item.category}</span>
+                                                    <span className="rounded-md bg-[#0D4E86] px-2 py-1 text-xs font-bold text-white">{item.count}</span>
+                                                </div>
+                                                <div className="mt-3 h-2 rounded-full bg-slate-200">
+                                                    <div
+                                                        className="h-2 rounded-full bg-[#0D4E86]"
+                                                        style={{ width: `${Math.min((item.count / maxCategoryCount) * 100, 100)}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                    <div className="mt-3 h-2 rounded-full bg-slate-200">
-                                        <div className="h-2 rounded-full bg-[#0D4E86]" style={{ width: `${Math.min(item.count * 4, 100)}%` }} />
+                                ) : (
+                                    <p className="mt-3 rounded-lg border border-dashed border-slate-300 px-3 py-4 text-center text-xs text-slate-500">
+                                        No category assigned yet.
+                                    </p>
+                                )}
+                            </div>
+
+                            {topics.length > 0 && (
+                                <div>
+                                    <h3 className="text-xs font-bold tracking-wide text-slate-500 uppercase">Topics</h3>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        {topics.map((topic) => (
+                                            <span
+                                                key={topic}
+                                                className="inline-flex items-center gap-1.5 rounded-md bg-[#0D4E86]/10 px-2.5 py-1 text-xs font-semibold text-[#0D4E86]"
+                                            >
+                                                <Tag size={12} />
+                                                {topic}
+                                            </span>
+                                        ))}
                                     </div>
                                 </div>
-                            ))}
+                            )}
+
+                            <div>
+                                <h3 className="text-xs font-bold tracking-wide text-slate-500 uppercase">File</h3>
+                                <dl className="mt-3 space-y-2 rounded-lg border border-slate-100 bg-slate-50 p-3 text-xs">
+                                    <div className="flex items-center justify-between gap-3">
+                                        <dt className="text-slate-500">Name</dt>
+                                        <dd className="max-w-[150px] truncate font-semibold text-slate-800" title={material.file_name}>
+                                            {material.file_name}
+                                        </dd>
+                                    </div>
+                                    <div className="flex items-center justify-between gap-3">
+                                        <dt className="text-slate-500">Type</dt>
+                                        <dd className="font-semibold text-slate-800">{material.file_type || '—'}</dd>
+                                    </div>
+                                    <div className="flex items-center justify-between gap-3">
+                                        <dt className="text-slate-500">Size</dt>
+                                        <dd className="font-semibold text-slate-800">{formatFileSize(material.file_size)}</dd>
+                                    </div>
+                                    <div className="flex items-center justify-between gap-3">
+                                        <dt className="text-slate-500">Pages</dt>
+                                        <dd className="font-semibold text-slate-800">{pageCount || '—'}</dd>
+                                    </div>
+                                    <div className="flex items-center justify-between gap-3">
+                                        <dt className="text-slate-500">Updated</dt>
+                                        <dd className="font-semibold text-slate-800">{material.updated_at ?? '—'}</dd>
+                                    </div>
+                                </dl>
+                            </div>
                         </div>
                     </aside>
 
-                    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-                        <div className="flex min-h-14 flex-col gap-3 border-b border-slate-200 px-4 py-3 xl:flex-row xl:items-center xl:justify-between">
+                    <div className="flex flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+                        <div className="flex shrink-0 min-h-14 flex-col gap-3 border-b border-slate-200 px-4 py-3 xl:flex-row xl:items-center xl:justify-between">
                             <div className="flex min-w-0 items-center gap-2">
                                 <FileText size={18} className="shrink-0 text-[#0D4E86]" />
                                 <p className="truncate text-sm font-bold text-slate-950">{material.title}</p>
@@ -212,7 +319,7 @@ export default function ViewMaterial({ material, relatedMaterials }: ViewMateria
                             </div>
                         </div>
 
-                        <div ref={viewerRef} className="flex h-[700px] justify-center overflow-auto bg-slate-100 p-4">
+                        <div ref={viewerRef} className="flex min-h-[700px] flex-1 justify-center overflow-auto bg-slate-100 p-4 lg:min-h-0">
                             {pdfError ? (
                                 <div className="m-auto max-w-md rounded-lg border border-dashed border-slate-300 bg-white px-6 py-8 text-center">
                                     <FileText size={28} className="mx-auto text-[#0D4E86]" />
@@ -232,7 +339,7 @@ export default function ViewMaterial({ material, relatedMaterials }: ViewMateria
                                 >
                                     <Page
                                         pageNumber={pageNumber}
-                                        width={Math.min(viewerWidth, 920) * scale}
+                                        width={Math.min(viewerWidth, 1100) * scale}
                                         renderAnnotationLayer
                                         renderTextLayer
                                         className="overflow-hidden rounded-md shadow-xl shadow-slate-950/20"
@@ -242,8 +349,8 @@ export default function ViewMaterial({ material, relatedMaterials }: ViewMateria
                         </div>
                     </div>
 
-                    <aside className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                        <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
+                    <aside className="flex flex-col rounded-lg border border-slate-200 bg-white p-4 shadow-sm lg:min-h-0">
+                        <div className="flex shrink-0 items-center gap-2 border-b border-slate-200 pb-3">
                             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0D4E86]/10 text-[#0D4E86]">
                                 <FolderOpen size={18} />
                             </div>
@@ -253,7 +360,7 @@ export default function ViewMaterial({ material, relatedMaterials }: ViewMateria
                             </div>
                         </div>
 
-                        <div className="mt-4 space-y-3">
+                        <div className="mt-4 min-h-0 flex-1 space-y-3 overflow-y-auto lg:pr-1">
                             {relatedMaterials.length > 0 ? (
                                 relatedMaterials.map((item) => (
                                     <a
@@ -267,7 +374,7 @@ export default function ViewMaterial({ material, relatedMaterials }: ViewMateria
                                                 <Tag size={12} />
                                                 {item.category}
                                             </span>
-                                            <span>{item.published_at}</span>
+                                            {item.publish_date && <span>{item.publish_date}</span>}
                                         </div>
                                     </a>
                                 ))

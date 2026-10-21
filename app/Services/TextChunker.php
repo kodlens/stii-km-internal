@@ -12,6 +12,7 @@ class TextChunker
      * overflow Ollama. When a token counter is supplied, chunks over the token
      * budget are split further instead of being sent and rejected. Note the
      * counter is invoked for every chunk, so supply null when it is expensive.
+     * JOMAR
      *
      * @param  (callable(string): int)|null  $countTokens
      */

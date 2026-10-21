@@ -1,4 +1,9 @@
 <?php
+    /**
+     * Material Base Class.
+     * This class includes store, update and delete materials
+     */
+
 
 namespace App\Http\Controllers\Base;
 
@@ -18,6 +23,8 @@ use Carbon\Carbon;
 
 class MaterialController extends Controller
 {
+
+
 
     public function store(Request $req){
 

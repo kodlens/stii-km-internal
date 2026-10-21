@@ -2,7 +2,7 @@ import { PropsWithChildren } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import { LogOut } from 'lucide-react';
 
-export default function PublicFaceLayout( { children, title } : PropsWithChildren<{ title: string }>) {
+export default function PublicFaceLayout( { children, title, wide = false } : PropsWithChildren<{ title: string; wide?: boolean }>) {
   const { post, processing } = useForm();
 
   const handleLogout = () => {
@@ -23,7 +23,7 @@ export default function PublicFaceLayout( { children, title } : PropsWithChildre
           {/* <div className="absolute inset-0 bg-[radial-gradient(circle_at_24%_20%,rgba(255,255,255,0.18),transparent_28%),radial-gradient(circle_at_78%_76%,rgba(125,211,252,0.18),transparent_32%)]" /> */}
           {/* <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,0.7)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.7)_1px,transparent_1px)] [background-size:72px_72px]" /> */}
 
-          <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col px-5 py-6 sm:px-8 lg:px-10">
+          <div className={`relative z-10 mx-auto flex w-full ${wide ? 'max-w-[1600px]' : 'max-w-7xl'} flex-col px-5 py-6 sm:px-8 lg:px-10`}>
             <header className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {/* <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white text-[#0D4E86] shadow-lg shadow-slate-950/15">

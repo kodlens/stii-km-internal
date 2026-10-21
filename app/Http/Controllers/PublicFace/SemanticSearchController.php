@@ -93,6 +93,8 @@ class SemanticSearchController extends Controller
         $chunks = DB::table('material_chunks as mc')
             ->join('materials as m', 'm.id', '=', 'mc.material_id')
             ->whereIn('mc.qdrant_point_id', $pointIds)
+            // Only published materials are visible on the public search page.
+            ->where('m.is_publish', 1)
             ->select([
                 'mc.qdrant_point_id',
                 'mc.material_id',
@@ -125,6 +127,13 @@ class SemanticSearchController extends Controller
                     'content_text' => Str::limit($chunk->content_text, 300),
                     'publish_date' => $chunk->publish_date,
                     'uploaded_file' => $chunk->uploaded_file,
+                    // uploaded_file is only a file name, so the links are built here.
+                    'document_url' => $chunk->uploaded_file
+                        ? route('user.materials.document', $chunk->uploaded_file)
+                        : null,
+                    'view_url' => $chunk->uploaded_file
+                        ? route('user.materials.view', $chunk->uploaded_file)
+                        : null,
 
                    // 'score' => $point['score'],
                 ];
@@ -156,6 +165,7 @@ class SemanticSearchController extends Controller
             },
         ])
             ->whereIn('id', $materialIds)
+            ->where('is_publish', 1)
             ->get()
             ->keyBy('id');
 

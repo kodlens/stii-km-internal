@@ -13,7 +13,7 @@ class MaterialDocumentController extends Controller
         $material = Material::where('uploaded_file', $filename)->first();
 
         abort_unless($material, 404);
-        abort_unless($material->status === 'published', 404);
+        abort_unless($material->is_publish == 1, 404);
         abort_unless($material->uploaded_file, 404);
 
         //return $material;
@@ -24,9 +24,13 @@ class MaterialDocumentController extends Controller
 
         abort_unless(Storage::disk('local')->exists($path), 404);
 
+        // ?download=1 serves the file as an attachment instead of inline,
+        // so the browser saves it instead of opening the PDF viewer.
+        $disposition = request()->boolean('download') ? 'attachment' : 'inline';
+
         return response()->file(Storage::disk('local')->path($path), [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . addslashes($material->original_filename ?: basename($material->uploaded_file)) . '"',
+            'Content-Disposition' => $disposition . '; filename="' . addslashes($material->original_filename ?: basename($material->uploaded_file)) . '"',
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }
