@@ -23,6 +23,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/result', [\App\Http\Controllers\PublicFace\ResultController::class, 'index'])->name('user.result');
     Route::get('/get-result', [\App\Http\Controllers\PublicFace\ResultController::class, 'getSearch'])->name('user.result.search');
 
+    //for semantic search
     Route::get('/semantic-search', [\App\Http\Controllers\PublicFace\SemanticSearchController::class, 'semanticSearch'])->name('user.sematic-search');
 
     Route::get('/view-material/{filename}', [\App\Http\Controllers\PublicFace\ViewMaterialController::class, 'view'])->name('user.materials.view');
