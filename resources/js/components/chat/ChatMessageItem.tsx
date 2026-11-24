@@ -84,8 +84,8 @@ export default function ChatMessageItem({ message }: Props) {
     return (
       <div className="flex justify-end">
         <div className="max-w-[85%] rounded-2xl rounded-tr-none bg-[#0D4E86] px-4 py-2.5 text-sm text-white shadow-sm">
-          <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
-          <span className="mt-1 block text-right text-[10px] text-sky-200/70">{message.timestamp}</span>
+          <p className="whitespace-pre-wrap leading-relaxed text-white">{message.content}</p>
+          <span className="mt-1 block text-right text-[10px] text-sky-200/80">{message.timestamp}</span>
         </div>
       </div>
     );

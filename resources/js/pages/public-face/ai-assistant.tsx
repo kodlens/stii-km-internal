@@ -325,9 +325,9 @@ export default function AiAssistant({ initialQuery = '' }: PageProps) {
                         </div>
                       </div>
 
-                      <div className="mt-2 text-sm text-slate-700 font-normal leading-relaxed">
+                      <div className={`mt-2 text-sm font-normal leading-relaxed ${isUser ? 'text-white' : 'text-slate-700'}`}>
                         {isUser ? (
-                          <p className="whitespace-pre-wrap">{msg.content}</p>
+                          <p className="whitespace-pre-wrap text-white">{msg.content}</p>
                         ) : (
                           renderFormattedContent(msg.content)
                         )}
