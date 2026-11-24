@@ -22,10 +22,10 @@ class RagContextRetriever
      */
     public function retrieveContext(string $query): array
     {
-        $retrieveLimit = (int) config('rag.retrieve', 10);
+        $retrieveLimit = max(30, (int) config('rag.retrieve', 40));
         $maxChunks = (int) config('rag.chunks', 6);
         $minScore = (float) config('rag.min_score', 0.40);
-        $maxChars = (int) config('rag.chunk_chars', 1500);
+        $maxChars = (int) config('rag.chunk_chars', 4000);
 
         // 1. Embed query
         $embedding = $this->embeddings->embedQuery($query);
@@ -63,6 +63,8 @@ class RagContextRetriever
 
         $passages = [];
         $sourcesMap = [];
+        $materialChunkCounts = [];
+        $maxPerMaterial = (int) config('rag.max_chunks_per_material', 2);
 
         foreach ($points as $point) {
             $chunk = $chunks->get($point['id']);
@@ -70,11 +72,21 @@ class RagContextRetriever
                 continue;
             }
 
+            // Cap the number of chunks taken from the same document to maintain diverse, high-signal context
+            $count = $materialChunkCounts[$chunk->material_id] ?? 0;
+            if ($maxPerMaterial > 0 && $count >= $maxPerMaterial) {
+                continue;
+            }
+
             if (count($passages) >= $maxChunks) {
                 break;
             }
 
-            $trimmedContent = Str::limit(trim($chunk->content), $maxChars);
+            $materialChunkCounts[$chunk->material_id] = $count + 1;
+
+            $trimmedContent = $maxChars > 0
+                ? Str::limit(trim($chunk->content), $maxChars)
+                : trim($chunk->content);
 
             $passages[] = [
                 'material_id' => $chunk->material_id,
