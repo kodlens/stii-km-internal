@@ -3,6 +3,7 @@
 return [
     'ollama_ai' => env('OLLAMA_AI', 'http://10.10.140.43:11434'),
     'generative_model' => env('OLLAMA_GENERATIVE_MODEL', 'qwen3:14b'),
+    'num_ctx' => (int) env('OLLAMA_NUM_CTX', 16384),
     'timeout' => (int) env('OLLAMA_TIMEOUT', 180),
 
     // RAG retrieval settings

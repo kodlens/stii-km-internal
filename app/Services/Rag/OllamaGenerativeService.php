@@ -19,6 +19,7 @@ class OllamaGenerativeService
         $ollamaUrl = rtrim(config('rag.ollama_ai', 'http://10.10.140.43:11434'), '/');
         $model = config('rag.generative_model', 'qwen3:14b');
         $timeout = (int) config('rag.timeout', 180);
+        $numCtx = (int) config('rag.num_ctx', 16384);
 
         $response = Http::connectTimeout(15)
             ->timeout($timeout)
@@ -28,6 +29,7 @@ class OllamaGenerativeService
                 'stream' => false,
                 'options' => [
                     'temperature' => 0.3,
+                    'num_ctx' => $numCtx,
                 ],
             ]);
 
