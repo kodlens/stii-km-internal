@@ -1,6 +1,6 @@
 import { Link } from "@inertiajs/react";
 import { App, Button, Dropdown, MenuProps, Space, Tag, Tooltip } from "antd";
-import { Database, Globe, MoreHorizontal, Pencil, Tag as TagIcon, Trash2 } from "lucide-react";
+import { Globe, MoreHorizontal, Pencil, Sparkles, Tag as TagIcon, Trash2, Layers } from "lucide-react";
 import axios from 'axios'
 import { ReactNode } from 'react'
 import { MaterialProps } from "@/types/material";
@@ -8,6 +8,7 @@ import { MaterialProps } from "@/types/material";
 type Prop = {
   refetch : ()=> void
   row: MaterialProps
+  onInspectChunks?: (row: MaterialProps) => void
 }
 
 const UNAVAILABLE = 'Not available yet — this action has no backend endpoint.';
@@ -19,9 +20,36 @@ const unavailableLabel = (label: string): ReactNode => (
   </span>
 );
 
-export default function MaterialDropdown( { refetch, row } : Prop ) {
+export default function MaterialDropdown( { refetch, row, onInspectChunks } : Prop ) {
 
   const { modal, notification } = App.useApp();
+
+  const handleVectorize = async (rowId: number) => {
+    try {
+      const res = await axios.post(`/admin/materials/${rowId}/vectorize`, { override: true });
+      if (res.data?.success) {
+        notification.success({
+          message: 'Vectorized & Synced',
+          description: res.data.message || 'Material successfully vectorized into Qdrant.',
+          placement: 'topRight',
+        });
+      } else {
+        notification.error({
+          message: 'Vectorization Failed',
+          description: res.data?.message ?? 'Failed to vectorize material.',
+          placement: 'topRight',
+        });
+      }
+    } catch {
+      notification.error({
+        message: 'Vectorization Error',
+        description: 'Unable to connect to embedding service.',
+        placement: 'topRight',
+      });
+    } finally {
+      refetch();
+    }
+  };
 
   const handleDeleteClick = async (rowId:number) => {
     try {
@@ -106,11 +134,16 @@ export default function MaterialDropdown( { refetch, row } : Prop ) {
               title: UNAVAILABLE,
             },
             {
-              label: unavailableLabel('Vectorize'),
+              label: 'Vectorize & Sync AI',
               key: 'admin.materials.vectorize',
-              icon: <Database size={14} className="text-emerald-600" />,
-              disabled: true,
-              title: UNAVAILABLE,
+              icon: <Sparkles size={14} className="text-indigo-600" />,
+              onClick: () => handleVectorize(row.id as number),
+            },
+            {
+              label: 'Inspect AI Chunks',
+              key: 'admin.materials.chunks',
+              icon: <Layers size={14} className="text-indigo-600" />,
+              onClick: () => onInspectChunks?.(row),
             },
             {
               type: 'divider',

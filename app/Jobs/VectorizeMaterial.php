@@ -20,7 +20,11 @@ class VectorizeMaterial implements ShouldQueue
     public int $timeout = 600;
     public array $backoff = [10, 30, 60];
 
-    public function __construct(public int $materialId, public string $contentHash) {}
+    public function __construct(
+        public int $materialId,
+        public string $contentHash,
+        public bool $force = false
+    ) {}
 
     public function handle(OllamaEmbeddingService $embeddings, QdrantService $qdrant): void
     {
@@ -34,10 +38,9 @@ class VectorizeMaterial implements ShouldQueue
             return;
         }
 
-        // Skip re-embedding when the collection already holds exactly these
-        // points from the same content and model. Forced re-indexes and
-        // retried jobs then cost one scroll instead of a full Ollama pass.
-        if ($chunks->isNotEmpty()
+        // Skip re-embedding when force is false AND the collection already holds exactly these points
+        if (! $this->force
+            && $chunks->isNotEmpty()
             && $qdrant->hasCurrentPoints(
                 $this->materialId,
                 $chunks->pluck('qdrant_point_id')->all(),

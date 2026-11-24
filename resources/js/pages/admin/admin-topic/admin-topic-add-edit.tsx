@@ -1,6 +1,6 @@
 import { App, Button, Checkbox, Form, Input } from 'antd'
 import { FileAddOutlined } from '@ant-design/icons'
-import AuthenticatedLayout from '@/layouts/authenticated-layout'
+import AdminLayout from '@/layouts/admin-layout'
 import { ReactElement, ReactNode, useState } from 'react'
 import { User } from '@/types'
 import SelectCategory from '@/components/select-category'
@@ -110,10 +110,10 @@ const AdminTopicAddEdit = ( {id, data }: Pageprops ) => {
 export default AdminTopicAddEdit
 
 AdminTopicAddEdit.layout = (page: ReactNode) => (
-  <AuthenticatedLayout
+  <AdminLayout
     user={(page as ReactElement<{ auth: { user: User } }>).props.auth.user}
   >
     {page}
-  </AuthenticatedLayout>
+  </AdminLayout>
 )
 

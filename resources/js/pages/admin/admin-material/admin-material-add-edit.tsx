@@ -1,5 +1,5 @@
 import { App, Form } from 'antd'
-import AuthenticatedLayout from '@/layouts/authenticated-layout'
+import AdminLayout from '@/layouts/admin-layout'
 import { ReactElement, ReactNode, useState } from 'react'
 import { User } from '@/types'
 import {  Material, MaterialProps } from '@/types/material'
@@ -139,9 +139,9 @@ const AdminMaterialAddEdit = ({ auth, material, ckLicense }: Pageprops) => {
 export default AdminMaterialAddEdit
 
 AdminMaterialAddEdit.layout = (page: ReactNode) => (
-  <AuthenticatedLayout
+  <AdminLayout
     user={(page as ReactElement<{ auth: { user: User } }>).props.auth.user}
   >
     {page}
-  </AuthenticatedLayout>
+  </AdminLayout>
 )

@@ -9,7 +9,7 @@ import { Edit2Icon, Search, Trash } from 'lucide-react';
 
 import { User } from '@/types';
 
-import AuthenticatedLayout from '@/layouts/authenticated-layout';
+import AdminLayout from '@/layouts/admin-layout';
 import { Category } from '@/types/category';
 import { PaginateResponse } from '@/types/paginateResponse';
 import { dateFormat } from '@/lib/utils';
@@ -206,9 +206,9 @@ const AdminCategoryIndex = ( { title } : PageProps) => {
 export default AdminCategoryIndex
 
 AdminCategoryIndex.layout = (page: ReactNode) => (
-  <AuthenticatedLayout
+  <AdminLayout
     user={(page as ReactElement<{ auth: { user: User } }>).props.auth.user}
   >
     {page}
-  </AuthenticatedLayout>
+  </AdminLayout>
 )

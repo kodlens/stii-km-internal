@@ -19,15 +19,15 @@ class ChunkMaterial implements ShouldQueue
     public int $timeout = 120;
     public array $backoff = [10, 30, 60];
 
-    public ?string $contentHash = null;
-
     /**
      * Create a new job instance.
      * Hi im Jomarrrrrr
      */
-    public function __construct(public int $materialId, ?string $contentHash = null)
-    {
-        $this->contentHash = $contentHash;
+    public function __construct(
+        public int $materialId,
+        public ?string $contentHash = null,
+        public bool $force = false
+    ) {
     }
 
     /**
@@ -77,7 +77,7 @@ class ChunkMaterial implements ShouldQueue
             MaterialChunk::where('material_id', $material->id)
                 ->where('chunk_index', '>=', count($chunks))->delete();
 
-            VectorizeMaterial::dispatch($material->id, $hash)
+            VectorizeMaterial::dispatch($material->id, $hash, $this->force)
                 ->onQueue(config('vectorization.queue'))
                 ->afterCommit();
         });

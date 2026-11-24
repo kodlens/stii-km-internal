@@ -1,10 +1,10 @@
 import { Head, router } from '@inertiajs/react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { Button, Empty, Grid, Input, Pagination, Spin, Table, Tooltip } from 'antd';
+import { App, Button, Empty, Grid, Input, Pagination, Spin, Table, Tooltip } from 'antd';
 import Column from 'antd/es/table/Column';
 import axios, { isAxiosError } from 'axios';
 import { ReactElement, useEffect, useMemo, useState } from 'react'
-import { AlertCircle, FilterX, Plus, Search } from 'lucide-react';
+import { AlertCircle, FilterX, Plus, Search, Sparkles } from 'lucide-react';
 
 import { SharedData } from '@/types';
 
@@ -14,6 +14,7 @@ import { dateFormat } from '@/lib/utils';
 import { MaterialProps } from '@/types/material';
 import StatusChip from '@/components/status-chip';
 import MaterialDropdown from './partials/material-dropdown';
+import ModalVectorChunks from './partials/modal-vector-chunks';
 import AdminLayout from '@/layouts/admin-layout';
 
 type PageProps = {
@@ -79,10 +80,12 @@ const MaterialCard = ({
   row,
   onEdit,
   refetch,
+  onInspectChunks,
 }: {
   row: MaterialProps;
   onEdit: () => void;
   refetch: () => void;
+  onInspectChunks?: (row: MaterialProps) => void;
 }) => {
   const categories = row.material_categories ?? [];
   const visible = categories.slice(0, MAX_VISIBLE_CATEGORIES);
@@ -142,7 +145,7 @@ const MaterialCard = ({
       </div>
 
       <div className="shrink-0 self-start">
-        <MaterialDropdown refetch={refetch} row={row} />
+        <MaterialDropdown refetch={refetch} row={row} onInspectChunks={onInspectChunks} />
       </div>
     </div>
   );
@@ -151,11 +154,35 @@ const MaterialCard = ({
 const AdminMaterialIndex = ({ title }: PageProps) => {
   const screens = Grid.useBreakpoint();
   const isMobile = !screens.md;
+  const { notification } = App.useApp();
 
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
+  const [inspectMaterial, setInspectMaterial] = useState<MaterialProps | null>(null);
+  const [batchVectorizing, setBatchVectorizing] = useState(false);
+
+  const handleBatchVectorize = async (override: boolean = false) => {
+    try {
+      setBatchVectorizing(true);
+      const res = await axios.post('/admin/materials/batch-vectorize', { override });
+      if (res.data?.success) {
+        notification.success({
+          message: 'AI Vectorization Queued',
+          description: res.data.message,
+        });
+        refetch();
+      }
+    } catch {
+      notification.error({
+        message: 'Batch Vectorization Error',
+        description: 'Failed to trigger batch vectorization.',
+      });
+    } finally {
+      setBatchVectorizing(false);
+    }
+  };
 
   // Debounce the search term so we do not fire a request on every keystroke.
   useEffect(() => {
@@ -244,6 +271,15 @@ const AdminMaterialIndex = ({ title }: PageProps) => {
                 </span>
               )}
 
+              <Button
+                icon={<Sparkles size={14} className={batchVectorizing ? 'animate-spin text-indigo-600' : 'text-indigo-600'} />}
+                loading={batchVectorizing}
+                onClick={() => handleBatchVectorize(false)}
+                className="border-indigo-200 text-indigo-700 hover:!border-indigo-500 hover:!text-indigo-800 font-semibold"
+              >
+                Sync AI Vectors
+              </Button>
+
               <Button icon={<Plus size={14}/>}
                 type='primary'
                 onClick={() => router.visit(route('admin.materials.create'))}>
@@ -325,6 +361,7 @@ const AdminMaterialIndex = ({ title }: PageProps) => {
                     row={row}
                     refetch={refetch}
                     onEdit={() => router.visit(route('admin.materials.edit', row.id))}
+                    onInspectChunks={(m) => setInspectMaterial(m)}
                   />
                 ))
               )}
@@ -471,7 +508,13 @@ const AdminMaterialIndex = ({ title }: PageProps) => {
                   key="action"
                   width="9%"
                   align="right"
-                  render={(_, row: MaterialProps) => <MaterialDropdown refetch={refetch} row={row}/>}
+                  render={(_, row: MaterialProps) => (
+                    <MaterialDropdown
+                      refetch={refetch}
+                      row={row}
+                      onInspectChunks={(m) => setInspectMaterial(m)}
+                    />
+                  )}
                 />
               </Table>
 
@@ -480,6 +523,13 @@ const AdminMaterialIndex = ({ title }: PageProps) => {
           )}
         </div>
       </div>
+
+      <ModalVectorChunks
+        open={!!inspectMaterial}
+        material={inspectMaterial}
+        onClose={() => setInspectMaterial(null)}
+        onUpdated={refetch}
+      />
     </>
   )
 }

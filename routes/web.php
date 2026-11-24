@@ -68,6 +68,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/materials/data', [\App\Http\Controllers\Admin\AdminMaterialController::class, 'getData'])->name('admin.materials.get-data');
     Route::resource('/admin/materials', \App\Http\Controllers\Admin\AdminMaterialController::class)->names('admin.materials');
     Route::post('/admin/materials/{id}/publish', [\App\Http\Controllers\Admin\AdminMaterialController::class, 'publish'])->name('admin.materials.publish');
+    Route::get('/admin/materials/{id}/vector-status', [\App\Http\Controllers\Admin\AdminMaterialController::class, 'getVectorStatus'])->name('admin.materials.vector-status');
+    Route::post('/admin/materials/{id}/vectorize', [\App\Http\Controllers\Admin\AdminMaterialController::class, 'vectorize'])->name('admin.materials.vectorize');
+    Route::post('/admin/materials/batch-vectorize', [\App\Http\Controllers\Admin\AdminMaterialController::class, 'batchVectorize'])->name('admin.materials.batch-vectorize');
 
      Route::resource('/admin/ojt-materials', \App\Http\Controllers\Admin\AdminOjtMaterialController::class)->names('admin.ojt-materials');
     Route::get('/admin/get-ojt-materials', [\App\Http\Controllers\Admin\AdminOjtMaterialController::class, 'getData'])->name('admin.ojt-materials.get-data');
@@ -77,6 +80,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/get-users', [\App\Http\Controllers\Admin\AdminUserController::class, 'getData'])->name('admin.users.get-data');
     Route::post('/admin/users-change-password/{id}', [App\Http\Controllers\Admin\AdminUserController::class, 'changePassword'])->name('admin.users.change-password');
     Route::post('/admin/change-password/{id}', [App\Http\Controllers\Admin\AdminUserController::class, 'changePassword']);
+
+    Route::get('/admin/activity-logs', [\App\Http\Controllers\Admin\AdminActivityLogController::class, 'index'])->name('admin.activity-logs.index');
+    Route::get('/admin/get-activity-logs', [\App\Http\Controllers\Admin\AdminActivityLogController::class, 'getData'])->name('admin.activity-logs.get-data');
 
 });
 

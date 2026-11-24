@@ -7,7 +7,16 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Http\JsonResponse;
 use App\Models\Material;
+use App\Models\MaterialChunk;
+use App\Models\ActivityLog;
 use App\Http\Controllers\Base\MaterialController;
+use App\Services\TextChunker;
+use App\Services\OllamaEmbeddingService;
+use App\Services\QdrantService;
+use App\Jobs\ChunkMaterial;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class AdminMaterialController extends MaterialController
 {
@@ -63,5 +72,196 @@ class AdminMaterialController extends MaterialController
         ]);
     }
 
+    /**
+     * Inspect vectorization status, chunks, and Qdrant sync for a material.
+     */
+    public function getVectorStatus($id): JsonResponse
+    {
+        $material = Material::findOrFail($id);
+        $chunks = $material->chunks()->orderBy('chunk_index')->get();
+        $hash = $material->contentHash();
 
+        $qdrant = app(QdrantService::class);
+        $embeddings = app(OllamaEmbeddingService::class);
+
+        $qdrantSynced = false;
+        if ($chunks->isNotEmpty()) {
+            try {
+                $qdrantSynced = $qdrant->hasCurrentPoints(
+                    $material->id,
+                    $chunks->pluck('qdrant_point_id')->all(),
+                    $hash,
+                    $embeddings->model()
+                );
+            } catch (\Throwable) {
+                $qdrantSynced = false;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'material_id' => $material->id,
+            'title' => $material->title,
+            'is_vectorized' => (bool) $material->is_vectorized,
+            'qdrant_synced' => $qdrantSynced,
+            'chunks_count' => $chunks->count(),
+            'content_hash' => $hash,
+            'embedding_model' => $embeddings->model(),
+            'chunks' => $chunks->map(fn ($c) => [
+                'id' => $c->id,
+                'chunk_index' => $c->chunk_index,
+                'qdrant_point_id' => $c->qdrant_point_id,
+                'char_count' => mb_strlen($c->content),
+                'preview' => Str::limit($c->content, 220),
+                'content' => $c->content,
+                'vectorized_at' => $c->vectorized_at?->format('Y-m-d H:i:s'),
+            ]),
+        ]);
+    }
+
+    /**
+     * Re-vectorize a material and override Qdrant vector points to ensure fresh data.
+     */
+    public function vectorize(Request $req, $id): JsonResponse
+    {
+        $material = Material::findOrFail($id);
+        $override = $req->boolean('override', true);
+
+        $chunker = app(TextChunker::class);
+        $embeddings = app(OllamaEmbeddingService::class);
+        $qdrant = app(QdrantService::class);
+
+        try {
+            $hash = $material->contentHash();
+
+            // 1. Chunk content text
+            $chunkData = $chunker->chunk(
+                (string) $material->content_text,
+                config('vectorization.chunk_size'),
+                config('vectorization.chunk_overlap')
+            );
+
+            if (empty($chunkData)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Material text is empty or could not be chunked.',
+                ], 422);
+            }
+
+            // 2. Sync to material_chunks table
+            $pointRecords = [];
+            foreach ($chunkData as $c) {
+                $record = MaterialChunk::firstOrNew([
+                    'material_id' => $material->id,
+                    'chunk_index' => $c['chunk_index'],
+                ]);
+
+                // When overriding, assign a fresh UUID to guarantee fresh points in Qdrant
+                if ($override || $record->content_hash !== $hash || $record->content !== $c['content'] || ! $record->qdrant_point_id) {
+                    $record->fill([
+                        'content' => $c['content'],
+                        'content_hash' => $hash,
+                        'qdrant_point_id' => (string) Str::uuid(),
+                        'embedding_model' => $embeddings->model(),
+                        'vectorized_at' => now(),
+                    ]);
+                    $record->save();
+                }
+
+                $pointRecords[] = $record;
+            }
+
+            // Delete obsolete chunks
+            MaterialChunk::where('material_id', $material->id)
+                ->where('chunk_index', '>=', count($chunkData))
+                ->delete();
+
+            // 3. Embed and upsert to Qdrant
+            $vectors = $embeddings->embedDocuments(
+                collect($pointRecords)->map(fn ($r) => $material->title . "\n\n" . $r->content)->all()
+            );
+
+            $qdrant->ensureCollection();
+
+            $points = [];
+            foreach ($pointRecords as $i => $rec) {
+                $points[] = [
+                    'id' => $rec->qdrant_point_id,
+                    'vector' => $vectors[$i],
+                    'payload' => [
+                        'material_id' => $material->id,
+                        'chunk_index' => $rec->chunk_index,
+                        'content_hash' => $hash,
+                        'embedding_model' => $embeddings->model(),
+                    ],
+                ];
+            }
+
+            $qdrant->replaceMaterialPoints($material->id, $points);
+
+            // 4. Mark material as vectorized
+            $material->update([
+                'is_vectorized' => 1,
+            ]);
+
+            // 5. Activity log
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'vectorize',
+                'description' => "Material [{$material->id}] \"{$material->title}\" vectorized and synced into " . count($points) . " chunks.",
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Material successfully vectorized and synced to Qdrant.',
+                'chunks_count' => count($points),
+                'is_vectorized' => 1,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vectorization failed: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Batch vectorize published materials.
+     */
+    public function batchVectorize(Request $req): JsonResponse
+    {
+        $override = $req->boolean('override', false);
+
+        $query = Material::published();
+        if (! $override) {
+            $query->where('is_vectorized', 0);
+        }
+
+        $materials = $query->get();
+
+        if ($materials->isEmpty()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'All published materials are already vectorized.',
+                'queued_count' => 0,
+            ]);
+        }
+
+        foreach ($materials as $m) {
+            ChunkMaterial::dispatch($m->id, $m->contentHash(), true)
+                ->onQueue(config('vectorization.queue'));
+        }
+
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'vectorize',
+            'description' => "Batch vectorization queued for {$materials->count()} materials.",
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Successfully queued {$materials->count()} materials for AI vectorization.",
+            'queued_count' => $materials->count(),
+        ]);
+    }
 }

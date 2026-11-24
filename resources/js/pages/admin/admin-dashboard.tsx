@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { Card, Row, Col, Progress, Tag, Tooltip } from 'antd';
 
-import AuthenticatedLayout from '@/layouts/authenticated-layout';
+import AdminLayout from '@/layouts/admin-layout';
 import { SharedData, User } from '@/types';
 
 type DashboardStats = {
@@ -427,6 +427,12 @@ export default function AdminDashboard({
                     <TrendingUp size={17} className="text-slate-700" />
                     <span className="font-bold text-slate-900">Recent Activity</span>
                   </div>
+                  <Link
+                    href={route('admin.activity-logs.index')}
+                    className="text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline"
+                  >
+                    View All
+                  </Link>
                 </div>
               }
               bodyStyle={{ padding: '16px' }}
@@ -461,10 +467,8 @@ export default function AdminDashboard({
   );
 }
 
-AdminDashboard.layout = (page: ReactNode) => (
-  <AuthenticatedLayout
-    user={(page as ReactElement<SharedData>).props.auth.user}
-  >
+AdminDashboard.layout = (page: ReactElement<SharedData>) => (
+  <AdminLayout user={page.props.auth.user}>
     {page}
-  </AuthenticatedLayout>
+  </AdminLayout>
 );

@@ -8,7 +8,7 @@ import { Edit2Icon, Search, Trash } from 'lucide-react';
 
 import { User } from '@/types';
 
-import AuthenticatedLayout from '@/layouts/authenticated-layout';
+import AdminLayout from '@/layouts/admin-layout';
 import { PaginateResponse } from '@/types/paginateResponse';
 import { dateFormat } from '@/lib/utils';
 import { Material } from '@/types/material';
@@ -204,11 +204,11 @@ const AdminOjtMaterialIndex = ( { title } : PageProps) => {
 export default AdminOjtMaterialIndex
 
 AdminOjtMaterialIndex.layout = (page: ReactNode) => (
-  <AuthenticatedLayout
+  <AdminLayout
     user={(page as ReactElement<{ auth: { user: User } }>).props.auth.user}
   >
     {page}
-  </AuthenticatedLayout>
+  </AdminLayout>
 )
 
 

@@ -67,6 +67,7 @@ export default function AdminLayout(
     'admin.materials': 'Materials',
     'admin.ojt-materials': 'OJT Entry Materials',
     'admin.users': 'Users',
+    'admin.activity-logs': 'Activity Logs',
   };
 
   const pageTitle =
@@ -176,12 +177,6 @@ export default function AdminLayout(
       type: 'divider'
     },
     {
-      key: 'admin.material-assignments',
-      icon: <UserRoundCog size={15} />,
-      label: 'Material Assignments',
-      onClick: () => router.visit('/admin/material-assignments'),
-    },
-    {
       key: 'admin.users',
       icon: <UserOutlined />,
       label: 'Users',
@@ -191,7 +186,7 @@ export default function AdminLayout(
       key: 'admin.activity-logs',
       icon: <SquareChartGantt size={15} />,
       label: 'Activity Logs',
-      onClick: () => router.visit('/admin/activity-logs'),
+      onClick: () => router.visit(route('admin.activity-logs.index')),
     },
   ]), []);
 

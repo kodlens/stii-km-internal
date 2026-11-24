@@ -27,7 +27,7 @@ import { User } from '@/types'
 import { useQuery } from '@tanstack/react-query'
 import { Trash } from 'lucide-react'
 
-import AuthenticatedLayout from '@/layouts/authenticated-layout'
+import AdminLayout from '@/layouts/admin-layout'
 import ChangePassword from './change-password'
 import ModalCreateEditUser from './modal-create-edit-user'
 
@@ -287,11 +287,11 @@ const AdminUserIndex = () => {
 }
 
 AdminUserIndex.layout = (page: ReactNode) => (
-  <AuthenticatedLayout
+  <AdminLayout
     user={(page as ReactElement<{ auth: { user: User } }>).props.auth.user}
   >
     {page}
-  </AuthenticatedLayout>
+  </AdminLayout>
 )
 
 export default AdminUserIndex
