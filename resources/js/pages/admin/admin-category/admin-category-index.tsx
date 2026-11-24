@@ -73,14 +73,14 @@ const AdminCategoryIndex = ( { title } : PageProps) => {
                 setCategory(undefined);
               }}
             >
-              New Daily Expense
+              New Category
             </Button>
           </div>
 
-
           <div className='my-4 flex items-center gap-3 px-6'>
             <Input
-              placeholder='Search Expense...'
+              allowClear
+              placeholder='Search categories by name...'
               value={search.category}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') refetch();
@@ -92,13 +92,6 @@ const AdminCategoryIndex = ( { title } : PageProps) => {
               Search
             </Button>
           </div>
-          {/* <div className="px-6 pb-2">
-            <div className="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2">
-              <span className="text-xs font-semibold uppercase tracking-wide text-rose-700">Total Daily Expenses</span>
-              <span className="text-base font-bold text-rose-800">
-              </span>
-            </div>
-          </div> */}
 
           <div className="px-6 pb-6">
             <Table
@@ -109,16 +102,27 @@ const AdminCategoryIndex = ( { title } : PageProps) => {
               size="middle"
               locale={{ emptyText: 'No category records yet. Create your first record.' }}
             >
-              <Column title="Id" dataIndex="id" key="id" />
-
-              <Column title="Slug" key="slug" dataIndex="slug" />
-              <Column title="Category" key="category" dataIndex="category" />
+              <Column title="ID" dataIndex="id" key="id" width={70} />
 
               <Column
-                title="Created"
-                key="created_at"
-                dataIndex="created_at"
-                render={(createdAt) => (<>{dateFormat(createdAt)}</>)}
+                title="Category"
+                key="category"
+                dataIndex="category"
+                render={(cat: string) => (
+                  <span className="font-semibold text-slate-800">{cat}</span>
+                )}
+              />
+
+              <Column title="Slug" key="slug" dataIndex="slug" className="text-slate-400 font-mono text-xs" />
+
+              <Column
+                title="Materials"
+                key="materials_count"
+                render={(_, row: Category) => (
+                  <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 ring-1 ring-blue-200">
+                    {(row.material_categories_count ?? 0).toLocaleString()} {row.material_categories_count === 1 ? 'material' : 'materials'}
+                  </span>
+                )}
               />
 
               <Column
@@ -129,8 +133,16 @@ const AdminCategoryIndex = ( { title } : PageProps) => {
               />
 
               <Column
+                title="Created"
+                key="created_at"
+                dataIndex="created_at"
+                render={(createdAt) => (<span className="text-xs text-slate-500">{dateFormat(createdAt)}</span>)}
+              />
+
+              <Column
                 title="Action"
                 key="action"
+                align="right"
                 render={(_, row: Category) => (
                   <Space size="small">
                     <Button
@@ -143,14 +155,14 @@ const AdminCategoryIndex = ( { title } : PageProps) => {
                     />
                     <Popconfirm
                       title="Delete Category"
-                      description="Are you sure you want to delete this category record?"
+                      description="Are you sure you want to delete this category?"
                       onConfirm={() => {
-                        axios.delete(`/admin/category/${row.id}`)
+                        axios.delete(`/admin/categories/${row.id}`)
                           .then((res) => {
-                            if (res.data.status === 'deleted') {
+                            if (res.data?.success || res.data?.type === 'delete') {
                               notification.success({
-                                message: 'Daily Expense Deleted',
-                                description: 'The daily expense record has been deleted successfully.',
+                                message: 'Category Deleted',
+                                description: 'The category has been deleted successfully.',
                               });
                             }
                             refetch();
@@ -159,7 +171,7 @@ const AdminCategoryIndex = ( { title } : PageProps) => {
                           .catch(() => {
                             notification.error({
                               message: 'Error',
-                              description: 'There was an error deleting the category.',
+                              description: 'There was an error deleting the category. It may have linked materials.',
                             });
                           });
                       }}

@@ -184,7 +184,7 @@ export default function Result({ search = '', category = '', page = 1 }: PagePro
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search keywords, topics, or materials..."
+                placeholder="Search keywords, categories, or materials..."
                 className="h-full w-full bg-transparent text-base font-medium text-slate-900 outline-none placeholder:text-slate-400"
               />
             </div>
@@ -370,10 +370,10 @@ export default function Result({ search = '', category = '', page = 1 }: PagePro
                       {search.trim()
                         ? activeCategoryObj
                           ? `No materials in "${activeCategoryObj.category}" match your search. Try another category or clear the filter.`
-                          : 'Try another keyword, topic, or material title to search the knowledge hub.'
+                          : 'Try another keyword, category, or material title to search the knowledge hub.'
                         : activeCategoryObj
                           ? `There are currently no published materials categorized under "${activeCategoryObj.category}".`
-                          : 'Enter a keyword, topic, or material title above to search the knowledge hub.'}
+                          : 'Enter a keyword, category, or material title above to search the knowledge hub.'}
                     </p>
                     {category && (
                       <button

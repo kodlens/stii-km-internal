@@ -24,14 +24,15 @@ class AdminCategoryController extends Controller
             'search' => ['nullable', 'string']
         ]);
 
-
-        $perPage = $req->perpage;
-        $search = $validated['search'];
+        $perPage = max(5, min(100, (int) ($req->input('perpage', 10))));
+        $search = trim($validated['search'] ?? '');
 
         $data = Category::query()
+            ->withCount('materialCategories')
             ->when($search, function ($q) use ($search) {
                 $q->where('category', 'like', "%{$search}%");
             })
+            ->orderBy('category')
             ->paginate($perPage);
 
         return response()->json($data);

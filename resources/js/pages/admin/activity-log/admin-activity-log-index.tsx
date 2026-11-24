@@ -1,7 +1,7 @@
 import { ReactElement, useEffect, useState } from 'react';
 import { Head } from '@inertiajs/react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { Avatar, Button, DatePicker, Empty, Grid, Input, Modal, Pagination, Select, Table, Tag, Tooltip } from 'antd';
+import { Avatar, Button, DatePicker, Empty, Input, Modal, Pagination, Select, Table, Tag } from 'antd';
 import Column from 'antd/es/table/Column';
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -10,19 +10,16 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
-  ExternalLink,
   Eye,
   FilterX,
   RefreshCw,
   Search,
   Sparkles,
-  User as UserIcon,
 } from 'lucide-react';
 
 import AdminLayout from '@/layouts/admin-layout';
-import { SharedData, User } from '@/types';
+import { SharedData } from '@/types';
 import { PaginateResponse } from '@/types/paginateResponse';
-import { dateFormat } from '@/lib/utils';
 
 type ActivityLogItem = {
   id: number;
@@ -64,9 +61,6 @@ const actionColorMap: Record<string, { color: string; bg: string; border: string
 };
 
 export default function AdminActivityLogIndex({ title, stats, actions }: PageProps) {
-  const screens = Grid.useBreakpoint();
-  const isMobile = !screens.md;
-
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(15);
   const [searchInput, setSearchInput] = useState('');

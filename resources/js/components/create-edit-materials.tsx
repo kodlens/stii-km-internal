@@ -4,7 +4,7 @@ import {  MaterialProps } from '@/types/material'
 import axios, { isAxiosError } from 'axios'
 import AiClassifier from '@/components/ai-classifier'
 import { lazy, useEffect, useRef, type Dispatch, type SetStateAction } from 'react'
-import { SendHorizontal } from 'lucide-react'
+import { SendHorizontal, Sparkles } from 'lucide-react'
 import { usePage } from '@inertiajs/react'
 import Dragger from 'antd/es/upload/Dragger'
 
@@ -375,16 +375,38 @@ const CreateEditMaterial = ({
           )}
 
           { role === 'admin' && (
-            <Button
-              icon={<FileAddOutlined />}
-              type="primary"
-              loading={loading}
-              className="h-10 rounded-xl px-5"
-              onClick={() => handleSubmit('save')}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100">
+              <Button
+                type="default"
+                loading={loading}
+                className="h-10 rounded-xl px-5 border-slate-300 text-slate-700 hover:border-slate-400"
+                onClick={() => handleSubmit('draft')}
+              >
+                Save as Draft
+              </Button>
 
-            >
-              Save Only
-            </Button>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  icon={<FileAddOutlined />}
+                  type="default"
+                  loading={loading}
+                  className="h-10 rounded-xl px-5 border-blue-300 text-blue-700 hover:border-blue-500 font-medium"
+                  onClick={() => handleSubmit('save')}
+                >
+                  Save Changes
+                </Button>
+
+                <Button
+                  icon={<Sparkles size={15} />}
+                  type="primary"
+                  loading={loading}
+                  className="h-10 rounded-xl px-5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold shadow-sm"
+                  onClick={() => handleSubmit('publish')}
+                >
+                  Save & Publish (Sync AI)
+                </Button>
+              </div>
+            </div>
           )}
 
 

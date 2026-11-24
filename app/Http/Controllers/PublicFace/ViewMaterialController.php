@@ -111,16 +111,6 @@ class ViewMaterialController extends Controller
             ->values()
             ->all();
 
-        // Topics assigned to this material.
-        $topics = DB::table('materials_topics as mt')
-            ->join('topics as t', 't.id', '=', 'mt.topic_id')
-            ->where('mt.material_id', $material->id)
-            ->where(fn ($query) => $query->where('t.active', 1)->orWhereNull('t.active'))
-            ->orderBy('t.topic')
-            ->pluck('t.topic')
-            ->filter()
-            ->values();
-
         return Inertia::render('public-face/view-material', [
             'material' => [
                 'id' => $material->id,
@@ -143,7 +133,7 @@ class ViewMaterialController extends Controller
             'categories' => $categories,
             'totalMaterials' => $totalMaterials,
             'materialCategorySlugs' => $materialCategorySlugs,
-            'topics' => $topics,
+            'topics' => [],
             'relatedMaterials' => $relatedMaterials,
         ]);
 

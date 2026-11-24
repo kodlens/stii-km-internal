@@ -53,7 +53,7 @@ export default function Welcome() {
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search keywords, topics, or materials..."
+                placeholder="Search keywords, categories, or materials..."
                 className="h-full w-full bg-transparent text-base font-medium text-slate-900 outline-none placeholder:text-slate-400"
               />
             </div>

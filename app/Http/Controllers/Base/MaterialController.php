@@ -19,6 +19,7 @@ use App\Http\Controllers\Utils\FilterDom;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
+use App\Jobs\ChunkMaterial;
 
 
 class MaterialController extends Controller
@@ -65,6 +66,14 @@ class MaterialController extends Controller
             $filter = new FilterDom();
             $contentText = $filter->htmlToPlainText($validated['content']);
 
+            $status = match ($submitType) {
+                'publish' => 'publish',
+                'submit' => 'submit',
+                'draft' => 'draft',
+                'save' => ($user->role === 'admin' ? 'publish' : 'draft'),
+                default => 'draft',
+            };
+
             $materialData = [
                 'title' => $validated['title'],
                 'slug' => Str::slug($validated['title']),
@@ -74,12 +83,9 @@ class MaterialController extends Controller
                 'uploaded_file' => $uploadedFile,
                 'original_filename' => $originalFilename,
                 'encoded_by_id' => $user->id,
+                'status' => $status,
+                'is_publish' => ($status === 'publish') ? 1 : 0,
             ];
-
-
-            if ($user->role !== 'admin') {
-                $materialData['status'] = $submitType;
-            }
 
             $material = Material::create($materialData);
 
@@ -111,26 +117,28 @@ class MaterialController extends Controller
             }
 
             $name = $user->lname . ', ' . $user->fname;
-            $desc = '';
-            $action = 'insert';
 
-
-            if($submitType === 'submit'){
+            if ($status === 'publish') {
+                $action = 'publish';
+                $desc = "[$material->id] $material->title successfully inserted and published by $name.";
+            } elseif ($submitType === 'submit') {
                 $action = 'insert-submit';
-                $desc = "[$material->id] $material->title successfully insert and set to submitted by $name.";
-            }
-
-            if($submitType === 'draft'){
+                $desc = "[$material->id] $material->title successfully inserted and set to submitted by $name.";
+            } else {
                 $action = 'draft';
-                $desc = "[$material->id] $material->title successfully insert and set to draft by $name.";
+                $desc = "[$material->id] $material->title successfully inserted and set to draft by $name.";
             }
-
 
             ActivityLog::create([
                 'user_id' => $user->id,
                 'action' => $action,
                 'description' => $desc
             ]);
+
+            // Auto-chunk and vectorize published materials immediately
+            if ($material->is_publish === 1) {
+                ChunkMaterial::dispatch($material->id, $material->contentHash(), force: true);
+            }
         });
 
         return response()->json([
@@ -196,14 +204,17 @@ class MaterialController extends Controller
             $material->content_text = $contentText;
             $material->publish_date = $publishDate;
 
-            if($user->role !== 'admin') {
-                $material->status = $submitType;
-            }
+            $status = match ($submitType) {
+                'publish' => 'publish',
+                'submit' => 'submit',
+                'draft' => 'draft',
+                'save' => ($material->status === 'publish' ? 'publish' : ($user->role === 'admin' ? 'publish' : ($material->status ?? 'draft'))),
+                default => $material->status ?? 'draft',
+            };
 
-            if($user->role !== 'admin') {
-                $material->updated_by_id = $user->id;
-            }
-
+            $material->status = $status;
+            $material->is_publish = ($status === 'publish') ? 1 : 0;
+            $material->updated_by_id = $user->id;
             $material->updated_at = now();
             $material->save();
 
@@ -225,25 +236,17 @@ class MaterialController extends Controller
                 MaterialCategory::insert($data);
             }
 
-
             $name = $user->lname . ', ' . $user->fname;
-            $desc = '';
-            $action = 'insert';
 
-
-            if($submitType === 'submit'){
-                $action = 'submit';
-                $desc = "[$material->id] $material->title successfully  set to submitted by $name.";
-            }
-
-            if($submitType === 'publish'){
+            if ($status === 'publish') {
                 $action = 'publish';
-                $desc = "[$material->id] $material->title successfully  set to published by $name.";
-            }
-
-            if($submitType === 'draft'){
-                $action = 'draft';
-                $desc = "[$material->id] $material->title successfully set to draft by $name.";
+                $desc = "[$material->id] $material->title successfully updated and published by $name.";
+            } elseif ($submitType === 'submit') {
+                $action = 'submit';
+                $desc = "[$material->id] $material->title successfully set to submitted by $name.";
+            } else {
+                $action = 'update';
+                $desc = "[$material->id] $material->title successfully updated as {$status} by $name.";
             }
 
             ActivityLog::create([
@@ -251,12 +254,17 @@ class MaterialController extends Controller
                 'action' => $action,
                 'description' => $desc
             ]);
+
+            // Auto-chunk and vectorize published materials immediately
+            if ($material->is_publish === 1) {
+                ChunkMaterial::dispatch($material->id, $material->contentHash(), force: true);
+            }
         });
 
         return response()->json([
             'success' => true,
             'type' => 'update',
-            'message' => 'Material successfully inserted.'
+            'message' => 'Material successfully updated.'
         ], 200);
     }
 
@@ -265,22 +273,25 @@ class MaterialController extends Controller
     public function publish($id){
 
         $user = Auth::user();
-        $material = Material::find($id);
+        $material = Material::findOrFail($id);
         $material->update([
             'status' => 'publish',
-            'is_publish' => 1
+            'is_publish' => 1,
+            'updated_by_id' => $user->id,
         ]);
 
-         ActivityLog::create([
+        ActivityLog::create([
             'user_id' => $user->id,
             'action' => 'publish',
-            'description' => 'Material set to pubsihed.'
+            'description' => "Material [{$material->id}] \"{$material->title}\" set to published.",
         ]);
+
+        ChunkMaterial::dispatch($material->id, $material->contentHash(), force: true);
 
         return response()->json([
             'success' => true,
             'type' => 'update',
-            'message' => 'Material successfully pubsihed.'
+            'message' => 'Material successfully published and queued for AI vectorization.'
         ], 200);
     }
 

@@ -14,5 +14,15 @@ class Category extends Model
         'active'
     ];
 
+    public function materialCategories()
+    {
+        return $this->hasMany(MaterialCategory::class, 'category_id');
+    }
+
+    public function materials()
+    {
+        return $this->belongsToMany(Material::class, 'material_categories', 'category_id', 'material_id');
+    }
+
 
 }

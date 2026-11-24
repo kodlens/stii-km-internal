@@ -12,10 +12,8 @@ import {
 
 import { Avatar, Button, ConfigProvider, Dropdown, Layout, Menu, MenuProps } from 'antd';
 
-import { Book,
-    LogOut, Plus,
-    SquareChartGantt, UserPen,
-     UserRoundCog } from 'lucide-react';
+import { LogOut, Plus,
+    SquareChartGantt, UserPen } from 'lucide-react';
 
 import PanelSideBarLogo from '@/components/panel-sidebar-logo';
 import { User } from '@/types';
@@ -63,7 +61,6 @@ export default function AdminLayout(
   const PAGE_TITLES: Record<string, string> = {
     'admin.dashboard': 'Dashboard',
     'admin.categories': 'Categories',
-    'admin.topics': 'Topics',
     'admin.materials': 'Materials',
     'admin.ojt-materials': 'OJT Entry Materials',
     'admin.users': 'Users',
@@ -90,14 +87,8 @@ export default function AdminLayout(
     {
       key: 'admin.categories',
       icon: <ProfileOutlined />,
-      label: 'Categories', //this is subjects, but display as categories
+      label: 'Categories',
       onClick: () => router.visit(route('admin.categories.index')),
-    },
-    {
-      key: 'admin.topics',
-      icon: <Book size={15}/>,
-      label: 'Topics', //this is subjects, but display as categories
-      onClick: () => router.visit(route('admin.topics.index')),
     },
     // {
     //   key: 'admin.categories',

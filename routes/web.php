@@ -62,9 +62,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('/admin/categories', \App\Http\Controllers\Admin\AdminCategoryController::class)->names('admin.categories');
     Route::get('/admin/get-categories', [\App\Http\Controllers\Admin\AdminCategoryController::class, 'getData'])->name('admin.categories.getData');
 
-    Route::resource('/admin/topics', \App\Http\Controllers\Admin\AdminTopicController::class)->names('admin.topics');
-    Route::get('/admin/get-topics', [\App\Http\Controllers\Admin\AdminTopicController::class, 'getData'])->name('admin.topics.getData');
-
     Route::get('/admin/materials/data', [\App\Http\Controllers\Admin\AdminMaterialController::class, 'getData'])->name('admin.materials.get-data');
     Route::resource('/admin/materials', \App\Http\Controllers\Admin\AdminMaterialController::class)->names('admin.materials');
     Route::post('/admin/materials/{id}/publish', [\App\Http\Controllers\Admin\AdminMaterialController::class, 'publish'])->name('admin.materials.publish');

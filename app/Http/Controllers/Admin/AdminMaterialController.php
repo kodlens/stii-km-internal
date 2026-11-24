@@ -51,15 +51,45 @@ class AdminMaterialController extends MaterialController
     public function create(){
         return Inertia::render('admin/admin-material/admin-material-add-edit', [
             'material' => null,
+            'vectorStatus' => null,
             'ckLicense' => config('app.ck_license')
         ]);
     }
 
 
     public function edit($id){
-        $material = Material::with(['materialCategories.category'])->find($id);
+        $material = Material::with(['materialCategories.category'])->findOrFail($id);
+
+        $chunks = $material->chunks()->orderBy('chunk_index')->get();
+        $qdrant = app(QdrantService::class);
+        $embeddings = app(OllamaEmbeddingService::class);
+        $hash = $material->contentHash();
+
+        $qdrantSynced = false;
+        if ($chunks->isNotEmpty()) {
+            try {
+                $qdrantSynced = $qdrant->hasCurrentPoints(
+                    $material->id,
+                    $chunks->pluck('qdrant_point_id')->all(),
+                    $hash,
+                    $embeddings->model()
+                );
+            } catch (\Throwable) {
+                $qdrantSynced = false;
+            }
+        }
+
+        $vectorStatus = [
+            'is_vectorized' => (bool) $material->is_vectorized,
+            'qdrant_synced' => $qdrantSynced,
+            'chunks_count' => $chunks->count(),
+            'content_hash' => $hash,
+            'embedding_model' => $embeddings->model(),
+        ];
+
         return Inertia::render('admin/admin-material/admin-material-add-edit', [
             'material' => $material,
+            'vectorStatus' => $vectorStatus,
             'ckLicense' => config('app.ck_license')
         ]);
     }

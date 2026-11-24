@@ -1,4 +1,4 @@
-import { ReactElement, ReactNode } from 'react';
+import { ReactElement } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import {
   FileText,
