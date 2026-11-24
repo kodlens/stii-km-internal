@@ -5,11 +5,39 @@ type Props = {
   message: ChatMessage;
 };
 
-// Formats basic markdown elements (bold, bullets, paragraphs)
+// Formats basic markdown elements (bold, bullets, paragraphs, headers)
 function renderFormattedContent(text: string) {
   const paragraphs = text.split(/\n\s*\n/);
 
   return paragraphs.map((paragraph, pIdx) => {
+    const trimmed = paragraph.trim();
+
+    if (trimmed === '---' || trimmed === '***') {
+      return <hr key={pIdx} className="my-2 border-slate-200" />;
+    }
+
+    if (trimmed.startsWith('### ')) {
+      const heading = trimmed.replace(/^###\s+/, '');
+      return (
+        <h4
+          key={pIdx}
+          className="my-1.5 font-bold text-slate-900 text-xs"
+          dangerouslySetInnerHTML={{ __html: formatInline(heading) }}
+        />
+      );
+    }
+
+    if (trimmed.startsWith('## ') || trimmed.startsWith('# ')) {
+      const heading = trimmed.replace(/^#+\s+/, '');
+      return (
+        <h3
+          key={pIdx}
+          className="my-2 font-bold text-slate-900 text-sm"
+          dangerouslySetInnerHTML={{ __html: formatInline(heading) }}
+        />
+      );
+    }
+
     const lines = paragraph.split('\n');
 
     // Check if paragraph is a bullet list
@@ -17,7 +45,7 @@ function renderFormattedContent(text: string) {
 
     if (isBulletList) {
       return (
-        <ul key={pIdx} className="my-1.5 list-disc space-y-1 pl-4">
+        <ul key={pIdx} className="my-1.5 list-disc space-y-1 pl-4 text-slate-900">
           {lines.map((line, lIdx) => {
             const cleanLine = line.trim().replace(/^[-*]\s+/, '');
             return (
@@ -31,7 +59,7 @@ function renderFormattedContent(text: string) {
     return (
       <p
         key={pIdx}
-        className="my-1.5 leading-relaxed first:mt-0 last:mb-0"
+        className="my-1.5 leading-relaxed text-slate-900 first:mt-0 last:mb-0"
         dangerouslySetInnerHTML={{ __html: formatInline(paragraph) }}
       />
     );

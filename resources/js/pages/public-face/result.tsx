@@ -360,14 +360,20 @@ export default function Result({ search = '', category = '', page = 1 }: PagePro
                       <FileSearch size={25} />
                     </div>
                     <h3 className="mt-5 text-xl font-bold text-slate-950">
-                      {search.trim() ? 'No materials found' : 'Start typing to search'}
+                      {search.trim()
+                        ? 'No materials found'
+                        : category
+                          ? 'No materials found in this category'
+                          : 'Start typing to search'}
                     </h3>
                     <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
                       {search.trim()
                         ? activeCategoryObj
                           ? `No materials in "${activeCategoryObj.category}" match your search. Try another category or clear the filter.`
                           : 'Try another keyword, topic, or material title to search the knowledge hub.'
-                        : 'Enter a keyword, topic, or material title above to search the knowledge hub.'}
+                        : activeCategoryObj
+                          ? `There are currently no published materials categorized under "${activeCategoryObj.category}".`
+                          : 'Enter a keyword, topic, or material title above to search the knowledge hub.'}
                     </p>
                     {category && (
                       <button

@@ -22,6 +22,11 @@ export default function ChatWidget() {
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Hide the floating widget if user is currently on the dedicated full-page AI assistant
+  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/ai-assistant')) {
+    return null;
+  }
+
   const scrollToBottom = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -102,12 +107,12 @@ export default function ChatWidget() {
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h2 className="text-xs font-bold text-white">STII KM Assistant</h2>
-                  <span className="rounded bg-sky-200/20 px-1.5 py-0.2 text-[9px] font-semibold text-sky-100">
-                    Qwen 14B
+                  <h2 className="text-xs font-bold text-white">STII-Agent</h2>
+                  <span className="rounded bg-sky-200/20 px-1.5 py-0.5 text-[9px] font-semibold text-sky-100">
+                    STII Verified
                   </span>
                 </div>
-                <p className="text-[10px] text-sky-200">Grounded in STII Knowledge Base</p>
+                <p className="text-[10px] text-sky-200">Official Knowledge Assistant</p>
               </div>
             </div>
 
@@ -182,7 +187,7 @@ export default function ChatWidget() {
               <Sparkles size={11} className="absolute -top-1 -right-1.5 text-amber-300" />
             </div>
             <span className="hidden font-semibold text-xs tracking-wide sm:inline pr-1">
-              Ask STII AI
+              Ask STII-Agent
             </span>
           </>
         )}

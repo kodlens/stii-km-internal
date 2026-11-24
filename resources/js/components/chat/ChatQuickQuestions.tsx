@@ -17,9 +17,9 @@ export default function ChatQuickQuestions({ onSelect }: Props) {
       <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0D4E86]/10 text-[#0D4E86]">
         <Sparkles size={24} />
       </div>
-      <h3 className="mt-3 text-sm font-bold text-slate-800">STII Knowledge Assistant</h3>
+      <h3 className="mt-3 text-sm font-bold text-slate-800">STII-Agent</h3>
       <p className="mt-1 max-w-[280px] text-xs leading-relaxed text-slate-500">
-        Ask anything about DOST-STII internal policies, guidelines, and manuals.
+        Official AI Assistant for DOST-STII internal policies, guidelines, and manuals.
       </p>
 
       <div className="mt-4 flex w-full flex-col gap-2">

@@ -59,7 +59,7 @@ class SemanticSearchController extends Controller
 
             $paginated = $query->latest('publish_date')
                 ->paginate($perpage)
-                ->through(function ($m) {
+                ->through(function ($m) use ($search) {
                     return [
                         'material_id' => $m->id,
                         'title' => $m->title,
