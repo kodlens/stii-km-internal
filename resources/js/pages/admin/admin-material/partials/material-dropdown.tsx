@@ -56,8 +56,8 @@ export default function MaterialDropdown( { refetch, row, onInspectChunks } : Pr
       const res = await axios.delete(`/admin/materials/${rowId}`);
       if (res.data?.success) {
         notification.success({
-          message: 'Material Deleted',
-          description: 'The material was successfully removed.',
+          message: 'Material & Vectors Deleted',
+          description: res.data.message || 'The material, database chunks, and Qdrant vectors were successfully removed.',
           placement: 'topRight',
         });
       } else {
@@ -155,10 +155,19 @@ export default function MaterialDropdown( { refetch, row, onInspectChunks } : Pr
               icon: <Trash2 size={14} className="text-rose-600" />,
               onClick: () => {
                 modal.confirm({
-                  title: 'Delete Material?',
+                  title: 'Delete Material & Vectors?',
                   icon: <Trash2 className="text-rose-500" size={22} />,
-                  content: `Are you sure you want to delete "${row.title}"? This cannot be undone.`,
-                  okText: 'Yes, delete',
+                  content: (
+                    <div className="space-y-2 text-sm text-slate-600">
+                      <p>
+                        Are you sure you want to delete <strong className="text-slate-900">"{row.title}"</strong>?
+                      </p>
+                      <div className="rounded-lg bg-rose-50 p-2.5 text-xs text-rose-800 border border-rose-200">
+                        <strong>Permanent Deletion:</strong> This will delete the material record, all its database chunks, and remove its vector embeddings from Qdrant.
+                      </div>
+                    </div>
+                  ),
+                  okText: 'Delete Material & Vectors',
                   okButtonProps: {
                     danger: true,
                     className: '!rounded-lg',

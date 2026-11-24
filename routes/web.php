@@ -62,6 +62,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('/admin/categories', \App\Http\Controllers\Admin\AdminCategoryController::class)->names('admin.categories');
     Route::get('/admin/get-categories', [\App\Http\Controllers\Admin\AdminCategoryController::class, 'getData'])->name('admin.categories.getData');
 
+    Route::get('/admin/materials/{id}/check-title', [\App\Http\Controllers\Admin\AdminMaterialController::class, 'checkTitle'])->name('admin.materials.check-title');
     Route::get('/admin/materials/data', [\App\Http\Controllers\Admin\AdminMaterialController::class, 'getData'])->name('admin.materials.get-data');
     Route::resource('/admin/materials', \App\Http\Controllers\Admin\AdminMaterialController::class)->names('admin.materials');
     Route::post('/admin/materials/{id}/publish', [\App\Http\Controllers\Admin\AdminMaterialController::class, 'publish'])->name('admin.materials.publish');
@@ -93,6 +94,9 @@ Route::middleware(['auth', 'role:encoder'])->group(function () {
     Route::get('/encoder/materials/{id}/check-title', [\App\Http\Controllers\Encoder\EncoderMaterialController::class, 'checkTitle'])->name('encoder.materials.check-title');
     Route::get('/encoder/materials/data', [\App\Http\Controllers\Encoder\EncoderMaterialController::class, 'data'])->name('encoder.materials.data');
     Route::resource('/encoder/materials', \App\Http\Controllers\Encoder\EncoderMaterialController::class)->names('encoder.materials');
+    Route::get('/encoder/create', [\App\Http\Controllers\Encoder\EncoderMaterialController::class, 'create'])->name('encoder.create');
+    Route::get('/encoder/materials/new-material', [\App\Http\Controllers\Encoder\EncoderMaterialController::class, 'create'])->name('encoder.new-material.index');
+    Route::post('/encoder/materials/new-material', [\App\Http\Controllers\Encoder\EncoderMaterialController::class, 'store'])->name('encoder.new-material.store');
 
 
     // Route::get('/encoder/materials/all-materials', [\App\Http\Controllers\Encoder\EncoderAllMaterialController::class, 'index'])->name('encoder.materials.all-materials.index');
@@ -131,10 +135,11 @@ Route::middleware(['auth', 'role:publisher'])->group(function () {
     Route::get('/publisher/materials/get-published-materials', [\App\Http\Controllers\Publisher\PublisherPublishedMaterialController::class, 'getData'])->name('publisher.materials.published-materials.get-data');
 
 
+    Route::get('/publisher/materials/{id}/check-title', [\App\Http\Controllers\Publisher\PublisherNewMaterialController::class, 'checkTitle'])->name('publisher.materials.check-title');
     Route::get('/publisher/materials/new-material/create', [\App\Http\Controllers\Publisher\PublisherNewMaterialController::class, 'index'])->name('publisher.materials.new-material.index');
     Route::get('/publisher/materials/new-material/{id}/edit', [\App\Http\Controllers\Publisher\PublisherNewMaterialController::class, 'edit'])->name('publisher.materials.new-material.edit');
     Route::post('/publisher/materials/new-material', [\App\Http\Controllers\Publisher\PublisherNewMaterialController::class, 'store'])->name('publisher.materials.new-material.store');
-    Route::post('/publisher/materials/new-material/{id}', [\App\Http\Controllers\Publisher\PublisherNewMaterialController::class, 'update'])->name('publisher.materials.new-material.update');
+    Route::match(['post', 'put'], '/publisher/materials/new-material/{id}', [\App\Http\Controllers\Publisher\PublisherNewMaterialController::class, 'update'])->name('publisher.materials.new-material.update');
 
     Route::post('/publisher/materials/set-publish-materials/{id}', [\App\Http\Controllers\Publisher\PublisherNewMaterialController::class, 'setPublish'])->name('publisher.set-publish-materials');
 

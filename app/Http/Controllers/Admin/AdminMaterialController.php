@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use Illuminate\Http\JsonResponse;
 use App\Models\Material;
 use App\Models\MaterialChunk;
+use App\Models\MaterialCategory;
 use App\Models\ActivityLog;
 use App\Http\Controllers\Base\MaterialController;
 use App\Services\TextChunker;
@@ -16,6 +17,7 @@ use App\Services\QdrantService;
 use App\Jobs\ChunkMaterial;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class AdminMaterialController extends MaterialController
@@ -95,10 +97,39 @@ class AdminMaterialController extends MaterialController
     }
 
     public function destroy($id){
-        Material::destroy($id);
+        $material = Material::findOrFail($id);
+        $materialId = (int) $material->id;
+        $title = $material->title;
+
+        // 1. Delete vector points from Qdrant directly and synchronously
+        $qdrantDeleted = false;
+        try {
+            app(QdrantService::class)->deleteMaterial($materialId);
+            $qdrantDeleted = true;
+        } catch (\Throwable $e) {
+            Log::warning("Failed to delete Qdrant vectors for material {$materialId}: " . $e->getMessage());
+        }
+
+        // 2. Transactionally delete database chunks, categories, and the material record
+        $chunksDeleted = 0;
+        DB::transaction(function () use ($material, &$chunksDeleted, $title) {
+            $chunksDeleted = MaterialChunk::where('material_id', $material->id)->delete();
+            MaterialCategory::where('material_id', $material->id)->delete();
+
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'delete',
+                'description' => "Material [{$material->id}] \"{$title}\" and {$chunksDeleted} chunks deleted along with Qdrant vectors.",
+            ]);
+
+            $material->delete();
+        });
+
         return response()->json([
             'success' => true,
-            'message' => 'Material deleted successfully'
+            'message' => "Material \"{$title}\", {$chunksDeleted} chunks, and Qdrant vectors successfully deleted.",
+            'chunks_deleted' => $chunksDeleted,
+            'qdrant_deleted' => $qdrantDeleted,
         ]);
     }
 

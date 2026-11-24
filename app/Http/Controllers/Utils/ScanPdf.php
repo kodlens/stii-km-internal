@@ -8,22 +8,38 @@ class ScanPdf {
     public function scanPdf($path){
         $parser = new Parser();
 
-        $pdf = $parser->parseFile(
-            storage_path('app/private/temp/docs/' . $path)
-        );
+        $fullPath = storage_path('app/private/temp/docs/' . $path);
+        if (!file_exists($fullPath)) {
+            $fullPath = storage_path('app/temp/docs/' . $path);
+        }
 
-        $text = $pdf->getText();
-
-        if(strlen($text) < 10){
+        if (!file_exists($fullPath)) {
             return [
                 'success' => false,
-                'message'=> 'PDF is not in digital format. OCR scanning is not available this time.'
+                'message'=> "PDF file not found at: {$path}"
             ];
         }
 
-        return [
-            'success' => true,
-            'message' => $text
-        ];
+        try {
+            $pdf = $parser->parseFile($fullPath);
+            $text = $pdf->getText();
+
+            if(strlen(trim($text)) < 10){
+                return [
+                    'success' => false,
+                    'message'=> 'PDF is not in digital format. OCR scanning is not available this time.'
+                ];
+            }
+
+            return [
+                'success' => true,
+                'message' => $text
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'success' => false,
+                'message' => 'Unable to parse PDF: ' . $e->getMessage()
+            ];
+        }
     }
 }

@@ -1,14 +1,15 @@
-import { lazy, useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
+import { lazy, useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import { usePage } from '@inertiajs/react';
-import { App, Button, DatePicker, Form, FormInstance, Input, Upload, UploadProps } from 'antd';
+import { App, Button, DatePicker, Form, FormInstance, Input, Spin, Upload, UploadProps } from 'antd';
 import Dragger from 'antd/es/upload/Dragger';
 import axios, { isAxiosError } from 'axios';
 import dayjs from 'dayjs';
 import {
   Calendar,
+  CheckCircle2,
   FileCheck,
   FileText,
-  FileUp,
+  ScanLine,
   SendHorizontal,
   Sparkles,
   UploadCloud,
@@ -45,6 +46,9 @@ export default function CreateEditMaterial({
   const { csrf_token } = usePage().props;
   const { notification, message } = App.useApp();
   const titleCheckVersion = useRef(0);
+  const [ocrLoading, setOcrLoading] = useState(false);
+  const [currentFileName, setCurrentFileName] = useState<string>('');
+  const [editorContent, setEditorContent] = useState<string>(material?.content || '');
 
   const clearTitleError = () => {
     titleCheckVersion.current += 1;
@@ -55,10 +59,16 @@ export default function CreateEditMaterial({
     });
   };
 
+  const csrfToken =
+    (csrf_token as string) ||
+    (typeof document !== 'undefined'
+      ? document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? ''
+      : '');
+
   const uploadProps: UploadProps = {
     name: 'docs',
     action: '/docs/temp-upload',
-    headers: csrf_token ? { 'X-CSRF-TOKEN': csrf_token as string } : undefined,
+    headers: csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : undefined,
     beforeUpload: (file) => {
       const isPDF = file.type === 'application/pdf';
       if (!isPDF) {
@@ -71,27 +81,45 @@ export default function CreateEditMaterial({
     },
 
     onChange(info) {
-      if (info.file.status === 'done') {
-        notification.success({
-          message: 'PDF Uploaded',
-          description: `${info.file.name} uploaded successfully. Text has been extracted into the editor below.`,
-        });
+      if (info.file.status === 'uploading') {
+        setOcrLoading(true);
+      } else if (info.file.status === 'done') {
+        setOcrLoading(false);
+        setCurrentFileName(info.file.name);
 
-        // Auto-populate editor with extracted text if available
-        if (info.file.response?.success && info.file.response?.message) {
-          form.setFieldValue('content', info.file.response.message);
+        const res = info.file.response;
+        // The backend reads and parses PDF content via ScanPdf and external OCR service
+        if (res?.success && res?.message) {
+          setEditorContent(res.message);
+          form.setFieldValue('content', res.message);
+          form.setFieldsValue({ content: res.message });
+          notification.success({
+            message: 'PDF Content Extracted!',
+            description: `${info.file.name} successfully parsed. The extracted text has been printed directly into the editor below for review and editing.`,
+            placement: 'topRight',
+          });
+        } else {
+          notification.warning({
+            message: 'PDF Uploaded (No Text Detected)',
+            description: res?.ocr_error || 'Could not extract text content from this document. You can type or paste content manually.',
+            placement: 'topRight',
+          });
         }
 
-        form.setFieldValue('docs', info.file.response);
+        form.setFieldValue('docs', res);
       } else if (info.file.status === 'error') {
+        setOcrLoading(false);
+        const errMsg = info.file.response?.message || info.file.response?.ocr_error || 'Upload or OCR extraction failed.';
         notification.error({
-          message: 'Upload Failed',
-          description: `${info.file.name} upload failed: ${info.file.response?.message || 'Server error'}`,
+          message: 'PDF Processing Failed',
+          description: `${info.file.name}: ${errMsg}`,
+          placement: 'topRight',
         });
       }
     },
 
     onRemove(info) {
+      setCurrentFileName('');
       if (material && material.id > 0) {
         axios.post(`/panel/image-remove/${material.id}/${info.name}`).then((res) => {
           if (res.data.status === 'temp_deleted') {
@@ -110,6 +138,7 @@ export default function CreateEditMaterial({
 
   useEffect(() => {
     if (material && material.id > 0) {
+      setEditorContent(material.content || '');
       form.setFieldsValue({
         title: material.title,
         content: material.content,
@@ -166,6 +195,24 @@ export default function CreateEditMaterial({
           description: 'Unable to check title availability.',
         });
       });
+  };
+
+  const onActionClick = async (action: SubmitAction) => {
+    const title = form.getFieldValue('title');
+    if (!title || typeof title !== 'string' || !title.trim()) {
+      setErrors((prev) => ({
+        ...prev,
+        title: ['Document Title is required.'],
+      }));
+      notification.error({
+        message: 'Title is Required',
+        description: 'Please enter a document title before saving.',
+        placement: 'topRight',
+      });
+      form.scrollToField('title');
+      return;
+    }
+    await handleSubmit(action);
   };
 
   return (
@@ -256,7 +303,93 @@ export default function CreateEditMaterial({
         </div>
       </div>
 
-      {/* 2. Lower Section: 2-Column Responsive Workspace */}
+      {/* 2. Middle Section: PDF Document Reader & Text Extractor (Dedicated Card) */}
+      <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+              <ScanLine size={20} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-slate-800">PDF Document Reader & Text Extractor</h3>
+                <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700">
+                  OCR & PDF Parser
+                </span>
+              </div>
+              <p className="text-xs text-slate-500">
+                Upload a PDF document to automatically read and extract its content directly into the editor below.
+              </p>
+            </div>
+          </div>
+
+          {ocrLoading && (
+            <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-3.5 py-2 text-xs font-semibold text-amber-800 ring-1 ring-amber-200 animate-pulse">
+              <Spin size="small" />
+              <span>Reading PDF content via OCR parser...</span>
+            </div>
+          )}
+        </div>
+
+        {/* Currently Loaded / Extracted Document Status */}
+        {(material?.uploaded_file || currentFileName) && (
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50/70 p-3.5">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+                <FileCheck size={20} />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="truncate text-xs font-bold text-emerald-950"
+                    title={(currentFileName || material?.original_filename || material?.uploaded_file) ?? undefined}
+                  >
+                    {currentFileName || material?.original_filename || material?.uploaded_file}
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                    <CheckCircle2 size={11} /> Content Loaded in Editor
+                  </span>
+                </div>
+                <span className="text-[11px] text-emerald-700">
+                  Document parsed. The extracted text is displayed in the editor below and ready for review, formatting, or publishing.
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <Form.Item
+          name="upload"
+          valuePropName="fileList"
+          getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+          validateStatus={errors.upload ? 'error' : ''}
+          help={errors.upload ? (errors.upload[0] as string) : ''}
+          className="!mb-0"
+        >
+          <Dragger
+            {...uploadProps}
+            maxCount={1}
+            accept=".pdf,application/pdf"
+            className="!rounded-2xl !border-dashed !border-slate-300 !bg-slate-50/70 hover:!border-blue-500 hover:!bg-blue-50/40 transition-all p-4"
+          >
+            <div className="py-3 text-center">
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 shadow-xs">
+                <UploadCloud size={24} />
+              </div>
+              <p className="text-sm font-bold text-slate-800">
+                {material?.uploaded_file || currentFileName
+                  ? 'Click or drag a new PDF here to re-extract content'
+                  : 'Click or drop PDF document here to parse and extract text'}
+              </p>
+              <p className="mt-1 text-xs text-slate-500 max-w-lg mx-auto">
+                Supports digital PDFs and scanned image documents (OCR). Extracted text will automatically print into the Document Editor below. Max file size: 50MB.
+              </p>
+            </div>
+          </Dragger>
+        </Form.Item>
+      </div>
+
+      {/* 3. Lower Section: 2-Column Responsive Workspace */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* Left Column: Primary Content Area (Rich Text Editor) */}
         <div className="space-y-4 lg:col-span-8">
@@ -264,9 +397,9 @@ export default function CreateEditMaterial({
           <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
               <div>
-                <h3 className="text-sm font-bold text-slate-800">Document Body & Extracted Text</h3>
+                <h3 className="text-sm font-bold text-slate-800">Document Content (PDF Content)</h3>
                 <p className="text-xs text-slate-400">
-                  Full text indexed by Qdrant and retrieved by STII-Agent for AI-grounded responses.
+                  Extracted text from the PDF above. Edit and format here before saving or publishing.
                 </p>
               </div>
               <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-[11px] font-semibold text-blue-700">
@@ -281,75 +414,22 @@ export default function CreateEditMaterial({
               help={errors.content ? (errors.content[0] as string) : ''}
               className="!mb-0"
             >
-              <div className="min-h-[460px] rounded-xl overflow-hidden">
-                <Ckeditor
-                  material={material || undefined}
-                  form={form}
-                  ckLicense={ckLicense}
-                />
-              </div>
+              <Ckeditor
+                material={material || undefined}
+                form={form}
+                ckLicense={ckLicense}
+                value={editorContent}
+                onChange={(val) => {
+                  setEditorContent(val);
+                  form.setFieldValue('content', val);
+                }}
+              />
             </Form.Item>
           </div>
         </div>
 
-        {/* Right Column: Metadata Sidebar (PDF Upload & AI Categories) */}
+        {/* Right Column: AI Categories Classification */}
         <div className="space-y-4 lg:col-span-4">
-          {/* PDF Document Attachment Card */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
-            <div className="mb-3 flex items-center gap-2 border-b border-slate-100 pb-3">
-              <div className="rounded-lg bg-sky-50 p-1.5 text-sky-700">
-                <FileUp size={16} />
-              </div>
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">PDF Attachment</h3>
-                <span className="text-[11px] text-slate-400">Source PDF for public download and preview</span>
-              </div>
-            </div>
-
-            {material?.uploaded_file && (
-              <div className="mb-3 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50/60 p-3">
-                <div className="flex items-center gap-2 min-w-0">
-                  <FileCheck size={18} className="text-emerald-600 shrink-0" />
-                  <div className="min-w-0">
-                    <span className="block truncate text-xs font-semibold text-emerald-900" title={material.original_filename || material.uploaded_file}>
-                      {material.original_filename || material.uploaded_file}
-                    </span>
-                    <span className="text-[10px] text-emerald-700 font-medium">Currently attached</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <Form.Item
-              name="upload"
-              valuePropName="fileList"
-              getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
-              validateStatus={errors.upload ? 'error' : ''}
-              help={errors.upload ? (errors.upload[0] as string) : ''}
-              className="!mb-0"
-            >
-              <Dragger
-                {...uploadProps}
-                maxCount={1}
-                accept=".pdf,application/pdf"
-                className="!rounded-xl !border-dashed !border-slate-300 !bg-slate-50/70 hover:!border-blue-500 hover:!bg-blue-50/30 transition-all p-3"
-              >
-                <div className="py-2 text-center">
-                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                    <UploadCloud size={20} />
-                  </div>
-                  <p className="text-xs font-semibold text-slate-800">
-                    {material?.uploaded_file ? 'Drop a new PDF to replace' : 'Click or drop PDF here to upload'}
-                  </p>
-                  <p className="mt-1 text-[11px] text-slate-400">
-                    Text will be automatically extracted into the editor
-                  </p>
-                </div>
-              </Dragger>
-            </Form.Item>
-          </div>
-
-          {/* Categories & AI Classifier Card */}
           <Form.Item name="categories" className="!mb-0">
             <AiClassifier id={material?.id ?? 0} form={form} errors={errors} />
           </Form.Item>
@@ -364,7 +444,7 @@ export default function CreateEditMaterial({
               type="default"
               loading={loading}
               className="h-10 rounded-xl px-5 border-slate-300 text-slate-700 hover:border-slate-400 font-medium"
-              onClick={() => handleSubmit('draft')}
+              onClick={() => onActionClick('draft')}
             >
               Save as Draft
             </Button>
@@ -374,7 +454,7 @@ export default function CreateEditMaterial({
                 type="default"
                 loading={loading}
                 className="h-10 rounded-xl px-5 border-blue-300 text-blue-700 hover:border-blue-500 font-semibold"
-                onClick={() => handleSubmit('save')}
+                onClick={() => onActionClick('save')}
               >
                 Save Changes
               </Button>
@@ -384,9 +464,9 @@ export default function CreateEditMaterial({
                 icon={<Sparkles size={15} />}
                 loading={loading}
                 className="h-10 rounded-xl px-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-md shadow-emerald-700/20"
-                onClick={() => handleSubmit('publish')}
+                onClick={() => onActionClick('publish')}
               >
-                Save & Publish (Sync AI)
+                Publish & Vectorize
               </Button>
             </div>
           </>
@@ -398,19 +478,19 @@ export default function CreateEditMaterial({
               type="default"
               loading={loading}
               className="h-10 rounded-xl px-5"
-              onClick={() => handleSubmit('submit')}
+              onClick={() => onActionClick('submit')}
             >
               Save
             </Button>
 
             <Button
               type="primary"
-              icon={<SendHorizontal size={15} />}
+              icon={<Sparkles size={15} />}
               loading={loading}
-              className="h-10 rounded-xl px-6 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold"
-              onClick={() => handleSubmit('publish')}
+              className="h-10 rounded-xl px-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-md shadow-emerald-700/20"
+              onClick={() => onActionClick('publish')}
             >
-              Save & Publish
+              Approve & Publish (Vectorize)
             </Button>
           </div>
         )}
@@ -421,7 +501,7 @@ export default function CreateEditMaterial({
               type="default"
               loading={loading}
               className="h-10 rounded-xl px-5"
-              onClick={() => handleSubmit('draft')}
+              onClick={() => onActionClick('draft')}
             >
               Save as Draft
             </Button>
@@ -431,7 +511,7 @@ export default function CreateEditMaterial({
               icon={<SendHorizontal size={15} />}
               loading={loading}
               className="h-10 rounded-xl px-6 bg-blue-600 hover:bg-blue-500 text-white font-semibold"
-              onClick={() => handleSubmit('submit')}
+              onClick={() => onActionClick('submit')}
             >
               Save & Submit for Review
             </Button>

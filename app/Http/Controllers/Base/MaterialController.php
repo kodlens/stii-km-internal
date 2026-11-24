@@ -137,8 +137,8 @@ class MaterialController extends Controller
                 'description' => $desc
             ]);
 
-            // Auto-chunk and vectorize published materials immediately
-            if ($material->is_publish === 1) {
+            // Only vectorize when explicitly published/approved by admin or publisher
+            if ($submitType === 'publish') {
                 ChunkMaterial::dispatch($material->id, $material->contentHash(), force: true);
             }
         });
@@ -259,8 +259,8 @@ class MaterialController extends Controller
                 'description' => $desc
             ]);
 
-            // Auto-chunk and vectorize published materials immediately
-            if ($material->is_publish === 1) {
+            // Only vectorize when explicitly published/approved by admin or publisher
+            if ($submitType === 'publish') {
                 ChunkMaterial::dispatch($material->id, $material->contentHash(), force: true);
             }
         });
@@ -300,4 +300,23 @@ class MaterialController extends Controller
     }
 
 
+    public function setPublish($id)
+    {
+        return $this->publish($id);
+    }
+
+    public function checkTitle(Request $req, $id = 0)
+    {
+        $validated = $req->validate([
+            'title' => ['required', 'string'],
+        ]);
+
+        $exists = Material::where('title', $validated['title'])
+            ->when((int) $id > 0, function ($query) use ($id) {
+                $query->where('id', '!=', (int) $id);
+            })
+            ->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
 }

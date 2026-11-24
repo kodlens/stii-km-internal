@@ -18,7 +18,7 @@ class EncoderMaterialController extends MaterialController
         ]);
     }
 
-    public function checkTitle(Request $req, $id){
+    public function checkTitle(Request $req, $id = 0){
         $title = $req->input('title', '');
 
         if (!ctype_digit((string) $id)) {

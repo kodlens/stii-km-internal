@@ -15,6 +15,7 @@ class UploadController extends Controller
 
     /** =================PDF HANDLING =================*/
     public function tempUpload(Request $req){
+        @set_time_limit(300);
 
         $req->validate([
             'docs' => ['required', 'file', 'mimetypes:application/pdf', 'max:51200']
@@ -24,37 +25,48 @@ class UploadController extends Controller
             'docs.max' => 'The upload PDF must not be greater than 50MB in size.'
         ]);
 
-
-
         $file = $req->file('docs');
         $fileGenerated = md5($file->getClientOriginalName() . time());
         $fileName = $fileGenerated . '.' . $file->getClientOriginalExtension();
         $filePath = $file->storeAs('/temp/docs', $fileName);
-        $n = explode('/', $filePath);
-        $storedFileName = $n[2] ?? $fileName;
+        $storedFileName = basename(str_replace('\\', '/', $filePath)) ?: $fileName;
 
-        $scanPdf = new ScanPdf();
-        $scannedPdf = $scanPdf->scanPdf($storedFileName);
+        $scannedPdf = ['success' => false, 'message' => null];
+        $pdfProcess = false;
+
+        try {
+            $scanPdf = new ScanPdf();
+            $scannedPdf = $scanPdf->scanPdf($storedFileName);
+            $pdfProcess = (bool) ($scannedPdf['success'] ?? false);
+        } catch (\Throwable $e) {
+            $scannedPdf = ['success' => false, 'message' => $e->getMessage()];
+            $pdfProcess = false;
+        }
+
         $ocrText = null;
         $ocrError = null;
-        $pdfProcess = (bool) ($scannedPdf['success'] ?? false);
 
         if(!$pdfProcess){
             // Fallback to OCR service for scanned/image-based PDFs.
-            $ocrResponse = Http::connectTimeout(10)
-                ->timeout((int) config('services.ocr.timeout', 180))
-                ->attach(
-                    'file',
-                    file_get_contents($file->getRealPath()),
-                    $file->getClientOriginalName()
-                )
-                ->post(config('services.ocr.url', 'http://127.0.0.1:8000') . '/extract-text');
+            try {
+                $ocrUrl = rtrim(config('services.ocr.url', 'http://127.0.0.1:8000'), '/');
+                $ocrResponse = Http::connectTimeout(15)
+                    ->timeout((int) config('services.ocr.timeout', 180))
+                    ->attach(
+                        'file',
+                        file_get_contents($file->getRealPath()),
+                        $file->getClientOriginalName()
+                    )
+                    ->post($ocrUrl . '/extract-text');
 
-            if($ocrResponse->successful()){
-                $ocrText = trim((string) ($ocrResponse->json('text') ?? ''));
-                $pdfProcess = $ocrText !== '';
-            } else {
-                $ocrError = $ocrResponse->json('detail') ?? $ocrResponse->body();
+                if($ocrResponse->successful()){
+                    $ocrText = trim((string) ($ocrResponse->json('text') ?? ''));
+                    $pdfProcess = $ocrText !== '';
+                } else {
+                    $ocrError = $ocrResponse->json('detail') ?? $ocrResponse->body();
+                }
+            } catch (\Throwable $e) {
+                $ocrError = 'OCR service connection error: ' . $e->getMessage();
             }
         }
 
@@ -62,10 +74,12 @@ class UploadController extends Controller
             Storage::delete(ltrim($filePath, '/'));
         }
 
+        $extractedMessage = $scannedPdf['success'] ? $scannedPdf['message'] : $ocrText;
+
         return response()->json([
             'success' => $pdfProcess,
             'path' => $pdfProcess ? $storedFileName : null,
-            'message' => $scannedPdf['success'] ? $scannedPdf['message'] : $ocrText,
+            'message' => $extractedMessage,
             'pdf_process' => $pdfProcess,
             'ocr_text' => $ocrText
         ] + ($ocrError ? ['ocr_error' => $ocrError] : []), $pdfProcess ? 200 : 422);

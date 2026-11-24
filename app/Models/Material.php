@@ -26,8 +26,6 @@ class Material extends Model
                 $hash = $material->contentHash();
                 ExtractMaterialMetadata::dispatch($material->id, $hash)
                     ->onQueue('metadata')->afterCommit();
-                ChunkMaterial::dispatch($material->id, $hash)
-                    ->onQueue(config('vectorization.queue'))->afterCommit();
             }
         });
 

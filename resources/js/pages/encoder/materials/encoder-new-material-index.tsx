@@ -36,16 +36,38 @@ const EncoderNewMaterial = ({ auth, material, ckLicense }: Pageprops) => {
   // };
 
 
-  const submit = async (action:string) => {
-    const values = await form.validateFields();
+  const submit = async (action: string) => {
+    try {
+      const values = await form.validateFields();
+      setLoading(true);
+      if (material && material.id > 0) {
+        update(values, action, material.id);
+      } else {
+        store(values, action);
+      }
+    } catch {
+      setLoading(false);
+      const titleValue = form.getFieldValue('title');
+      if (!titleValue || typeof titleValue !== 'string' || !titleValue.trim()) {
+        setErrors((prev) => ({
+          ...prev,
+          title: ['Document Title is required.'],
+        }));
+        notification.error({
+          message: 'Title is Required',
+          description: 'Please enter a document title before saving.',
+          placement: 'topRight',
+        });
+        return;
+      }
 
-    setLoading(true)
-    if(material && material.id > 0) {
-      update(values, action, material.id);
-    }else{
-      store(values, action);
+      notification.error({
+        message: 'Validation Error',
+        description: 'Please check the required fields in the form.',
+        placement: 'topRight',
+      });
     }
-  }
+  };
 
   const store = (values: object, action:string) => {
     axios.post('/encoder/materials', {

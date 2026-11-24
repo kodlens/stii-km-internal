@@ -62,6 +62,7 @@ import {
 } from "ckeditor5";
 
 import "ckeditor5/ckeditor5.css";
+import { useEffect, useRef } from 'react';
 import { FormInstance } from 'antd';
 import { Material } from "@/types/material";
 
@@ -79,6 +80,17 @@ const Ckeditor = ({
   value?: string,
   onChange?: (value: string) => void
 }) => {
+  const editorRef = useRef<ClassicEditor | null>(null);
+
+  // Synchronize editor content when value updates externally (e.g. from PDF OCR extraction or form reset)
+  useEffect(() => {
+    if (editorRef.current && value !== undefined && value !== null) {
+      if (editorRef.current.getData() !== value) {
+        editorRef.current.setData(value);
+      }
+    }
+  }, [value]);
+
   return (
     <>
       <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-md px-3 py-2 mb-2">
@@ -91,6 +103,13 @@ const Ckeditor = ({
         <CKEditor
           data={value ?? material?.content ?? ''}
           editor={ClassicEditor}
+          onReady={(editor) => {
+            editorRef.current = editor as ClassicEditor;
+            const initial = value ?? material?.content ?? '';
+            if (initial && editor.getData() !== initial) {
+              editor.setData(initial);
+            }
+          }}
           onChange={(_, editor) => {
             const data = editor.getData();
             onChange?.(data);
