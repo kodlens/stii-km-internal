@@ -21,9 +21,8 @@ class ResultController extends Controller
         $search = trim($req->search ?? '');
         $perPage = $req->per_page ?? 10;
 
-        $query = Material::query()
-            ->with(['materialCategories.category'])
-            ->where('status', 'published');
+        $query = Material::published()
+            ->with(['materialCategories.category']);
 
         if ($search !== '') {
             $query

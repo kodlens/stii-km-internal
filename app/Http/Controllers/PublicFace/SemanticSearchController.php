@@ -24,6 +24,8 @@ class SemanticSearchController extends Controller
             $categoryCounts = DB::table('material_categories as mc')
                 ->join('materials as m', 'm.id', '=', 'mc.material_id')
                 ->where('m.is_publish', 1)
+                ->whereIn('m.status', ['publish', 'published'])
+                ->where('m.is_trash', 0)
                 ->select('mc.category_id', DB::raw('count(*) as aggregate'))
                 ->groupBy('mc.category_id')
                 ->pluck('aggregate', 'category_id');
@@ -40,15 +42,15 @@ class SemanticSearchController extends Controller
                 ->values()
                 ->all();
 
-            $totalAll = Material::where('is_publish', 1)->count();
+            $totalAll = Material::published()->count();
 
-            $query = Material::with([
-                'categories' => function ($q) {
-                    $q->where('active', true)
-                        ->select(['categories.id', 'category', 'slug', 'active']);
-                },
-            ])
-            ->where('is_publish', 1);
+            $query = Material::published()
+                ->with([
+                    'categories' => function ($q) {
+                        $q->where('active', true)
+                            ->select(['categories.id', 'category', 'slug', 'active']);
+                    },
+                ]);
 
             if ($selectedCategory !== '') {
                 $query->whereHas('categories', function ($q) use ($selectedCategory) {
@@ -162,8 +164,10 @@ class SemanticSearchController extends Controller
         $chunks = DB::table('material_chunks as mc')
             ->join('materials as m', 'm.id', '=', 'mc.material_id')
             ->whereIn('mc.qdrant_point_id', $pointIds)
-            // Only published materials are visible on the public search page.
+            // Only strictly published materials are visible on the public search page.
             ->where('m.is_publish', 1)
+            ->whereIn('m.status', ['publish', 'published'])
+            ->where('m.is_trash', 0)
             ->select([
                 'mc.qdrant_point_id',
                 'mc.material_id',
@@ -222,19 +226,19 @@ class SemanticSearchController extends Controller
             ->values();
 
         // Load each material with its active categories
-        $materials = Material::with([
-            'categories' => function ($query) {
-                $query->where('active', true)
-                    ->select([
-                        'categories.id',
-                        'category',
-                        'slug',
-                        'active',
-                    ]);
-            },
-        ])
+        $materials = Material::published()
+            ->with([
+                'categories' => function ($query) {
+                    $query->where('active', true)
+                        ->select([
+                            'categories.id',
+                            'category',
+                            'slug',
+                            'active',
+                        ]);
+                },
+            ])
             ->whereIn('id', $materialIds)
-            ->where('is_publish', 1)
             ->get()
             ->keyBy('id');
 

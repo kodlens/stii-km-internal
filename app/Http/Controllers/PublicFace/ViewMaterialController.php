@@ -22,7 +22,7 @@ class ViewMaterialController extends Controller
             ->first();
 
         abort_unless($material, 404);
-        abort_unless($material->is_publish == 1, 404);
+        abort_unless($material->is_publish == 1 && in_array($material->status, ['publish', 'published']) && !$material->is_trash, 404);
         abort_unless($material->uploaded_file, 404);
 
         $path = 'materials/docs/' . $filename;
@@ -34,9 +34,8 @@ class ViewMaterialController extends Controller
             ->filter()
             ->values();
 
-        $categoryMatches = Material::query()
+        $categoryMatches = Material::published()
             ->with(['materialCategories.category'])
-            ->where('is_publish', 1)
             ->whereNotNull('uploaded_file')
             ->whereKeyNot($material->id)
             ->when($categoryIds->isNotEmpty(), function ($query) use ($categoryIds) {
@@ -48,9 +47,8 @@ class ViewMaterialController extends Controller
             ->limit(10)
             ->get();
 
-        $fallbackMaterials = Material::query()
+        $fallbackMaterials = Material::published()
             ->with(['materialCategories.category'])
-            ->where('is_publish', 1)
             ->whereNotNull('uploaded_file')
             ->whereKeyNot($material->id)
             ->whereNotIn('id', $categoryMatches->pluck('id'))
@@ -85,6 +83,8 @@ class ViewMaterialController extends Controller
         $categoryCounts = DB::table('material_categories as mc')
             ->join('materials as m', 'm.id', '=', 'mc.material_id')
             ->where('m.is_publish', 1)
+            ->whereIn('m.status', ['publish', 'published'])
+            ->where('m.is_trash', 0)
             ->select('mc.category_id', DB::raw('count(*) as aggregate'))
             ->groupBy('mc.category_id')
             ->pluck('aggregate', 'category_id');
@@ -103,7 +103,7 @@ class ViewMaterialController extends Controller
             ->values()
             ->all();
 
-        $totalMaterials = Material::where('is_publish', 1)->count();
+        $totalMaterials = Material::published()->count();
 
         $materialCategorySlugs = $material->materialCategories
             ->pluck('category.slug')

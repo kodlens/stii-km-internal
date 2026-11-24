@@ -69,6 +69,13 @@ class Material extends Model
 
 
 
+    public function scopePublished($query)
+    {
+        return $query->where('is_publish', 1)
+            ->whereIn('status', ['publish', 'published'])
+            ->where('is_trash', 0);
+    }
+
     public function materialCategories(){
         return $this->hasMany(MaterialCategory::class);
     }

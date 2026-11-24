@@ -13,7 +13,7 @@ class MaterialDocumentController extends Controller
         $material = Material::where('uploaded_file', $filename)->first();
 
         abort_unless($material, 404);
-        abort_unless($material->is_publish == 1, 404);
+        abort_unless($material->is_publish == 1 && in_array($material->status, ['publish', 'published']) && !$material->is_trash, 404);
         abort_unless($material->uploaded_file, 404);
 
         //return $material;

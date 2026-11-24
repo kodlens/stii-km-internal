@@ -42,11 +42,13 @@ class RagContextRetriever
 
         $pointIds = collect($points)->pluck('id')->all();
 
-        // 3. Hydrate chunks with published material metadata from MySQL
+        // 3. Hydrate chunks with strictly published (non-draft, non-trash) material metadata from MySQL
         $chunks = DB::table('material_chunks as mc')
             ->join('materials as m', 'm.id', '=', 'mc.material_id')
             ->whereIn('mc.qdrant_point_id', $pointIds)
             ->where('m.is_publish', 1)
+            ->whereIn('m.status', ['publish', 'published'])
+            ->where('m.is_trash', 0)
             ->select([
                 'mc.qdrant_point_id',
                 'mc.material_id',
