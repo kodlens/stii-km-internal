@@ -2,7 +2,7 @@ import { ReactElement, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { App, Button, Form } from 'antd';
 import axios, { isAxiosError } from 'axios';
-import { ArrowLeft, CheckCircle2, RefreshCw, Sparkles } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, RefreshCw, Sparkles, Trash2 } from 'lucide-react';
 
 import AdminLayout from '@/layouts/admin-layout';
 import CreateEditMaterial from '@/components/create-edit-materials';
@@ -31,12 +31,73 @@ export default function AdminMaterialAddEdit({ auth, material, vectorStatus, ckL
 
   const [form] = Form.useForm();
   const [loading, setLoading] = useState<boolean>(false);
+  const [deleting, setDeleting] = useState<boolean>(false);
   const [errors, setErrors] = useState<Record<string, unknown[]>>({});
   const [liveVectorStatus, setLiveVectorStatus] = useState<VectorStatus | null | undefined>(vectorStatus);
   const [isVectorizing, setIsVectorizing] = useState<boolean>(false);
-  const { notification } = App.useApp();
+  const { notification, modal } = App.useApp();
 
   const isEditing = !!(material && material.id > 0);
+
+  const showDeleteConfirm = () => {
+    if (!material?.id) return;
+    modal.confirm({
+      title: `Delete Material #${material.id}?`,
+      icon: <Trash2 className="text-rose-500" size={22} />,
+      content: (
+        <div className="space-y-2 text-sm text-slate-600">
+          <p>
+            Are you sure you want to delete <strong className="text-slate-900">"{material.title}"</strong>?
+          </p>
+          <div className="rounded-lg bg-rose-50 p-2.5 text-xs text-rose-800 border border-rose-200">
+            <strong>Permanent Deletion:</strong> This will delete the material record, all its database chunks, and remove its vector embeddings from Qdrant.
+          </div>
+        </div>
+      ),
+      okText: 'Delete Material & Vectors',
+      okButtonProps: {
+        danger: true,
+        className: '!rounded-lg',
+      },
+      cancelText: 'Cancel',
+      cancelButtonProps: {
+        className: '!rounded-lg',
+      },
+      async onOk() {
+        await handleDelete();
+      },
+    });
+  };
+
+  const handleDelete = async () => {
+    if (!material?.id) return;
+    try {
+      setDeleting(true);
+      const res = await axios.delete(`/admin/materials/${material.id}`);
+      if (res.data?.success) {
+        notification.success({
+          message: 'Material & Vectors Deleted',
+          description: res.data.message || 'Material, database chunks, and Qdrant vectors successfully deleted.',
+          placement: 'topRight',
+        });
+        router.visit(route('admin.materials.index'));
+      } else {
+        notification.error({
+          message: 'Deletion Failed',
+          description: res.data?.message || 'Could not delete material.',
+          placement: 'topRight',
+        });
+      }
+    } catch (err: unknown) {
+      notification.error({
+        message: 'Delete Error',
+        description: isAxiosError(err) ? err.response?.data?.message || err.message : 'An unexpected error occurred.',
+        placement: 'topRight',
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const handleVectorizeNow = async () => {
     if (!material?.id) return;
@@ -233,6 +294,16 @@ export default function AdminMaterialAddEdit({ auth, material, vectorStatus, ckL
                   className="border-indigo-200 text-indigo-700 hover:!border-indigo-400 font-medium text-xs h-8"
                 >
                   Re-Sync AI
+                </Button>
+
+                <Button
+                  danger
+                  icon={<Trash2 size={13} />}
+                  loading={deleting}
+                  onClick={showDeleteConfirm}
+                  className="font-medium text-xs h-8 rounded-lg"
+                >
+                  Delete Material
                 </Button>
               </div>
             )}

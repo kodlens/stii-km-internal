@@ -303,91 +303,7 @@ export default function CreateEditMaterial({
         </div>
       </div>
 
-      {/* 2. Middle Section: PDF Document Reader & Text Extractor (Dedicated Card) */}
-      <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
-              <ScanLine size={20} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-slate-800">PDF Document Reader & Text Extractor</h3>
-                <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700">
-                  OCR & PDF Parser
-                </span>
-              </div>
-              <p className="text-xs text-slate-500">
-                Upload a PDF document to automatically read and extract its content directly into the editor below.
-              </p>
-            </div>
-          </div>
 
-          {ocrLoading && (
-            <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-3.5 py-2 text-xs font-semibold text-amber-800 ring-1 ring-amber-200 animate-pulse">
-              <Spin size="small" />
-              <span>Reading PDF content via OCR parser...</span>
-            </div>
-          )}
-        </div>
-
-        {/* Currently Loaded / Extracted Document Status */}
-        {(material?.uploaded_file || currentFileName) && (
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50/70 p-3.5">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
-                <FileCheck size={20} />
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="truncate text-xs font-bold text-emerald-950"
-                    title={(currentFileName || material?.original_filename || material?.uploaded_file) ?? undefined}
-                  >
-                    {currentFileName || material?.original_filename || material?.uploaded_file}
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                    <CheckCircle2 size={11} /> Content Loaded in Editor
-                  </span>
-                </div>
-                <span className="text-[11px] text-emerald-700">
-                  Document parsed. The extracted text is displayed in the editor below and ready for review, formatting, or publishing.
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <Form.Item
-          name="upload"
-          valuePropName="fileList"
-          getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
-          validateStatus={errors.upload ? 'error' : ''}
-          help={errors.upload ? (errors.upload[0] as string) : ''}
-          className="!mb-0"
-        >
-          <Dragger
-            {...uploadProps}
-            maxCount={1}
-            accept=".pdf,application/pdf"
-            className="!rounded-2xl !border-dashed !border-slate-300 !bg-slate-50/70 hover:!border-blue-500 hover:!bg-blue-50/40 transition-all p-4"
-          >
-            <div className="py-3 text-center">
-              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 shadow-xs">
-                <UploadCloud size={24} />
-              </div>
-              <p className="text-sm font-bold text-slate-800">
-                {material?.uploaded_file || currentFileName
-                  ? 'Click or drag a new PDF here to re-extract content'
-                  : 'Click or drop PDF document here to parse and extract text'}
-              </p>
-              <p className="mt-1 text-xs text-slate-500 max-w-lg mx-auto">
-                Supports digital PDFs and scanned image documents (OCR). Extracted text will automatically print into the Document Editor below. Max file size: 50MB.
-              </p>
-            </div>
-          </Dragger>
-        </Form.Item>
-      </div>
 
       {/* 3. Lower Section: 2-Column Responsive Workspace */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
@@ -428,8 +344,93 @@ export default function CreateEditMaterial({
           </div>
         </div>
 
-        {/* Right Column: AI Categories Classification */}
-        <div className="space-y-4 lg:col-span-4">
+        {/* Right Column: PDF Ingestion & AI Categories Sidebar (4 cols) */}
+        <div className="space-y-5 lg:col-span-4">
+          {/* Card 1: PDF Document Reader & Text Extractor */}
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
+            <div className="mb-3 flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+                  <ScanLine size={16} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">PDF Reader & OCR</h3>
+                    <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[9px] font-bold uppercase text-blue-700">
+                      Auto-Extract
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    Reads PDF and prints text into editor
+                  </p>
+                </div>
+              </div>
+
+              {ocrLoading && (
+                <div className="flex items-center gap-1.5 rounded-lg bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-800 ring-1 ring-amber-200 animate-pulse">
+                  <Spin size="small" />
+                  <span>Parsing...</span>
+                </div>
+              )}
+            </div>
+
+            {/* Currently Loaded / Extracted Document Status */}
+            {(material?.uploaded_file || currentFileName) && (
+              <div className="mb-3 flex items-center gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50/70 p-2.5">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+                  <FileCheck size={16} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <span
+                      className="truncate text-xs font-bold text-emerald-950"
+                      title={(currentFileName || material?.original_filename || material?.uploaded_file) ?? undefined}
+                    >
+                      {currentFileName || material?.original_filename || material?.uploaded_file}
+                    </span>
+                    <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold text-emerald-800 shrink-0">
+                      <CheckCircle2 size={10} /> Loaded
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-emerald-700 block truncate">
+                    Text extracted into editor
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <Form.Item
+              name="upload"
+              valuePropName="fileList"
+              getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+              validateStatus={errors.upload ? 'error' : ''}
+              help={errors.upload ? (errors.upload[0] as string) : ''}
+              className="!mb-0"
+            >
+              <Dragger
+                {...uploadProps}
+                maxCount={1}
+                accept=".pdf,application/pdf"
+                className="!rounded-xl !border-dashed !border-slate-300 !bg-slate-50/70 hover:!border-blue-500 hover:!bg-blue-50/40 transition-all p-3"
+              >
+                <div className="py-2 text-center">
+                  <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100 text-blue-600 shadow-xs">
+                    <UploadCloud size={18} />
+                  </div>
+                  <p className="text-xs font-bold text-slate-800">
+                    {material?.uploaded_file || currentFileName
+                      ? 'Drop a new PDF to replace'
+                      : 'Click or drop PDF here to extract text'}
+                  </p>
+                  <p className="mt-0.5 text-[10px] text-slate-400">
+                    Digital PDFs & OCR scanned files (up to 50MB)
+                  </p>
+                </div>
+              </Dragger>
+            </Form.Item>
+          </div>
+
+          {/* Card 2: AI Categories Classification */}
           <Form.Item name="categories" className="!mb-0">
             <AiClassifier id={material?.id ?? 0} form={form} errors={errors} />
           </Form.Item>
