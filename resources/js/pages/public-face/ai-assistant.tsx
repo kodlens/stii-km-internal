@@ -45,7 +45,7 @@ function renderFormattedContent(text: string) {
       return (
         <h4
           key={pIdx}
-          className="my-2.5 font-bold text-slate-900 text-sm"
+          className="my-2 font-medium text-slate-800 text-sm"
           dangerouslySetInnerHTML={{ __html: formatInline(heading) }}
         />
       );
@@ -56,7 +56,7 @@ function renderFormattedContent(text: string) {
       return (
         <h3
           key={pIdx}
-          className="my-3 font-bold text-slate-900 text-base"
+          className="my-2.5 font-medium text-slate-800 text-base"
           dangerouslySetInnerHTML={{ __html: formatInline(heading) }}
         />
       );
@@ -67,7 +67,7 @@ function renderFormattedContent(text: string) {
 
     if (isBulletList) {
       return (
-        <ul key={pIdx} className="my-2 list-disc space-y-1.5 pl-5 text-slate-900">
+        <ul key={pIdx} className="my-2 list-disc space-y-1.5 pl-5 text-slate-700 font-normal">
           {lines.map((line, lIdx) => {
             const cleanLine = line.trim().replace(/^[-*]\s+/, '');
             return (
@@ -81,7 +81,7 @@ function renderFormattedContent(text: string) {
     return (
       <p
         key={pIdx}
-        className="my-2 leading-relaxed text-slate-900 first:mt-0 last:mb-0"
+        className="my-2 leading-relaxed text-slate-700 font-normal first:mt-0 last:mb-0"
         dangerouslySetInnerHTML={{ __html: formatInline(paragraph) }}
       />
     );
@@ -89,8 +89,10 @@ function renderFormattedContent(text: string) {
 }
 
 function formatInline(text: string): string {
-  let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  formatted = formatted.replace(/(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+  // Strip bold markers so result is plain and not excessively bold
+  let formatted = text.replace(/\*\*(.*?)\*\*/g, '$1');
+  // Strip italic markers as well to keep clean plain result
+  formatted = formatted.replace(/(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)/g, '$1');
   formatted = formatted.replace(/\n/g, '<br />');
 
   return formatted;
@@ -323,7 +325,7 @@ export default function AiAssistant({ initialQuery = '' }: PageProps) {
                         </div>
                       </div>
 
-                      <div className="mt-2 text-sm leading-relaxed">
+                      <div className="mt-2 text-sm text-slate-700 font-normal leading-relaxed">
                         {isUser ? (
                           <p className="whitespace-pre-wrap">{msg.content}</p>
                         ) : (

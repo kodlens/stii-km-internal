@@ -21,7 +21,7 @@ function renderFormattedContent(text: string) {
       return (
         <h4
           key={pIdx}
-          className="my-1.5 font-bold text-slate-900 text-xs"
+          className="my-1.5 font-medium text-slate-800 text-xs"
           dangerouslySetInnerHTML={{ __html: formatInline(heading) }}
         />
       );
@@ -32,7 +32,7 @@ function renderFormattedContent(text: string) {
       return (
         <h3
           key={pIdx}
-          className="my-2 font-bold text-slate-900 text-sm"
+          className="my-2 font-medium text-slate-800 text-sm"
           dangerouslySetInnerHTML={{ __html: formatInline(heading) }}
         />
       );
@@ -45,7 +45,7 @@ function renderFormattedContent(text: string) {
 
     if (isBulletList) {
       return (
-        <ul key={pIdx} className="my-1.5 list-disc space-y-1 pl-4 text-slate-900">
+        <ul key={pIdx} className="my-1.5 list-disc space-y-1 pl-4 text-slate-700 font-normal">
           {lines.map((line, lIdx) => {
             const cleanLine = line.trim().replace(/^[-*]\s+/, '');
             return (
@@ -59,7 +59,7 @@ function renderFormattedContent(text: string) {
     return (
       <p
         key={pIdx}
-        className="my-1.5 leading-relaxed text-slate-900 first:mt-0 last:mb-0"
+        className="my-1.5 leading-relaxed text-slate-700 font-normal first:mt-0 last:mb-0"
         dangerouslySetInnerHTML={{ __html: formatInline(paragraph) }}
       />
     );
@@ -67,10 +67,10 @@ function renderFormattedContent(text: string) {
 }
 
 function formatInline(text: string): string {
-  // Bold **text**
-  let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  // Italic *text*
-  formatted = formatted.replace(/(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+  // Strip bold markers so result is plain and not excessively bold
+  let formatted = text.replace(/\*\*(.*?)\*\*/g, '$1');
+  // Strip italic markers as well to keep clean plain result
+  formatted = formatted.replace(/(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)/g, '$1');
   // Line breaks inside paragraph
   formatted = formatted.replace(/\n/g, '<br />');
 
@@ -94,7 +94,7 @@ export default function ChatMessageItem({ message }: Props) {
   return (
     <div className="flex flex-col items-start">
       <div className="max-w-[92%] rounded-2xl rounded-tl-none border border-slate-200/70 bg-white p-3.5 text-sm text-slate-800 shadow-sm">
-        <div className="text-slate-800 text-[13px]">{renderFormattedContent(message.content)}</div>
+        <div className="text-slate-700 font-normal text-[13px] leading-relaxed">{renderFormattedContent(message.content)}</div>
 
         {message.sources && message.sources.length > 0 && (
           <div className="mt-3 border-t border-slate-100 pt-2.5">
