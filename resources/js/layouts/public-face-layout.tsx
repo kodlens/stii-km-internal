@@ -1,6 +1,7 @@
 import { PropsWithChildren } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import { LogOut } from 'lucide-react';
+import ChatWidget from '@/components/chat/ChatWidget';
 
 export default function PublicFaceLayout( { children, title, wide = false } : PropsWithChildren<{ title: string; wide?: boolean }>) {
   const { post, processing } = useForm();
@@ -48,6 +49,8 @@ export default function PublicFaceLayout( { children, title, wide = false } : Pr
             </header>
 
             {children}
+
+            <ChatWidget />
 
             <footer className="flex flex-col items-center justify-between gap-3 border-t border-white/15 pt-5 text-xs text-sky-100/75 sm:flex-row">
               <p>Internal use only. Access and content are managed by authorized personnel.</p>

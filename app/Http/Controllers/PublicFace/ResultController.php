@@ -12,6 +12,7 @@ class ResultController extends Controller
     public function index(Request $request){
         return Inertia::render('public-face/result', [
             'search' => $request->query('search', ''),
+            'category' => $request->query('category', ''),
             'page' => (int) $request->query('page', 1),
         ]);
     }

@@ -77,8 +77,18 @@ export interface LaravelPagination<T> {
     total: number;
 }
 
+export interface SearchCategoryCount {
+    id: number | null;
+    category: string;
+    slug: string;
+    count: number;
+}
+
 export interface SemanticSearchResponse {
     search: string;
+    selected_category: string;
+    total_all: number;
+    categories: SearchCategoryCount[];
     results: LaravelPagination<SemanticSearchResult>;
 }
 

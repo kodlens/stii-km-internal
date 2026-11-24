@@ -6,13 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Material;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class ViewMaterialController extends Controller
 {
-    public function view($filename) {
+    public function view(Request $request, $filename) {
+
+        $search = trim($request->query('search', ''));
 
         $material = Material::with(['materialCategories.category'])
             ->where('uploaded_file', $filename)
@@ -58,7 +61,7 @@ class ViewMaterialController extends Controller
         $relatedMaterials = $categoryMatches
             ->merge($fallbackMaterials)
             ->take(10)
-            ->map(function ($relatedMaterial) {
+            ->map(function ($relatedMaterial) use ($search) {
                 return [
                     'id' => $relatedMaterial->id,
                     'title' => $relatedMaterial->title,
@@ -70,27 +73,43 @@ class ViewMaterialController extends Controller
                         ? Carbon::parse($relatedMaterial->publish_date)->format('F j, Y')
                         : null,
                     'view_url' => $relatedMaterial->uploaded_file
-                        ? route('user.materials.view', $relatedMaterial->uploaded_file)
+                        ? route('user.materials.view', array_filter([
+                            'filename' => $relatedMaterial->uploaded_file,
+                            'search' => $search ?: null,
+                        ]))
                         : null,
                 ];
             });
 
-        // How many published materials sit in each category of this material.
-        // The bar chart in the sidebar is drawn from these counts.
-        $categoryBreakdown = collect($categoryIds)
-            ->map(function ($categoryId) {
-                $category = Category::find($categoryId);
+        // Category breakdown for all active categories with counts
+        $categoryCounts = DB::table('material_categories as mc')
+            ->join('materials as m', 'm.id', '=', 'mc.material_id')
+            ->where('m.is_publish', 1)
+            ->select('mc.category_id', DB::raw('count(*) as aggregate'))
+            ->groupBy('mc.category_id')
+            ->pluck('aggregate', 'category_id');
 
+        $categories = Category::where('active', 1)
+            ->get()
+            ->map(function ($category) use ($categoryCounts) {
                 return [
-                    'category' => $category?->category ?? 'Uncategorized',
-                    'count' => Material::where('is_publish', 1)
-                        ->whereHas('materialCategories', function ($query) use ($categoryId) {
-                            $query->where('category_id', $categoryId);
-                        })
-                        ->count(),
+                    'id' => $category->id,
+                    'category' => $category->category,
+                    'slug' => $category->slug,
+                    'count' => (int) ($categoryCounts[$category->id] ?? 0),
                 ];
             })
-            ->values();
+            ->sortByDesc('count')
+            ->values()
+            ->all();
+
+        $totalMaterials = Material::where('is_publish', 1)->count();
+
+        $materialCategorySlugs = $material->materialCategories
+            ->pluck('category.slug')
+            ->filter()
+            ->values()
+            ->all();
 
         // Topics assigned to this material.
         $topics = DB::table('materials_topics as mt')
@@ -120,7 +139,10 @@ class ViewMaterialController extends Controller
                 'file_size' => Storage::disk('local')->size($path),
                 'updated_at' => $material->updated_at?->format('F j, Y'),
             ],
-            'categoryBreakdown' => $categoryBreakdown,
+            'search' => $search,
+            'categories' => $categories,
+            'totalMaterials' => $totalMaterials,
+            'materialCategorySlugs' => $materialCategorySlugs,
             'topics' => $topics,
             'relatedMaterials' => $relatedMaterials,
         ]);

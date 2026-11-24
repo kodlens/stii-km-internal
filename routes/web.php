@@ -25,6 +25,7 @@ Route::middleware(['auth'])->group(function () {
 
     //for semantic search
     Route::get('/semantic-search', [\App\Http\Controllers\PublicFace\SemanticSearchController::class, 'semanticSearch'])->name('user.sematic-search');
+    Route::post('/rag-chat', [\App\Http\Controllers\PublicFace\ChatAssistantController::class, 'chat'])->name('user.rag-chat');
 
     Route::get('/view-material/{filename}', [\App\Http\Controllers\PublicFace\ViewMaterialController::class, 'view'])->name('user.materials.view');
     Route::get('/materials/{filename}', [\App\Http\Controllers\PublicFace\MaterialDocumentController::class, 'show'])->name('user.materials.document');
