@@ -164,70 +164,70 @@ export default function AdminMaterialAddEdit({ auth, material, vectorStatus, ckL
       <Head title={isEditing ? `Edit Material #${material.id}` : 'New Material'} />
 
       <div className="mx-2 md:mx-auto max-w-6xl space-y-4">
-        {/* Navigation Breadcrumb & Header */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              icon={<ArrowLeft size={15} />}
-              onClick={() => router.visit(route('admin.materials.index'))}
-              className="text-slate-600 hover:text-slate-900 border-slate-300"
-            >
-              Back to Materials
-            </Button>
-            <div>
-              <h1 className="text-xl font-bold text-slate-900">
-                {isEditing ? `Edit Material #${material.id}` : 'Create New Material'}
-              </h1>
-              <p className="text-xs text-slate-500">
-                Author, classify, and publish KM materials for internal retrieval and STII-Agent AI grounding.
-              </p>
-            </div>
-          </div>
-
-          {/* AI Vector Status Badge & Quick Re-sync */}
-          {isEditing && liveVectorStatus && (
-            <div className="flex flex-wrap items-center gap-2">
-              {liveVectorStatus.qdrant_synced ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                  <CheckCircle2 size={13} className="text-emerald-600" />
-                  Qdrant Synced ({liveVectorStatus.chunks_count} chunks)
-                </span>
-              ) : liveVectorStatus.is_vectorized ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
-                  <Sparkles size={13} className="text-amber-600" />
-                  Pending Re-sync
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-                  Unindexed
-                </span>
-              )}
-
+        {/* Navigation & Status Header Card */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
               <Button
-                icon={<RefreshCw size={13} className={isVectorizing ? 'animate-spin text-indigo-600' : 'text-indigo-600'} />}
-                loading={isVectorizing}
-                onClick={handleVectorizeNow}
-                className="border-indigo-200 text-indigo-700 hover:!border-indigo-400 font-medium text-xs h-8"
+                icon={<ArrowLeft size={15} />}
+                onClick={() => router.visit(route('admin.materials.index'))}
+                className="border-slate-200 text-slate-600 hover:border-slate-400 hover:text-slate-900 font-medium h-9"
               >
-                Re-Sync AI
+                Back to Materials
               </Button>
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                  Knowledge Base Material
+                </div>
+                <h1 className="text-xl font-bold text-slate-900">
+                  {isEditing ? `Edit Material #${material.id}` : 'Create New Material'}
+                </h1>
+              </div>
             </div>
-          )}
+
+            {/* AI Vector Status Badge & Quick Re-sync */}
+            {isEditing && liveVectorStatus && (
+              <div className="flex flex-wrap items-center gap-2">
+                {liveVectorStatus.qdrant_synced ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                    <CheckCircle2 size={13} className="text-emerald-600" />
+                    Qdrant Synced ({liveVectorStatus.chunks_count} chunks)
+                  </span>
+                ) : liveVectorStatus.is_vectorized ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                    <Sparkles size={13} className="text-amber-600" />
+                    Pending Re-sync
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                    Unindexed
+                  </span>
+                )}
+
+                <Button
+                  icon={<RefreshCw size={13} className={isVectorizing ? 'animate-spin text-indigo-600' : 'text-indigo-600'} />}
+                  loading={isVectorizing}
+                  onClick={handleVectorizeNow}
+                  className="border-indigo-200 text-indigo-700 hover:!border-indigo-400 font-medium text-xs h-8"
+                >
+                  Re-Sync AI
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Main Card */}
-        <div className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/60 p-6">
-          <CreateEditMaterial
-            material={material as never}
-            ckLicense={ckLicense}
-            form={form}
-            role={role}
-            handleSubmit={(action) => submit(action)}
-            errors={errors}
-            setErrors={setErrors}
-            loading={loading}
-          />
-        </div>
+        {/* Create / Edit Form Area */}
+        <CreateEditMaterial
+          material={material as never}
+          ckLicense={ckLicense}
+          form={form}
+          role={role}
+          handleSubmit={(action) => submit(action)}
+          errors={errors}
+          setErrors={setErrors}
+          loading={loading}
+        />
       </div>
     </>
   );

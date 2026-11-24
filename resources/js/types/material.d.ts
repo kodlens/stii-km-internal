@@ -7,6 +7,8 @@ export type Material = {
   slug: string;
   content: string;
   content_text: string;
+  uploaded_file?: string | null;
+  original_filename?: string | null;
   status: string;
   submitted_at: Date;
   published_at: Date;

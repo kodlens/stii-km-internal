@@ -32,7 +32,7 @@ class MaterialController extends Controller
         $validated = $req->validate([
             'title' => ['required', 'string', 'max:255', 'unique:materials'],
             'content' => ['required', 'string'],
-            'publish_date' => ['required', 'date_format:Y-m-d'],
+            'publish_date' => ['nullable', 'date'],
             'categories.*' => ['nullable'],
             'submit_type' => ['required', 'in:save,draft,publish,submit'],
             'upload' => ['nullable', 'array'],
@@ -51,7 +51,9 @@ class MaterialController extends Controller
             $upload = $validated['upload'] ?? null;
             $submitType = $validated['submit_type'];
 
-            $publishDate = Carbon::parse($validated['publish_date'], 'Asia/Manila')->format('Y-m-d');
+            $publishDate = !empty($validated['publish_date'])
+                ? Carbon::parse($validated['publish_date'], 'Asia/Manila')->format('Y-m-d')
+                : null;
 
             $uploadedFile = data_get(
                 $validated,
@@ -179,7 +181,7 @@ class MaterialController extends Controller
             'title' => ['required', 'string', 'max:255', 'unique:materials,title,' . $id . ',id'],
             'content' => ['required', 'string'],
             'categories.*' => ['nullable'],
-            'publish_date' => ['required', 'date_format:Y-m-d'],
+            'publish_date' => ['nullable', 'date'],
             'submit_type' => ['required', 'in:save,draft,publish,submit'],
             'upload' => ['nullable', 'array'],
             'upload.*.name' => ['nullable', 'string'],
@@ -191,7 +193,9 @@ class MaterialController extends Controller
 
         DB::transaction(function () use ($validated, $user, $id) {
 
-            $publishDate = Carbon::parse($validated['publish_date'], 'Asia/Manila')->format('Y-m-d');
+            $publishDate = !empty($validated['publish_date'])
+                ? Carbon::parse($validated['publish_date'], 'Asia/Manila')->format('Y-m-d')
+                : null;
 
             $filter = new FilterDom();
             $contentText = $filter->htmlToPlainText($validated['content']);
