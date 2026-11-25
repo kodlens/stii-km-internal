@@ -23,8 +23,9 @@ class RagContextRetriever
     public function retrieveContext(string $query): array
     {
         $retrieveLimit = max(30, (int) config('rag.retrieve', 40));
-        $maxChunks = (int) config('rag.chunks', 6);
-        $minScore = (float) config('rag.min_score', 0.40);
+        $maxChunks = (int) config('rag.chunks', 4);
+        $minScore = (float) config('rag.min_score', 0.52);
+        $scoreDropoff = (float) config('rag.score_dropoff', 0.028);
         $maxChars = (int) config('rag.chunk_chars', 4000);
 
         // 1. Embed query
@@ -65,11 +66,25 @@ class RagContextRetriever
         $sourcesMap = [];
         $materialChunkCounts = [];
         $maxPerMaterial = (int) config('rag.max_chunks_per_material', 2);
+        $topScore = null;
 
         foreach ($points as $point) {
             $chunk = $chunks->get($point['id']);
             if (! $chunk) {
                 continue;
+            }
+
+            $score = isset($point['score']) && is_numeric($point['score']) ? (float) $point['score'] : null;
+
+            if ($score !== null) {
+                if ($topScore === null) {
+                    $topScore = $score;
+                }
+
+                // Dynamic drop-off: reject chunks whose similarity score falls too far below the top match
+                if ($scoreDropoff > 0 && ($topScore - $score) > $scoreDropoff) {
+                    continue;
+                }
             }
 
             // Cap the number of chunks taken from the same document to maintain diverse, high-signal context
@@ -93,7 +108,7 @@ class RagContextRetriever
                 'title' => $chunk->title,
                 'chunk_index' => $chunk->chunk_index,
                 'content' => $trimmedContent,
-                'score' => $point['score'] ?? null,
+                'score' => $score,
             ];
 
             if (! isset($sourcesMap[$chunk->material_id])) {
