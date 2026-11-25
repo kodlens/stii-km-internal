@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { App, Button, Empty, Grid, Input, Pagination, Spin, Table, Tooltip } from 'antd';
 import Column from 'antd/es/table/Column';
@@ -417,13 +417,12 @@ const AdminMaterialIndex = ({ title }: PageProps) => {
                   render={(title: string, row: MaterialProps) => (
                     <div className="flex min-w-0 flex-col gap-0.5 py-0.5">
                       <Tooltip title={title} placement="topLeft">
-                        <button
-                          type="button"
-                          onClick={() => router.visit(route('admin.materials.edit', row.id))}
+                        <Link
+                          href={route('admin.materials.edit', row.id)}
                           className="block w-full truncate text-left text-sm font-semibold text-slate-800 hover:text-blue-700 hover:underline"
                         >
                           {title || 'Untitled material'}
-                        </button>
+                        </Link>
                       </Tooltip>
                       <span className="text-xs text-slate-400">ID #{row.id}</span>
                     </div>
