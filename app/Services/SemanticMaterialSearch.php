@@ -125,6 +125,7 @@ class SemanticMaterialSearch
     private function resolve(string $query, array $options): array
     {
         $candidateLimit = max(50, min(2000, (int) config('vectorization.search_candidates', 500)));
+        //$candidateLimit = 700;
         $points = $this->qdrant->search(
             $this->embeddings->embedQuery($query),
             $candidateLimit,
