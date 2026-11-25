@@ -20,6 +20,8 @@ class ChatAssistantController extends Controller
 
     public function chat(Request $request)
     {
+
+
         $validated = $request->validate([
             'message' => ['required', 'string', 'max:1000'],
             'history' => ['nullable', 'array', 'max:20'],
@@ -29,6 +31,21 @@ class ChatAssistantController extends Controller
 
         $userMessage = trim($validated['message']);
         $history = $validated['history'] ?? [];
+
+        // $context = $this->retriever->retrieveContext($userMessage);
+
+        // $messages = $this->promptBuilder->buildMessages(
+        //     $userMessage,
+        //     $context['passages'],
+        //     $history
+        // );
+
+        // return response()->json([
+        //     'success' => true,
+        //     'messaage' => $messages,
+        //     'context' => $context,
+        //     'sources' => $context['sources'],
+        // ]);
 
         try {
             // 1. Retrieve relevant material passages and sources

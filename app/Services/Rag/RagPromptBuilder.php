@@ -16,7 +16,7 @@ class RagPromptBuilder
     {
         $systemInstructions = <<<EOT
 You are the official DOST-STII Internal Knowledge Management AI Assistant.
-Your task is to answer user questions accurately, professionally, and concisely using ONLY the provided Knowledge Base Passages.
+Your task is to answer user questions accurately, professionally, and concisely using ONLY the provided Knowledge Base Passages, but dont mention passage.
 
 Rules:
 1. Ground your answer strictly in the provided passages. Do not invent facts, policies, dates, or details.

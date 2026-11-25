@@ -24,10 +24,10 @@ type PageProps = {
 };
 
 const SUGGESTIONS = [
-  'What are the uniform guidelines here in STII?',
+  'What are the mission and vision of DOST-STII?',
   'What is the prescribed attire for Mondays and Fridays?',
   'What are the requirements for leave application?',
-  'Where can I find the standard operating procedures?',
+  'What are the core values of DOST-STII?',
 ];
 
 function renderFormattedContent(text: string) {

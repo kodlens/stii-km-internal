@@ -8,7 +8,7 @@ const SUGGESTIONS = [
   'What are the uniform guidelines here in STII?',
   'What are the prescribed attire for Mondays and Fridays?',
   'Where can I find the standard operating procedures?',
-  'What documents are required for attendance tracking?',
+  'What are the core values of DOST-STII?',
 ];
 
 export default function ChatQuickQuestions({ onSelect }: Props) {
