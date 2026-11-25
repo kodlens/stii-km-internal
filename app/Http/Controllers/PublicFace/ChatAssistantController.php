@@ -32,20 +32,65 @@ class ChatAssistantController extends Controller
         $userMessage = trim($validated['message']);
         $history = $validated['history'] ?? [];
 
-        // $context = $this->retriever->retrieveContext($userMessage);
+        // Check if client requested streaming (SSE)
+        $isStream = str_contains((string) $request->header('Accept'), 'text/event-stream') || $request->boolean('stream', false);
 
-        // $messages = $this->promptBuilder->buildMessages(
-        //     $userMessage,
-        //     $context['passages'],
-        //     $history
-        // );
+        if ($isStream) {
+            return response()->stream(function () use ($userMessage, $history) {
+                // Clean output buffers to ensure live streaming
+                while (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
 
-        // return response()->json([
-        //     'success' => true,
-        //     'messaage' => $messages,
-        //     'context' => $context,
-        //     'sources' => $context['sources'],
-        // ]);
+                $sendEvent = function (string $event, array $data) {
+                    echo "event: {$event}\n";
+                    echo 'data: ' . json_encode($data) . "\n\n";
+                    if (ob_get_level() > 0) {
+                        ob_flush();
+                    }
+                    flush();
+                };
+
+                try {
+                    // 1. Retrieve relevant material passages and sources
+                    $context = $this->retriever->retrieveContext($userMessage);
+
+                    // Send sources immediately so UI renders citation pills right away
+                    $sendEvent('sources', [
+                        'sources' => $context['sources'] ?? [],
+                    ]);
+
+                    // 2. Assemble grounded prompt with passages and conversational history
+                    $messages = $this->promptBuilder->buildMessages(
+                        $userMessage,
+                        $context['passages'],
+                        $history
+                    );
+
+                    // 3. Stream tokens from Ollama in real-time
+                    $this->generator->streamReply($messages, function (string $token) use ($sendEvent) {
+                        $sendEvent('token', ['token' => $token]);
+                    });
+
+                    // 4. Completed
+                    $sendEvent('done', ['done' => true]);
+                } catch (Throwable $e) {
+                    Log::error('RAG Streaming Chat Error', [
+                        'message' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                    ]);
+
+                    $sendEvent('error', [
+                        'message' => 'Sorry, I am having trouble connecting to the AI service right now. Please try again shortly.',
+                    ]);
+                }
+            }, 200, [
+                'Content-Type' => 'text/event-stream',
+                'Cache-Control' => 'no-cache, no-transform',
+                'Connection' => 'keep-alive',
+                'X-Accel-Buffering' => 'no',
+            ]);
+        }
 
         try {
             // 1. Retrieve relevant material passages and sources

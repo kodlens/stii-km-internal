@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
 import {
   MessageSquare,
   X,
@@ -9,7 +8,8 @@ import {
   LoaderCircle,
   AlertCircle,
 } from 'lucide-react';
-import { ChatMessage, ChatApiResponse } from '@/types/chat';
+import { ChatMessage } from '@/types/chat';
+import { streamChat } from '@/utils/streamChat';
 import ChatMessageItem from './ChatMessageItem';
 import ChatQuickQuestions from './ChatQuickQuestions';
 import ChatInput from './ChatInput';
@@ -47,8 +47,17 @@ export default function ChatWidget() {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
+    const botMsgId = `bot-${Date.now()}`;
+    const assistantMsg: ChatMessage = {
+      id: botMsgId,
+      role: 'assistant',
+      content: '',
+      sources: [],
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+
     const nextMessages = [...messages, userMsg];
-    setMessages(nextMessages);
+    setMessages([...nextMessages, assistantMsg]);
     setIsLoading(true);
     setErrorMessage(null);
 
@@ -58,34 +67,30 @@ export default function ChatWidget() {
       content: m.content,
     }));
 
-    try {
-      const response = await axios.post<ChatApiResponse>('/rag-chat', {
-        message: text,
-        history: historyPayload,
-      });
-
-      if (response.data?.success && response.data?.reply) {
-        const assistantMsg: ChatMessage = {
-          id: `bot-${Date.now()}`,
-          role: 'assistant',
-          content: response.data.reply,
-          sources: response.data.sources ?? [],
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        };
-
-        setMessages((prev) => [...prev, assistantMsg]);
-      } else {
-        setErrorMessage(response.data?.message || 'Unable to retrieve answer from AI service.');
-      }
-    } catch (err: unknown) {
-      let msg = 'Failed to connect to the AI assistant service. Please try again.';
-      if (axios.isAxiosError(err) && err.response?.data?.message) {
-        msg = err.response.data.message;
-      }
-      setErrorMessage(msg);
-    } finally {
-      setIsLoading(false);
-    }
+    await streamChat({
+      message: text,
+      history: historyPayload,
+      onSources: (sources) => {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === botMsgId ? { ...m, sources } : m))
+        );
+      },
+      onToken: (token) => {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === botMsgId ? { ...m, content: m.content + token } : m))
+        );
+      },
+      onDone: () => {
+        setIsLoading(false);
+      },
+      onError: (errMsg) => {
+        setErrorMessage(errMsg);
+        setIsLoading(false);
+        setMessages((prev) =>
+          prev.filter((m) => !(m.id === botMsgId && m.content === ''))
+        );
+      },
+    });
   };
 
   const handleResetChat = () => {
@@ -147,7 +152,7 @@ export default function ChatWidget() {
               <ChatMessageItem key={msg.id} message={msg} />
             ))}
 
-            {isLoading && (
+            {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
               <div className="flex items-center gap-2 rounded-xl border border-slate-200/60 bg-white px-3.5 py-2.5 text-xs text-slate-600 shadow-sm max-w-[80%]">
                 <LoaderCircle size={15} className="animate-spin text-[#0D4E86]" />
                 <span className="font-medium">Searching knowledge base & thinking...</span>

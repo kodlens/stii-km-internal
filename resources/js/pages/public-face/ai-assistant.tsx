@@ -1,5 +1,4 @@
 import { FormEvent, KeyboardEvent, ChangeEvent, useState, useRef, useEffect } from 'react';
-import axios from 'axios';
 import {
   Bot,
   Send,
@@ -17,7 +16,8 @@ import {
 } from 'lucide-react';
 
 import PublicFaceLayout from '@/layouts/public-face-layout';
-import { ChatMessage, ChatSource, ChatApiResponse } from '@/types/chat';
+import { ChatMessage, ChatSource } from '@/types/chat';
+import { streamChat } from '@/utils/streamChat';
 
 type PageProps = {
   initialQuery?: string;
@@ -128,8 +128,17 @@ export default function AiAssistant({ initialQuery = '' }: PageProps) {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
+    const botMsgId = `bot-${Date.now()}`;
+    const assistantMsg: ChatMessage = {
+      id: botMsgId,
+      role: 'assistant',
+      content: '',
+      sources: [],
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+
     const nextMessages = [...messages, userMsg];
-    setMessages(nextMessages);
+    setMessages([...nextMessages, assistantMsg]);
     setIsLoading(true);
     setErrorMessage(null);
 
@@ -138,36 +147,31 @@ export default function AiAssistant({ initialQuery = '' }: PageProps) {
       content: m.content,
     }));
 
-    try {
-      const response = await axios.post<ChatApiResponse>('/rag-chat', {
-        message: text,
-        history: historyPayload,
-      });
-
-      if (response.data?.success && response.data?.reply) {
-        const sources = response.data.sources ?? [];
-        const assistantMsg: ChatMessage = {
-          id: `bot-${Date.now()}`,
-          role: 'assistant',
-          content: response.data.reply,
-          sources,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        };
-
-        setMessages((prev) => [...prev, assistantMsg]);
+    await streamChat({
+      message: text,
+      history: historyPayload,
+      onSources: (sources) => {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === botMsgId ? { ...m, sources } : m))
+        );
         setActiveSources(sources);
-      } else {
-        setErrorMessage(response.data?.message || 'Unable to retrieve answer from AI service.');
-      }
-    } catch (err: unknown) {
-      let msg = 'Failed to connect to the AI assistant service. Please try again.';
-      if (axios.isAxiosError(err) && err.response?.data?.message) {
-        msg = err.response.data.message;
-      }
-      setErrorMessage(msg);
-    } finally {
-      setIsLoading(false);
-    }
+      },
+      onToken: (token) => {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === botMsgId ? { ...m, content: m.content + token } : m))
+        );
+      },
+      onDone: () => {
+        setIsLoading(false);
+      },
+      onError: (errMsg) => {
+        setErrorMessage(errMsg);
+        setIsLoading(false);
+        setMessages((prev) =>
+          prev.filter((m) => !(m.id === botMsgId && m.content === ''))
+        );
+      },
+    });
   };
 
   // If page was loaded with an initial question (?q=...), trigger it automatically
@@ -328,6 +332,15 @@ export default function AiAssistant({ initialQuery = '' }: PageProps) {
                       <div className={`mt-2 text-sm font-normal leading-relaxed ${isUser ? 'text-white' : 'text-slate-700'}`}>
                         {isUser ? (
                           <p className="whitespace-pre-wrap text-white">{msg.content}</p>
+                        ) : msg.content === '' ? (
+                          <div className="flex items-center gap-2 py-1 text-slate-400">
+                            <span className="font-medium text-slate-500 text-xs">Searching documents & typing</span>
+                            <span className="inline-flex gap-1">
+                              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.3s]"></span>
+                              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.15s]"></span>
+                              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400"></span>
+                            </span>
+                          </div>
                         ) : (
                           renderFormattedContent(msg.content)
                         )}
@@ -361,7 +374,7 @@ export default function AiAssistant({ initialQuery = '' }: PageProps) {
                 );
               })}
 
-              {isLoading && (
+              {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
                 <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3.5 text-xs text-slate-600 shadow-sm max-w-md">
                   <LoaderCircle size={18} className="animate-spin text-[#0D4E86]" />
                   <div>

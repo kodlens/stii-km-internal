@@ -94,7 +94,18 @@ export default function ChatMessageItem({ message }: Props) {
   return (
     <div className="flex flex-col items-start">
       <div className="max-w-[92%] rounded-2xl rounded-tl-none border border-slate-200/70 bg-white p-3.5 text-sm text-slate-800 shadow-sm">
-        <div className="text-slate-700 font-normal text-[13px] leading-relaxed">{renderFormattedContent(message.content)}</div>
+        {message.content === '' ? (
+          <div className="flex items-center gap-2 py-1 text-slate-400 text-xs">
+            <span className="font-medium text-slate-500">Searching documents & typing</span>
+            <span className="inline-flex gap-1">
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.3s]"></span>
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.15s]"></span>
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400"></span>
+            </span>
+          </div>
+        ) : (
+          <div className="text-slate-700 font-normal text-[13px] leading-relaxed">{renderFormattedContent(message.content)}</div>
+        )}
 
         {message.sources && message.sources.length > 0 && (
           <div className="mt-3 border-t border-slate-100 pt-2.5">
